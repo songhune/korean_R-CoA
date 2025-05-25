@@ -1,0 +1,7 @@
+# requirements.txt
+numpy
+pandas
+requests
+flask
+openpyxl
+korean_lunar_calendar
