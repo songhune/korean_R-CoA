@@ -31,7 +31,7 @@ The EDA focuses on:
 1. Clone the repository.
 2. Install dependencies listed in `requirements.txt`.
 3. Explore the EDA notebooks for insights and visualizations.
-
+4. Dependencies: some of the packages requires extra commands, such as "mecab" (visit https://konlpy.org/en/v0.4.2/), also, installing mecab reqires some tricks.
 ## References
 
 - [National Institute of Korean History](http://www.history.go.kr/)
