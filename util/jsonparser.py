@@ -25,10 +25,30 @@ class KwasiLLMConverter:
         
     def load_data(self, gwashi_path: str, munjib_path: str, sigwon_path: str):
         """CSV 파일들을 로드"""
-        self.gwashi_df = pd.read_csv(gwashi_path, encoding='cp949')
-        self.munjib_df = pd.read_csv(munjib_path, encoding='utf-8')
-        self.sigwon_df = pd.read_csv(sigwon_path, encoding='utf-8')
-        print(f"로드 완료: gwashi({len(self.gwashi_df)}), munjib({len(self.munjib_df)}), sigwon({len(self.sigwon_df)})")
+        try:
+            self.gwashi_df = pd.read_csv(gwashi_path, encoding='cp949')
+            print(f"gwashi.csv 로드 완료: {len(self.gwashi_df)}행")
+        except Exception as e:
+            print(f"❌ gwashi.csv 로드 실패: {e}")
+            self.gwashi_df = pd.DataFrame()
+        
+        try:
+            self.munjib_df = pd.read_csv(munjib_path, encoding='utf-8')
+            print(f"munjib.csv 로드 완료: {len(self.munjib_df)}행")
+        except Exception as e:
+            print(f"❌ munjib.csv 로드 실패: {e}")
+            self.munjib_df = pd.DataFrame()
+        
+        try:
+            self.sigwon_df = pd.read_csv(sigwon_path, encoding='utf-8')
+            print(f"sigwon.csv 로드 완료: {len(self.sigwon_df)}행")
+        except Exception as e:
+            print(f"❌ sigwon.csv 로드 실패: {e}")
+            self.sigwon_df = pd.DataFrame()
+        
+        total_loaded = len(self.gwashi_df) + len(self.munjib_df) + len(self.sigwon_df)
+        if total_loaded == 0:
+            raise ValueError("모든 파일 로드에 실패했습니다.")
     
     def clean_text(self, text: str) -> str:
         """텍스트 정제"""
@@ -131,15 +151,21 @@ class KwasiLLMConverter:
         if pd.isna(target_year) or not candidate_year:
             return False
         
-        target = int(target_year)
+        try:
+            target = int(target_year)
+        except (ValueError, TypeError):
+            return False
         
         # 문자열에서 4자리 연도 추출
         year_pattern = r'\b(\d{4})\b'
         matches = re.findall(year_pattern, str(candidate_year))
         
         for match in matches:
-            if abs(int(match) - target) <= 1:  # ±1년 허용
-                return True
+            try:
+                if abs(int(match) - target) <= 1:  # ±1년 허용
+                    return True
+            except ValueError:
+                continue
         return False
     
     def generate_task_specific_json(self, records: List[ExamRecord]) -> Dict:
@@ -250,10 +276,14 @@ class KwasiLLMConverter:
                 print(f"   {task}: {len(data)}개")
         
         # 4. JSON 파일 저장
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(llm_dataset, f, ensure_ascii=False, indent=2)
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(llm_dataset, f, ensure_ascii=False, indent=2)
+            print(f"✅ 변환 완료: {output_path}")
+        except Exception as e:
+            print(f"❌ JSON 저장 실패: {e}")
+            raise
         
-        print(f"✅ 변환 완료: {output_path}")
         return llm_dataset
 
 if __name__ == "__main__":
