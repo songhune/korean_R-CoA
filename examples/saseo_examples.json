@@ -1,0 +1,142 @@
+{
+  "dataset_info": {
+    "title": "사서(四書) CC-KR-EN 예시 데이터셋",
+    "description": "논어, 맹자 등 사서의 고전한문-한국어-영어 삼중 예시",
+    "source": "saseo_qwen3_chat.jsonl 기반 추출",
+    "total_examples": 10
+  },
+  "examples": [
+    {
+      "id": "mencius_01",
+      "source": "맹자(孟子)",
+      "classical_chinese": "任人有問屋廬子曰：\"禮與食孰重？\"曰：\"禮重。\"",
+      "korean": "임(任)나라 사람이 옥려자(屋廬子)에게 물었다. \"예(禮)와 밥[음식]은 어느 것이 더 중(重)한가?\" 옥려자(屋廬子)가 대답하였다. \"예(禮)가 중(重)하다.\"",
+      "english": "A person from the state of Ren asked Wulüzi: \"Which is more important, ritual propriety or food?\" He replied: \"Ritual propriety is more important.\"",
+      "commentary": "임(任)은 나라 이름이다. 옥려자(屋廬子)는 이름이 연(連)이니, 맹자(孟子)의 제자(弟子)이다.",
+      "key_concepts": ["예(禮)", "식(食)", "경중(輕重)", "도덕적 우선순위"],
+      "difficulty": "easy",
+      "category": "ethics"
+    },
+    {
+      "id": "mencius_02", 
+      "source": "맹자(孟子)",
+      "classical_chinese": "色與禮孰重？",
+      "korean": "색(色)과 예(禮)는 어느 것이 더 중(重)한가?",
+      "english": "Which is more important, sexual desire or ritual propriety?",
+      "commentary": "임(任)나라 사람이 다시 물은 것이다.",
+      "key_concepts": ["색(色)", "예(禮)", "욕망과 도덕"],
+      "difficulty": "easy",
+      "category": "ethics"
+    },
+    {
+      "id": "mencius_03",
+      "source": "맹자(孟子)", 
+      "classical_chinese": "以禮食，則飢而死；不以禮食，則得食，必以禮乎？",
+      "korean": "예(禮)대로 먹으면 굶어 죽고, 예(禮)대로 먹지 않으면 밥을 얻을 수 있더라도 반드시 예(禮)대로 해야 하는가?",
+      "english": "If one eats according to ritual propriety, one will starve to death; if one does not eat according to ritual propriety, one can obtain food. Must one still follow ritual propriety?",
+      "commentary": "예의와 생존의 딜레마를 제기하는 질문",
+      "key_concepts": ["예(禮)", "생존", "도덕적 딜레마"],
+      "difficulty": "medium",
+      "category": "ethics"
+    },
+    {
+      "id": "mencius_04",
+      "source": "맹자(孟子)",
+      "classical_chinese": "屋廬子不能對，明日之鄒以告孟子。",
+      "korean": "옥려자(屋廬子)가 대답하지 못하고는 다음날 추(鄒)나라에 가서 맹자(孟子)께 아뢰었다.",
+      "english": "Wulüzi could not answer, so the next day he went to Zou and told Mencius about it.",
+      "commentary": "제자가 스승에게 도움을 구하는 장면",
+      "key_concepts": ["師弟관계", "학문적 토론"],
+      "difficulty": "easy",
+      "category": "narrative"
+    },
+    {
+      "id": "mencius_05",
+      "source": "맹자(孟子)",
+      "classical_chinese": "不揣其本而齊其末，方寸之木可使高於岑樓。",
+      "korean": "그 근본을 헤아리지 않고 그 끝만을 가지런히 한다면, 한 치 되는 나무를 잠루(岑樓)보다 높게 할 수 있다.",
+      "english": "If one does not measure the foundation but only levels the top, a piece of wood one inch square can be made higher than a tall tower.",
+      "commentary": "본(本)은 아래를 이르고, 말(末)은 위를 이른다. 방촌(方寸)의 나무는 지극히 낮으니, 식색(食色)을 비유한 것이고, 잠루(岑樓)는 예(禮)를 비유한 것이다.",
+      "key_concepts": ["본말(本末)", "기준점", "상대성"],
+      "difficulty": "hard",
+      "category": "philosophy"
+    },
+    {
+      "id": "mencius_06",
+      "source": "맹자(孟子)",
+      "classical_chinese": "金重於羽者，豈謂一鉤金與一輿羽之謂哉？",
+      "korean": "쇠가 깃털보다 무겁다는 것은 어찌 한 갈고리의 쇠와 한 수레의 깃털을 말함이겠는가.",
+      "english": "When we say metal is heavier than feathers, how could we mean comparing one metal hook with a whole cartload of feathers?",
+      "commentary": "구(鉤)는 띠의 갈고리이다. 양의 차이에 따른 비교의 부당함을 지적하는 비유",
+      "key_concepts": ["비교의 공정성", "양적 차이", "논리적 오류"],
+      "difficulty": "medium", 
+      "category": "logic"
+    },
+    {
+      "id": "mencius_07",
+      "source": "맹자(孟子)",
+      "classical_chinese": "曹交問曰：\"人皆可以爲堯舜，有諸？\"",
+      "korean": "조교(曹交)가 물었다. \"사람은 다 요순(堯舜)이 될 수 있다 하니, 그러한 것이 있습니까?\"",
+      "english": "Cao Jiao asked: \"Is it true that all people can become like Yao and Shun?\"",
+      "commentary": "조교(曹交)는 조(曹)나라 군주의 아우이다. 인간의 도덕적 잠재력에 대한 질문",
+      "key_concepts": ["인성론", "요순(堯舜)", "성인됨의 가능성"],
+      "difficulty": "medium",
+      "category": "human_nature"
+    },
+    {
+      "id": "mencius_08",
+      "source": "맹자(孟子)",
+      "classical_chinese": "交聞文王十尺，湯九尺，今交九尺四寸以長，食粟而已，如何則可？",
+      "korean": "제[교(交)]가 들으니, 문왕(文王)은 신장이 10척이요, 탕임금은 9척이라 하는데 지금 저는 9척 4촌이 되지만, 곡식만 먹을 뿐이니, 어찌하면 좋습니까?",
+      "english": "I have heard that King Wen was ten feet tall, and King Tang was nine feet tall. Now I am nine feet four inches tall, but I only eat grain. What should I do?",
+      "commentary": "곡식을 먹을 뿐이라는 것은 다른 재능이 없음을 말한 것이다. 신체적 조건과 도덕적 성취의 관계에 대한 질문",
+      "key_concepts": ["신체조건", "도덕적 성취", "선천적 vs 후천적"],
+      "difficulty": "easy",
+      "category": "self_cultivation"
+    },
+    {
+      "id": "mencius_09",
+      "source": "맹자(孟子)",
+      "classical_chinese": "奚有於是？亦爲之而已矣。",
+      "korean": "어찌 이에 상관이 있겠는가. 또한 그것을 할뿐이다.",
+      "english": "What does that matter? Just do it.",
+      "commentary": "외적 조건보다 실천의 의지가 중요함을 강조",
+      "key_concepts": ["실천", "의지", "조건론 극복"],
+      "difficulty": "easy",
+      "category": "self_cultivation"
+    },
+    {
+      "id": "mencius_10",
+      "source": "맹자(孟子)",
+      "classical_chinese": "堯舜之道，孝弟而已矣。",
+      "korean": "요순(堯舜)의 도(道)는 효제(孝弟)일 뿐이다.",
+      "english": "The Way of Yao and Shun is nothing but filial piety and fraternal respect.",
+      "commentary": "성인의 도가 일상적 덕목에서 출발함을 설명",
+      "key_concepts": ["효제(孝弟)", "성인의 도", "일상적 실천"],
+      "difficulty": "medium",
+      "category": "virtue_ethics"
+    }
+  ],
+  "analysis": {
+    "difficulty_distribution": {
+      "easy": 5,
+      "medium": 4, 
+      "hard": 1
+    },
+    "category_distribution": {
+      "ethics": 3,
+      "self_cultivation": 3,
+      "philosophy": 1,
+      "logic": 1,
+      "narrative": 1,
+      "human_nature": 1,
+      "virtue_ethics": 1
+    },
+    "linguistic_features": {
+      "average_cc_length": 25,
+      "average_kr_length": 65,
+      "average_en_length": 55,
+      "common_patterns": ["曰", "問", "而", "之", "其", "於"]
+    }
+  }
+}

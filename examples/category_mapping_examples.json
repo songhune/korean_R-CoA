@@ -1,0 +1,237 @@
+{
+  "dataset_info": {
+    "title": "과거시험 Category Mapping 예시",
+    "description": "gwashi.csv의 contents와 category 간 매핑 관계 분석 예시",
+    "source": "gwashi.csv 데이터 기반",
+    "mapping_types": ["correct_mapping", "incorrect_mapping", "ambiguous_mapping"]
+  },
+  "correct_mapping_examples": [
+    {
+      "id": "correct_001",
+      "category": "시(詩)",
+      "contents": "春風吹綠草，細雨潤花紅。明月照山川，清流響谷中。",
+      "korean_translation": "봄바람이 푸른 풀을 흔들고, 가는 비가 붉은 꽃을 적신다. 밝은 달이 산천을 비추고, 맑은 물소리가 골짜기에 울린다.",
+      "explanation": "운율과 대구법을 사용한 전형적인 한시 형태로 category와 정확히 일치",
+      "mapping_confidence": "high",
+      "literary_features": ["운율", "대구법", "자연 묘사", "4구 구성"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "correct_002", 
+      "category": "부(賦)",
+      "contents": "夫山之高兮，可以觀天；水之深兮，可以藏龍。是故君子登高而望遠，臨深而思危。",
+      "korean_translation": "무릇 산이 높음은 하늘을 볼 수 있고, 물이 깊음은 용을 숨길 수 있다. 그러므로 군자는 높은 곳에 올라 멀리 바라보고, 깊은 곳에 임하여 위험을 생각한다.",
+      "explanation": "사물을 묘사하고 교훈을 이끌어내는 부(賦)의 전형적 구조",
+      "mapping_confidence": "high",
+      "literary_features": ["대상 묘사", "의미 확장", "교훈 도출", "산문적 성격"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "correct_003",
+      "category": "론(論)",
+      "contents": "或問：學者當先讀經乎，抑先讀史乎？余以為經史並進，相須而成。蓋經以明道，史以鑒事。",
+      "korean_translation": "어떤 이가 물었다: 학자는 먼저 경서를 읽어야 하는가, 아니면 먼저 역사서를 읽어야 하는가? 나는 경서와 역사서를 함께 읽어 서로 도우며 완성해야 한다고 본다. 대개 경서는 도를 밝히고, 역사서는 일을 거울삼기 때문이다.",
+      "explanation": "질문 제기, 논점 제시, 근거 설명의 논설문 구조가 명확함",
+      "mapping_confidence": "high",
+      "literary_features": ["문답법", "논리적 구성", "근거 제시", "결론 도출"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "correct_004",
+      "category": "서(序)",
+      "contents": "余友某甲，少而好學，長而力行。今將赴京師，求余序其文集。",
+      "korean_translation": "내 친구 아무개는 어려서 학문을 좋아하고, 자라서는 힘써 실행했다. 이제 서울로 가려 하면서 나에게 그의 문집에 서문을 써달라고 한다.",
+      "explanation": "인물 소개와 저술 배경을 설명하는 서문의 전형적 형태",
+      "mapping_confidence": "high", 
+      "literary_features": ["인물 소개", "배경 설명", "저술 동기", "추천 성격"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "correct_005",
+      "category": "기(記)",
+      "contents": "康熙三十年春，余遊於某山。山有古寺，寺有老僧。僧年八十餘，善談禪理。",
+      "korean_translation": "강희 30년 봄, 나는 어떤 산에 놀러갔다. 산에는 오래된 절이 있고, 절에는 늙은 승려가 있었다. 승려는 나이가 80여 세로 선리를 잘 이야기했다.",
+      "explanation": "시간, 장소, 인물을 차례로 소개하는 기행문의 전형적 구조",
+      "mapping_confidence": "high",
+      "literary_features": ["시공간 설정", "인물 묘사", "체험 기록", "서사적 구성"],
+      "difficulty": "easy"
+    }
+  ],
+  "incorrect_mapping_examples": [
+    {
+      "id": "incorrect_001",
+      "category": "시(詩)",
+      "contents": "論語有云：學而時習之，不亦說乎？有朋自遠方來，不亦樂乎？此聖人之教也。",
+      "korean_translation": "논어에 이르기를: 배우고 때때로 익히면 기쁘지 아니한가? 벗이 먼 곳에서 찾아오니 즐겁지 아니한가? 이것이 성인의 가르침이다.",
+      "explanation": "논어를 인용한 논설문으로 시의 형태나 운율이 없음. '론(論)' 카테고리가 적절함",
+      "correct_category": "론(論)",
+      "mapping_confidence": "incorrect",
+      "error_type": "content_structure_mismatch",
+      "literary_features": ["인용문", "논리적 설명", "산문체", "교훈적 성격"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "incorrect_002",
+      "category": "부(賦)",
+      "contents": "昔者孔子周遊列國，欲行其道而不得志。然其學問日深，弟子益眾。",
+      "korean_translation": "옛날 공자가 여러 나라를 주유하며 자신의 도를 행하고자 했으나 뜻을 이루지 못했다. 그러나 그의 학문은 날로 깊어지고 제자들은 더욱 많아졌다.",
+      "explanation": "역사적 사실을 서술한 기록문으로 부(賦)의 묘사적 특징이 없음. '기(記)' 카테고리가 적절함",
+      "correct_category": "기(記)",
+      "mapping_confidence": "incorrect",
+      "error_type": "genre_confusion",
+      "literary_features": ["역사 서술", "인물 행적", "시간 순서", "사실 기록"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "incorrect_003", 
+      "category": "서(序)",
+      "contents": "春日遲遲，楊柳依依。鳥語花香，風景如畫。此時出遊，心曠神怡。",
+      "korean_translation": "봄날이 더디고, 버들이 늘어져 있다. 새소리와 꽃향기가 있고, 풍경이 그림 같다. 이때 나들이하니 마음이 시원하고 정신이 상쾌하다.",
+      "explanation": "자연을 묘사한 시적 표현으로 서문의 성격이 없음. '시(詩)' 카테고리가 적절함",
+      "correct_category": "시(詩)",
+      "mapping_confidence": "incorrect",
+      "error_type": "function_mismatch",
+      "literary_features": ["자연 묘사", "감정 표현", "운율감", "서정적 어조"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "incorrect_004",
+      "category": "론(論)",
+      "contents": "東風解凍，蟄蟲始振。漁人得魚而喜，農夫見苗而悅。",
+      "korean_translation": "동풍이 얼음을 녹이고, 겨울잠 자던 벌레가 움직이기 시작한다. 어부는 고기를 얻어 기뻐하고, 농부는 새싹을 보며 기뻐한다.",
+      "explanation": "계절 변화를 묘사한 시적 표현으로 논리적 논증이 없음. '시(詩)' 또는 '부(賦)' 카테고리가 적절함",
+      "correct_category": "시(詩)",
+      "mapping_confidence": "incorrect",
+      "error_type": "logical_structure_absent",
+      "literary_features": ["계절 묘사", "대구법", "감각적 표현", "서정성"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "incorrect_005",
+      "category": "기(記)",
+      "contents": "問：何謂仁？答：愛人。問：何謂義？答：行正。問：何謂禮？答：敬人。",
+      "korean_translation": "묻기를: 인이란 무엇인가? 답하기를: 사람을 사랑하는 것이다. 묻기를: 의란 무엇인가? 답하기를: 올바른 일을 행하는 것이다. 묻기를: 예란 무엇인가? 답하기를: 사람을 공경하는 것이다.",
+      "explanation": "문답 형식의 교육적 내용으로 기행문이나 사건 기록이 아님. '론(論)' 카테고리가 적절함",
+      "correct_category": "론(論)",
+      "mapping_confidence": "incorrect", 
+      "error_type": "content_type_mismatch",
+      "literary_features": ["문답법", "개념 정의", "교육적 내용", "체계적 설명"],
+      "difficulty": "easy"
+    }
+  ],
+  "ambiguous_mapping_examples": [
+    {
+      "id": "ambiguous_001",
+      "category": "부(賦)",
+      "contents": "嗟乎！人生苦短，歲月如流。富貴如雲煙，功名似泡影。惟有德行，可以長存。",
+      "korean_translation": "아! 인생은 짧고, 세월은 물 흐르는 듯하다. 부귀는 구름연기 같고, 공명은 거품그림자 같다. 오직 덕행만이 오래 남을 수 있다.",
+      "explanation": "인생의 무상함을 묘사하고 교훈을 제시하는데, 부(賦)의 묘사적 특성과 론(論)의 논리적 특성이 혼재",
+      "possible_categories": ["부(賦)", "론(論)", "시(詩)"],
+      "mapping_confidence": "ambiguous",
+      "ambiguity_reason": "서정적 묘사와 철학적 논증이 결합된 형태",
+      "literary_features": ["감탄법", "비유법", "대조법", "교훈적 결론"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "ambiguous_002",
+      "category": "시(詩)",
+      "contents": "山高水長，古今一理。聖賢垂訓，後學當師。讀書明理，立身行道。",
+      "korean_translation": "산이 높고 물이 길듯, 고금의 이치는 하나다. 성현이 가르침을 남기니, 후학들이 마땅히 스승으로 삼아야 한다. 독서로 이치를 밝히고, 몸을 세워 도를 행해야 한다.",
+      "explanation": "시적 운율은 있지만 내용이 교훈적이어서 론(論)의 성격도 강함",
+      "possible_categories": ["시(詩)", "론(論)"],
+      "mapping_confidence": "ambiguous",
+      "ambiguity_reason": "시의 형식에 논설의 내용이 담긴 교훈시",
+      "literary_features": ["운율", "대구", "교훈적 내용", "논리적 구성"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "ambiguous_003",
+      "category": "기(記)",
+      "contents": "余於某日訪友，見其庭中有古梅一株。梅花雖謝，而枝幹蒼勁，猶有歲寒之操。",
+      "korean_translation": "나는 어느 날 친구를 찾아갔다가 그 뜰 가운데 오래된 매화나무 한 그루를 보았다. 매화는 비록 졌지만, 가지와 줄기가 창건하여 여전히 추위를 견디는 절개가 있었다.",
+      "explanation": "기행문의 형식이지만 매화를 통한 상징적 의미가 강하여 부(賦)의 성격도 있음",
+      "possible_categories": ["기(記)", "부(賦)"],
+      "mapping_confidence": "ambiguous",
+      "ambiguity_reason": "실제 체험과 상징적 묘사가 결합",
+      "literary_features": ["체험 기록", "상징법", "의인법", "철학적 함의"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "ambiguous_004",
+      "category": "론(論)",
+      "contents": "桃李滿天下，春風化雨功。師者如明燈，照亮學子心。",
+      "korean_translation": "도리가 천하에 가득하니, 봄바람과 비 같은 교화의 공이다. 스승은 밝은 등불 같아서, 학생의 마음을 비춘다.",
+      "explanation": "교육에 대한 논의이지만 시적 운율과 비유가 강하여 시(詩)의 성격도 있음",
+      "possible_categories": ["론(論)", "시(詩)"],
+      "mapping_confidence": "ambiguous",
+      "ambiguity_reason": "논리적 내용을 시적 형식으로 표현",
+      "literary_features": ["비유법", "운율", "교육론", "찬양조"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "ambiguous_005",
+      "category": "서(序)",
+      "contents": "友人某甲善詩，其詩清新淡雅，如春風拂面，似流水潺潺。今集其詩若干首，欲梓行之。",
+      "korean_translation": "친구 아무개는 시를 잘 짓는데, 그의 시는 청신담아하여 봄바람이 얼굴을 스치는 듯하고 유수가 졸졸 흐르는 것 같다. 이제 그의 시 몇 수를 모아 인쇄하고자 한다.",
+      "explanation": "서문의 기능이지만 시에 대한 품평이 부(賦)적 묘사 형태로 되어 있음",
+      "possible_categories": ["서(序)", "부(賦)", "론(論)"],
+      "mapping_confidence": "ambiguous",
+      "ambiguity_reason": "서문의 기능에 문학 비평과 묘사가 결합",
+      "literary_features": ["인물 소개", "작품 평가", "비유적 묘사", "출간 의도"],
+      "difficulty": "hard"
+    }
+  ],
+  "analysis": {
+    "correct_mapping_characteristics": [
+      "문체와 내용이 카테고리 정의와 정확히 일치",
+      "해당 문체의 전형적 구조와 기법 사용",
+      "카테고리별 고유 기능과 목적에 부합"
+    ],
+    "incorrect_mapping_causes": [
+      "content_structure_mismatch: 내용과 구조가 카테고리와 불일치",
+      "genre_confusion: 유사 장르 간 혼동",
+      "function_mismatch: 카테고리의 기능과 실제 기능이 다름",
+      "logical_structure_absent: 해당 카테고리에 필요한 논리적 구조 부재",
+      "content_type_mismatch: 내용 유형이 카테고리와 맞지 않음"
+    ],
+    "ambiguity_sources": [
+      "복합 장르적 특성 (여러 문체 요소 혼재)",
+      "형식과 내용의 불일치",
+      "전통적 경계가 모호한 작품",
+      "시대적/개인적 문체 변화"
+    ],
+    "difficulty_factors": [
+      "문체적 특징의 명확성",
+      "전형적 구조의 준수 정도", 
+      "복합적 성격의 유무",
+      "시대적/지역적 변이"
+    ]
+  },
+  "classification_guidelines": {
+    "시(詩)": {
+      "key_features": ["운율", "대구법", "간결성", "서정성"],
+      "structure": "정형적 운율과 글자 수 제한",
+      "content": "자연, 감정, 철학적 사색"
+    },
+    "부(賦)": {
+      "key_features": ["묘사적 표현", "대상 전개", "의미 확장"],
+      "structure": "대상 묘사 후 의미 부여",
+      "content": "자연물, 건축물, 인물 등의 묘사"
+    },
+    "론(論)": {
+      "key_features": ["논리적 구성", "근거 제시", "결론 도출"],
+      "structure": "문제 제기 → 논증 → 결론",
+      "content": "학문적, 철학적, 정치적 주제"
+    },
+    "서(序)": {
+      "key_features": ["배경 설명", "저술 의도", "추천 성격"],
+      "structure": "인물/저술 소개 → 배경 → 의의",
+      "content": "서적, 인물, 사건에 대한 소개"
+    },
+    "기(記)": {
+      "key_features": ["사실 기록", "체험 서술", "시공간 설정"],
+      "structure": "시간 순서나 공간 순서에 따른 서술",
+      "content": "여행, 사건, 인물에 대한 기록"
+    }
+  }
+}

@@ -1,0 +1,211 @@
+{
+  "dataset_info": {
+    "title": "고전 문헌 기반 NLI 예시 데이터셋",
+    "description": "사서와 과거시험 자료를 활용한 자연언어추론(NLI) 예시",
+    "labels": ["entailment", "contradiction", "neutral"],
+    "total_examples": 15,
+    "languages": ["Korean", "Classical Chinese", "English"]
+  },
+  "examples": [
+    {
+      "id": "nli_001",
+      "premise": "임나라 사람이 옥려자에게 물었다. 예와 밥은 어느 것이 더 중한가?",
+      "hypothesis": "옥려자는 예가 더 중요하다고 답했다.",
+      "label": "entailment",
+      "explanation": "전제에서 질문이 제기되고, 원문에서 실제로 그렇게 답했기 때문에 함의 관계가 성립한다.",
+      "source": "맹자",
+      "difficulty": "easy",
+      "category": "direct_inference"
+    },
+    {
+      "id": "nli_002", 
+      "premise": "예대로 먹으면 굶어 죽고, 예대로 먹지 않으면 밥을 얻을 수 있다.",
+      "hypothesis": "예를 지키는 것이 항상 실용적인 결과를 가져온다.",
+      "label": "contradiction",
+      "explanation": "전제에서는 예를 지키면 굶어 죽는다고 했으므로, 항상 실용적 결과를 가져온다는 가설과 모순된다.",
+      "source": "맹자",
+      "difficulty": "medium",
+      "category": "logical_negation"
+    },
+    {
+      "id": "nli_003",
+      "premise": "그 근본을 헤아리지 않고 그 끝만을 가지런히 한다면, 한 치 되는 나무를 잠루보다 높게 할 수 있다.",
+      "hypothesis": "비교할 때는 동일한 기준점을 사용해야 한다.",
+      "label": "entailment", 
+      "explanation": "비유를 통해 기준점의 중요성을 설명하므로, 동일 기준점 사용의 필요성이 함의된다.",
+      "source": "맹자",
+      "difficulty": "hard",
+      "category": "metaphorical_reasoning"
+    },
+    {
+      "id": "nli_004",
+      "premise": "쇠가 깃털보다 무겁다는 것은 한 갈고리의 쇠와 한 수레의 깃털을 비교하는 것이 아니다.",
+      "hypothesis": "양이 다르면 공정한 비교가 어렵다.",
+      "label": "entailment",
+      "explanation": "양적 차이가 있는 비교의 부당함을 지적하므로, 공정한 비교의 어려움이 함의된다.",
+      "source": "맹자", 
+      "difficulty": "medium",
+      "category": "analogical_reasoning"
+    },
+    {
+      "id": "nli_005",
+      "premise": "사람은 다 요순이 될 수 있다고 하니, 그러한 것이 있습니까?",
+      "hypothesis": "모든 사람이 성인이 될 가능성은 없다.",
+      "label": "contradiction",
+      "explanation": "전제에서는 모든 사람이 요순이 될 수 있는지 묻고 있는데, 가설에서는 그 가능성을 부정하므로 모순이다.",
+      "source": "맹자",
+      "difficulty": "medium", 
+      "category": "capability_assessment"
+    },
+    {
+      "id": "nli_006",
+      "premise": "문왕은 신장이 10척이요, 탕임금은 9척이라 하는데 지금 저는 9척 4촌이지만 곡식만 먹을 뿐이다.",
+      "hypothesis": "신체적 조건이 도덕적 성취와 관련이 있을 수 있다.",
+      "label": "neutral",
+      "explanation": "신장에 대한 언급이 있지만, 이것이 도덕적 성취와의 관련성을 직접적으로 함의하지는 않는다.",
+      "source": "맹자",
+      "difficulty": "medium",
+      "category": "implicit_assumption"
+    },
+    {
+      "id": "nli_007",
+      "premise": "요순의 도는 효제일 뿐이다.",
+      "hypothesis": "성인이 되는 길은 복잡하고 어렵다.",
+      "label": "contradiction", 
+      "explanation": "전제에서는 요순의 도가 효제(일상적 덕목)일 뿐이라 했으므로, 복잡하고 어렵다는 가설과 모순된다.",
+      "source": "맹자",
+      "difficulty": "easy",
+      "category": "simplicity_vs_complexity"
+    },
+    {
+      "id": "nli_008",
+      "premise": "과거시험에서 시를 짓는 문제가 출제되었다.",
+      "hypothesis": "조선시대에는 문학적 소양을 중시했다.",
+      "label": "entailment",
+      "explanation": "시 짓기가 시험 과목이라는 것은 그 시대가 문학적 소양을 중시했음을 의미한다.",
+      "source": "과거시험 기록",
+      "difficulty": "easy", 
+      "category": "historical_inference"
+    },
+    {
+      "id": "nli_009",
+      "premise": "과거시험에는 경서 해석, 시문 창작, 논설 등이 포함되었다.",
+      "hypothesis": "과거시험은 단순한 암기 시험이었다.",
+      "label": "contradiction",
+      "explanation": "창작과 논설이 포함되었다는 것은 단순한 암기가 아닌 종합적 사고력을 요구했음을 의미한다.",
+      "source": "과거시험 기록",
+      "difficulty": "medium",
+      "category": "educational_assessment"
+    },
+    {
+      "id": "nli_010",
+      "premise": "1795년 과거시험에서 한 응시자가 시를 지었다.",
+      "hypothesis": "18세기 말 조선의 교육 수준이 높았다.",
+      "label": "neutral",
+      "explanation": "개별 사례로는 전체 교육 수준을 판단하기 어렵다.",
+      "source": "과거시험 기록",
+      "difficulty": "medium",
+      "category": "generalization_limit"
+    },
+    {
+      "id": "nli_011",
+      "premise": "Classical Chinese: 禮與食孰重？",
+      "hypothesis": "Korean: 예의와 음식 중 어느 것이 더 중요한가?",
+      "label": "entailment",
+      "explanation": "고전한문과 한국어 번역이 일치하므로 함의 관계가 성립한다.",
+      "source": "맹자 번역",
+      "difficulty": "easy",
+      "category": "translation_equivalence"
+    },
+    {
+      "id": "nli_012",
+      "premise": "Classical Chinese: 人皆可以爲堯舜",
+      "hypothesis": "English: All people can become like Yao and Shun",
+      "label": "entailment",
+      "explanation": "고전한문과 영어 번역이 의미상 일치한다.",
+      "source": "맹자 번역",
+      "difficulty": "easy",
+      "category": "cross_lingual_entailment"
+    },
+    {
+      "id": "nli_013",
+      "premise": "조선시대 과거시험에서는 사서오경에 대한 이해를 중시했다.",
+      "hypothesis": "당시 교육과정에서 불교 경전이 핵심이었다.",
+      "label": "contradiction",
+      "explanation": "사서오경은 유교 경전이므로 불교 경전이 핵심이었다는 가설과 모순된다.",
+      "source": "교육사",
+      "difficulty": "easy",
+      "category": "religious_doctrine"
+    },
+    {
+      "id": "nli_014",
+      "premise": "맹자는 인간의 본성이 선하다고 보았다.",
+      "hypothesis": "모든 철학자들이 인간 본성에 대해 동일한 견해를 가졌다.",
+      "label": "neutral",
+      "explanation": "맹자의 개별 견해로는 모든 철학자의 견해를 알 수 없다.",
+      "source": "철학사",
+      "difficulty": "medium",
+      "category": "philosophical_generalization"
+    },
+    {
+      "id": "nli_015",
+      "premise": "고전한문: 不揣其本而齊其末, 한국어: 근본을 헤아리지 않고 끝만 맞춘다",
+      "hypothesis": "번역에서 핵심 의미가 보존되었다.",
+      "label": "entailment",
+      "explanation": "원문의 '본말' 개념이 번역에서 '근본과 끝'으로 적절히 전달되었다.",
+      "source": "번역학",
+      "difficulty": "medium", 
+      "category": "translation_quality"
+    }
+  ],
+  "statistics": {
+    "label_distribution": {
+      "entailment": 7,
+      "contradiction": 5,
+      "neutral": 3
+    },
+    "difficulty_distribution": {
+      "easy": 6,
+      "medium": 8,
+      "hard": 1
+    },
+    "category_distribution": {
+      "direct_inference": 1,
+      "logical_negation": 1,
+      "metaphorical_reasoning": 1,
+      "analogical_reasoning": 1,
+      "capability_assessment": 1,
+      "implicit_assumption": 1,
+      "simplicity_vs_complexity": 1,
+      "historical_inference": 1,
+      "educational_assessment": 1,
+      "generalization_limit": 1,
+      "translation_equivalence": 1,
+      "cross_lingual_entailment": 1,
+      "religious_doctrine": 1,
+      "philosophical_generalization": 1,
+      "translation_quality": 1
+    },
+    "language_distribution": {
+      "korean_only": 10,
+      "multilingual": 5
+    }
+  },
+  "quality_guidelines": {
+    "entailment_criteria": [
+      "전제에서 가설이 논리적으로 따라나와야 함",
+      "번역 관계에서는 의미 동등성 확인",
+      "비유나 은유에서는 함의된 의미 파악"
+    ],
+    "contradiction_criteria": [
+      "전제와 가설이 동시에 참일 수 없어야 함",
+      "직접적 부정 관계 또는 논리적 충돌",
+      "맥락상 양립 불가능한 주장"
+    ],
+    "neutral_criteria": [
+      "전제만으로는 가설의 참/거짓을 판단할 수 없음",
+      "관련은 있지만 논리적 함의나 모순이 없음",
+      "추가 정보가 필요한 경우"
+    ]
+  }
+}
