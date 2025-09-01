@@ -28,7 +28,7 @@ async def process_with_ollama():
     
     # ACCN-INS 데이터셋 처리
     await translator.process_large_dataset(
-        input_file="/home/work/songhune/sample.json",
+        input_file="/home/work/songhune/ACCN-INS.json",
         output_file="sample_ollama_translated.jsonl"
     )
 
