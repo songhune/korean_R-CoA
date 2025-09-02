@@ -12,7 +12,7 @@ try:
     if env_path.exists():
         load_dotenv(env_path)
 except ImportError:
-    pass  # python-dotenv가 없으면 환경변수만 사용
+    pass  # python-dotenv: api 키가 없으면 환경변수만 사용
 
 
 @dataclass
@@ -23,10 +23,6 @@ class TranslationConfig:
     api_key: str = ""
     model: str = "claude-3-haiku-20240307"
     ollama_base_url: str = "http://localhost:11434"  # Ollama 서버 URL
-    
-    # 언어별 모델 설정 (Ollama 전용)
-    korean_model: str = ""  # 한글 전용 모델
-    english_model: str = ""  # 영어 전용 모델
     
     # 배치 처리 설정
     batch_size: int = 30
