@@ -16,7 +16,7 @@ class BaseAPIClient:
         self.session = session
         self.logger = logging.getLogger(self.__class__.__name__)
     
-    async def translate_batch(self, texts: List[str], target_lang: str) -> List[str]:
+    async def translate_batch(self, texts: List[str], target_lang: str) -> Tuple[List[str], Dict[str, int]]:
         """배치 번역 - 서브클래스에서 구현"""
         raise NotImplementedError
 
@@ -25,7 +25,7 @@ class OpenAIClient(BaseAPIClient):
     """OpenAI API 클라이언트"""
     
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def translate_batch(self, texts: List[str], target_lang: str) -> List[str]:
+    async def translate_batch(self, texts: List[str], target_lang: str) -> Tuple[List[str], Dict[str, int]]:
         """OpenAI API를 사용한 배치 번역"""
         target_language = APIConfig.LANGUAGE_MAP.get(target_lang, target_lang)
         
@@ -63,10 +63,20 @@ Texts to translate:
                 
                 # 결과 정제
                 cleaned_translations = self._clean_translations(translations)
-                return cleaned_translations[:len(texts)]
+                
+                # 사용량 정보 (OpenAI는 토큰 정보를 제공하지만 일단 추정값 사용)
+                usage_info = {
+                    "input_tokens": len(batch_prompt) // 4,
+                    "output_tokens": len(result["choices"][0]["message"]["content"]) // 4
+                }
+                
+                return cleaned_translations[:len(texts)], usage_info
             else:
                 error_text = await response.text()
-                raise Exception(f"OpenAI API Error {response.status}: {error_text}")
+                error_msg = f"OpenAI API Error {response.status}: {error_text}"
+                print(f"\n❌ {error_msg}")
+                self.logger.error(error_msg)
+                raise Exception(error_msg)
     
     def _clean_translations(self, translations: List[str]) -> List[str]:
         """번역 결과 정제"""
@@ -128,7 +138,10 @@ Return only the translations, one per line, in the same order:
                 return cleaned_translations, usage_info
             else:
                 error_text = await response.text()
-                raise Exception(f"Anthropic API Error {response.status}: {error_text}")
+                error_msg = f"Anthropic API Error {response.status}: {error_text}"
+                print(f"\n❌ {error_msg}")
+                self.logger.error(error_msg)
+                raise Exception(error_msg)
     
     def _clean_translations(self, translations: List[str], expected_count: int) -> List[str]:
         """번역 결과 정제"""
@@ -143,7 +156,7 @@ Return only the translations, one per line, in the same order:
         
         # 원본과 같은 수가 되도록 조정
         while len(cleaned) < expected_count:
-            cleaned.append("[Translation Error]")
+            cleaned.append("[Translation Error: Missing translation]")
         
         return cleaned[:expected_count]
 
@@ -160,15 +173,32 @@ class OllamaClient(BaseAPIClient):
         """Ollama API를 사용한 배치 번역"""
         target_language = APIConfig.LANGUAGE_MAP.get(target_lang, target_lang)
         
-        prompt = f"""Translate the following Modern Chinese texts to {target_language}. 
-These texts have been translated from Classical Chinese and contain rich contextual information.
-Provide accurate, natural translations that preserve the original meaning and cultural context.
-Return only the translations, one per line, in the same order:
+        # 언어별 모델 선택
+        if target_language == "Korean" and hasattr(self.config, 'korean_model') and self.config.korean_model:
+            model_to_use = self.config.korean_model
+            print(f"🇰🇷 한글 번역용 모델 사용: {model_to_use}")
+        elif target_language == "English" and hasattr(self.config, 'english_model') and self.config.english_model:
+            model_to_use = self.config.english_model
+            print(f"🇺🇸 영어 번역용 모델 사용: {model_to_use}")
+        else:
+            model_to_use = self.config.model
+        
+        if target_language == "Korean":
+            prompt = f"""다음 현대 중국어 텍스트를 자연스러운 한국어로 번역하세요. 각 텍스트를 한 줄씩 번역하여 같은 순서로 제공하세요:
 
-{chr(10).join(f"{i+1}. {text}" for i, text in enumerate(texts))}"""
+{chr(10).join(f"{i+1}. {text}" for i, text in enumerate(texts))}
+
+한국어 번역:"""
+        else:
+            prompt = f"""Please translate the following Modern Chinese texts to {target_language}:
+
+{chr(10).join(f"{i+1}. {text}" for i, text in enumerate(texts))}
+
+{target_language} translations:
+"""
         
         payload = {
-            "model": self.config.model,
+            "model": model_to_use,
             "prompt": prompt,
             "stream": False,
             "options": {
@@ -185,6 +215,21 @@ Return only the translations, one per line, in the same order:
                 if response.status == 200:
                     result = await response.json()
                     content = result.get("response", "").strip()
+                    
+                    # 빈 응답 처리
+                    if not content:
+                        if target_language == "English":
+                            # 이 모델은 영어 번역에 적합하지 않으므로 건너뛰기
+                            print(f"\n⚠️ {self.config.model}은 영어 번역을 지원하지 않습니다. 건너뛰는 중...")
+                            skip_translations = ["[Skip: Model does not support English translation]" for _ in texts]
+                            usage_info = {"input_tokens": 0, "output_tokens": 0}
+                            return skip_translations, usage_info
+                        else:
+                            print(f"\n⚠️ Ollama에서 빈 응답을 받았습니다")
+                            error_translations = ["[Translation Error: Empty response from Ollama]" for _ in texts]
+                            usage_info = {"input_tokens": 0, "output_tokens": 0}
+                            return error_translations, usage_info
+                    
                     translations = content.split('\n')
                     
                     # 사용량 정보 (Ollama는 토큰 카운트를 제공하지 않으므로 추정)
@@ -198,9 +243,32 @@ Return only the translations, one per line, in the same order:
                     return cleaned_translations, usage_info
                 else:
                     error_text = await response.text()
-                    raise Exception(f"Ollama API Error {response.status}: {error_text}")
+                    error_msg = f"Ollama API Error {response.status}: {error_text}"
+                    print(f"\n❌ {error_msg}")
+                    raise Exception(error_msg)
         except aiohttp.ClientConnectorError:
-            raise Exception("Ollama 서버에 연결할 수 없습니다. Ollama가 실행 중인지 확인하세요.")
+            error_msg = f"❌ Ollama 서버 연결 실패 ({self.base_url})"
+            print(f"\n{error_msg}")
+            print("   해결방법:")
+            print("   1. ollama serve 명령으로 서버 시작")
+            print(f"   2. 모델 다운로드: ollama pull {self.config.model}")
+            print(f"   3. 서버 URL 확인: {self.base_url}")
+            self.logger.error(error_msg)
+            
+            # [Translation Error] 토큰으로 명시적 표시
+            error_translations = ["[Translation Error: Ollama 서버 연결 실패]" for _ in texts]
+            usage_info = {"input_tokens": 0, "output_tokens": 0}
+            return error_translations, usage_info
+            
+        except Exception as e:
+            error_msg = f"❌ Ollama API 호출 오류: {str(e)}"
+            print(f"\n{error_msg}")
+            self.logger.error(error_msg)
+            
+            # 구체적인 오류 정보와 함께 에러 토큰 반환
+            error_translations = [f"[Translation Error: {str(e)}]" for _ in texts]
+            usage_info = {"input_tokens": 0, "output_tokens": 0}
+            return error_translations, usage_info
     
     def _clean_translations(self, translations: List[str], expected_count: int) -> List[str]:
         """번역 결과 정제"""
@@ -210,12 +278,12 @@ Return only the translations, one per line, in the same order:
             # 번호 제거
             if trans and trans[0].isdigit() and '.' in trans[:5]:
                 trans = trans.split('.', 1)[1].strip()
-            if trans:  # 빈 번역 방지
+            if trans:  # 빈 번역만 추가
                 cleaned.append(trans)
         
-        # 원본과 같은 수가 되도록 조정
+        # 원본과 같은 수가 되도록 조정 - 명확한 에러 메시지로 패딩
         while len(cleaned) < expected_count:
-            cleaned.append("[Translation Error]")
+            cleaned.append("[Translation Error: Empty response]")
         
         return cleaned[:expected_count]
 

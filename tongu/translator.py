@@ -66,15 +66,25 @@ class LargeScaleTranslator:
         # 새로 번역할 텍스트가 있으면 API 호출
         new_translations = []
         if uncached_texts:
-            if self.config.api_provider == "anthropic":
-                new_translations, usage_info = await self.api_client.translate_batch(uncached_texts, target_lang)
-                # 비용 추적 업데이트
-                self.cost_tracker.update_cost_tracking(
-                    usage_info["input_tokens"], 
-                    usage_info["output_tokens"]
-                )
-            else:
-                new_translations = await self.api_client.translate_batch(uncached_texts, target_lang)
+            try:
+                # 모든 클라이언트가 (translations, usage_info) 튜플을 반환하도록 통일
+                result = await self.api_client.translate_batch(uncached_texts, target_lang)
+                
+                if isinstance(result, tuple) and len(result) == 2:
+                    new_translations, usage_info = result
+                    # 비용 추적 업데이트
+                    if self.config.api_provider in ["anthropic", "ollama"]:
+                        self.cost_tracker.update_cost_tracking(
+                            usage_info["input_tokens"], 
+                            usage_info["output_tokens"]
+                        )
+                else:
+                    # 구형 형식 (리스트만 반환)
+                    new_translations = result if isinstance(result, list) else []
+                    
+            except Exception as e:
+                self.logger.error(f"번역 API 호출 중 오류: {e}")
+                new_translations = [f"[Translation Error: {str(e)}]" for _ in uncached_texts]
             
             # 새 번역을 캐시에 저장
             self.cache.store_translations(uncached_texts, new_translations, target_lang)
@@ -134,7 +144,10 @@ class LargeScaleTranslator:
                     self.logger.info(f"Checkpoint: {self.processed_count} items processed")
                 
             except Exception as e:
-                self.logger.error(f"Error processing batch in chunk {chunk_id}: {e}")
+                error_msg = f"Error processing batch in chunk {chunk_id}: {e}"
+                print(f"\n❌ 배치 처리 실패 (청크 {chunk_id}): {e}")
+                print(f"   실패한 항목 수: {len(batch)}")
+                self.logger.error(error_msg)
                 self.failed_items.extend(batch)
         
         return processed_chunk
@@ -183,6 +196,15 @@ class LargeScaleTranslator:
             
             # 통계 출력
             self.cost_tracker.print_final_statistics(self.processed_count, len(self.failed_items))
+            
+            # 추가 오류 정보 출력
+            if self.failed_items:
+                print(f"\n⚠️  실패한 항목 세부정보:")
+                print(f"   - 실패 항목 저장 위치: {failed_file}")
+                print(f"   - 번역 재시도 권장사항:")
+                print(f"     1. Ollama 서버 상태 확인")
+                print(f"     2. 체크포인트에서 재개: python resume_translation.py")
+                print(f"     3. 실패 파일만 별도 처리")
             
             # 체크포인트 정리 (선택사항)
             # self.checkpoint_manager.cleanup_checkpoints(base_name)

@@ -66,15 +66,17 @@ class TranslationCache:
         return cached_translations, uncached_indices, uncached_texts
     
     def store_translations(self, texts: List[str], translations: List[str], target_lang: str):
-        """번역 결과를 캐시에 저장"""
+        """번역 결과를 캐시에 저장 (에러 번역은 캐시하지 않음)"""
         for text, translation in zip(texts, translations):
-            cache_key = self.get_cache_key(text, target_lang)
-            self.cache[cache_key] = translation
+            # 에러 번역은 캐시하지 않음 (재시도 가능하도록)
+            if not (translation.startswith("[Translation Error") or translation == ""):
+                cache_key = self.get_cache_key(text, target_lang)
+                self.cache[cache_key] = translation
     
     def merge_translations(self, texts: List[str], cached_translations: List[Tuple[int, str]], 
                           uncached_indices: List[int], new_translations: List[str]) -> List[str]:
         """캐시된 번역과 새 번역을 합쳐서 최종 결과 생성"""
-        final_translations = [''] * len(texts)
+        final_translations = ['[Translation Error: Not processed]'] * len(texts)
         
         # 캐시된 번역 배치
         for idx, translation in cached_translations:

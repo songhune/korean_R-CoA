@@ -24,6 +24,10 @@ class TranslationConfig:
     model: str = "claude-3-haiku-20240307"
     ollama_base_url: str = "http://localhost:11434"  # Ollama 서버 URL
     
+    # 언어별 모델 설정 (Ollama 전용)
+    korean_model: str = ""  # 한글 전용 모델
+    english_model: str = ""  # 영어 전용 모델
+    
     # 배치 처리 설정
     batch_size: int = 30
     max_concurrent: int = 6

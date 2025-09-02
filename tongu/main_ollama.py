@@ -42,17 +42,17 @@ async def test_ollama_connection():
             async with session.get("http://localhost:11434/api/tags") as response:
                 if response.status == 200:
                     models = await response.json()
-                    print("✅ Ollama 서버 연결 성공!")
-                    print("🤖 사용 가능한 모델:")
+                    print("Ollama 서버 연결 성공!")
+                    print("사용 가능한 모델:")
                     for model in models.get('models', []):
                         print(f"   - {model['name']}")
                     return True
                 else:
-                    print("❌ Ollama 서버에 연결할 수 없습니다.")
+                    print("Ollama 서버에 연결할 수 없습니다.")
                     return False
     except Exception as e:
-        print(f"❌ Ollama 연결 오류: {e}")
-        print("\n🔧 해결 방법:")
+        print(f"Ollama 연결 오류: {e}")
+        print("\n해결 방법:")
         print("1. Ollama가 설치되어 있는지 확인:")
         print("   curl -fsSL https://ollama.ai/install.sh | sh")
         print("\n2. Ollama 서버 시작:")
@@ -82,7 +82,7 @@ def main():
         print("=== Ollama 연결 테스트 ===")
         result = asyncio.run(test_ollama_connection())
         if result:
-            print("\n✅ 준비 완료! 'python main_ollama.py translate'로 번역을 시작하세요.")
+            print("\n준비 완료! 'python main_ollama.py translate'로 번역을 시작하세요.")
     
     elif command == "translate":
         print("=== Ollama 번역 시작 ===")

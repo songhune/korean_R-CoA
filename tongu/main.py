@@ -7,29 +7,61 @@ from pathlib import Path
 from config import TranslationConfig
 from translator import LargeScaleTranslator
 from cost_tracker import estimate_translation_cost
+import aiohttp
 
 
 async def process_accn_ins_dataset():
     """ACCN-INS 데이터셋 처리 함수"""
     
     config = TranslationConfig(
-        api_provider="ollama",  # Ollama 사용으로 변경
-        model="llama3.1",  # 또는 "qwen2", "mixtral" 등
-        batch_size=10,  # 로컬 모델이므로 배치 사이즈 조정
-        max_concurrent=2,  # 로컬 처리이므로 동시성 낮춤
-        delay_between_batches=0.5,
-        chunk_size=1000,
-        checkpoint_interval=100,
-        budget_limit=0.0  # 무료이므로 예산 제한 없음
+        api_provider="ollama",
+        model="winkefinger/alma-13b:Q4_K_M",  # 영어용 기본 모델
+        korean_model="jinbora/deepseek-r1-Bllossom:70b",  # 한글 전용 고품질 모델
+        english_model="winkefinger/alma-13b:Q4_K_M",  # 영어 전용 모델
+        batch_size=1,      # 배치 사이즈 1로 설정 (100% 성공률)
+        max_concurrent=1,  # 로컬 처리이므로 동시성 1로 설정
+        delay_between_batches=0.5,  # 개별 처리이므로 약간의 딜레이
+        chunk_size=50,     # 청크 사이즈도 줄임
+        checkpoint_interval=25,
+        budget_limit=0.0,  # 무료
+        ollama_base_url="http://localhost:11434"  # 기본 Ollama URL
     )
     
     translator = LargeScaleTranslator(config)
     
     # ACCN-INS 데이터셋 처리
     await translator.process_large_dataset(
-        input_file="/home/work/songhune/sample.json",  # 원본 ACCN-INS 파일
+        input_file="/home/work/songhune/ACCN-INS.json",  # 원본 ACCN-INS 파일
         output_file="accn_ins_multilingual.jsonl"  # 한글/영어 번역 추가된 파일
     )
+
+
+async def test_ollama_connection():
+    """Ollama 연결 테스트"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get("http://localhost:11434/api/tags") as response:
+                if response.status == 200:
+                    models = await response.json()
+                    print("✅ Ollama 서버 연결 성공!")
+                    print("🤖 사용 가능한 모델:")
+                    for model in models.get('models', []):
+                        print(f"   - {model['name']}")
+                    return True
+                else:
+                    print("❌ Ollama 서버에 연결할 수 없습니다.")
+                    return False
+    except Exception as e:
+        print(f"❌ Ollama 연결 오류: {e}")
+        print("\n🔧 해결 방법:")
+        print("1. Ollama가 설치되어 있는지 확인:")
+        print("   curl -fsSL https://ollama.ai/install.sh | sh")
+        print("\n2. Ollama 서버 시작:")
+        print("   ollama serve")
+        print("\n3. 필요한 모델 다운로드:")
+        print("   ollama pull jinbora/deepseek-r1-Bllossom:70b  # 한글 번역용")
+        print("   ollama pull winkefinger/alma-13b:Q4_K_M      # 영어 번역용")
+        return False
 
 
 async def test_with_sample():
@@ -64,11 +96,15 @@ async def test_with_sample():
     
     # 테스트 실행
     config = TranslationConfig(
-        api_provider="anthropic",
-        batch_size=2,
+        api_provider="ollama",
+        model="winkefinger/alma-13b:Q4_K_M",
+        korean_model="jinbora/deepseek-r1-Bllossom:70b",
+        english_model="winkefinger/alma-13b:Q4_K_M",
+        batch_size=1,
         max_concurrent=1,
         delay_between_batches=1.0,
-        budget_limit=5.0  # 테스트용 낮은 예산
+        budget_limit=0.0,  # 무료 모델
+        ollama_base_url="http://localhost:11434"
     )
     
     translator = LargeScaleTranslator(config)
@@ -87,26 +123,22 @@ async def process_custom_dataset(input_file: str, output_file: str):
         print(f"Error: Input file '{input_file}' not found.")
         return
     
-    # 비용 추정
-    print("=== 비용 추정 중 ===")
-    estimated_cost = estimate_translation_cost(input_file, "anthropic")
-    
-    if estimated_cost > 50.0:
-        response = input(f"예상 비용이 ${estimated_cost:.2f}입니다. 계속하시겠습니까? (y/n): ")
-        if response.lower() != 'y':
-            print("처리를 중단합니다.")
-            return
+    # Ollama로 처리 (무료)
+    print("=== Ollama로 처리합니다 (무료) ===")
     
     # 설정
     config = TranslationConfig(
-        api_provider="anthropic",
-        model="claude-3-haiku-20240307",
-        batch_size=20,
-        max_concurrent=5,
-        delay_between_batches=1.0,
-        chunk_size=5000,
-        checkpoint_interval=250,
-        budget_limit=estimated_cost * 1.2  # 20% 여유분
+        api_provider="ollama",
+        model="winkefinger/alma-13b:Q4_K_M",
+        korean_model="jinbora/deepseek-r1-Bllossom:70b",
+        english_model="winkefinger/alma-13b:Q4_K_M",
+        batch_size=1,
+        max_concurrent=1,
+        delay_between_batches=0.5,
+        chunk_size=50,
+        checkpoint_interval=25,
+        budget_limit=0.0,
+        ollama_base_url="http://localhost:11434"
     )
     
     translator = LargeScaleTranslator(config)
@@ -125,6 +157,7 @@ def main():
         print("KEadapter - 대용량 고전 중국어 번역기")
         print()
         print("사용법:")
+        print("  python main.py test                      # Ollama 연결 테스트")
         print("  python main.py sample                    # 샘플 테스트")
         print("  python main.py accn                      # ACCN-INS 데이터셋 처리")
         print("  python main.py process <input> <output>  # 사용자 파일 처리")
@@ -134,7 +167,13 @@ def main():
     
     command = sys.argv[1]
     
-    if command == "sample":
+    if command == "test":
+        print("=== Ollama 연결 테스트 ===")
+        result = asyncio.run(test_ollama_connection())
+        if result:
+            print("\n✅ 준비 완료! 'python main.py accn'으로 번역을 시작하세요.")
+    
+    elif command == "sample":
         print("=== 샘플 테스트 실행 ===")
         asyncio.run(test_with_sample())
     
@@ -159,7 +198,7 @@ def main():
             return
         
         input_file = sys.argv[2]
-        estimate_translation_cost(input_file, "anthropic")
+        print("Ollama 사용 시 번역 비용: $0.00 (무료)")
     
     else:
         print(f"알 수 없는 명령어: {command}")
