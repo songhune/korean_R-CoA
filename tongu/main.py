@@ -1,5 +1,5 @@
 """
-🐲 Tongu - Korean Translation System (Clean Version)
+Tongu - Korean Translation System (Clean Version)
 완전히 정리된 한국어 번역 시스템
 """
 
@@ -14,7 +14,7 @@ import pickle
 from pathlib import Path
 from collections import defaultdict, deque
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple
+from typing import List
 
 
 # =============================================================================
@@ -109,6 +109,60 @@ class OllamaClient:
         self.config = config
         self.error_handler = error_handler
     
+    def _parse_korean_response(self, content: str) -> List[str]:
+        """한국어 모델 응답 파싱 (deepseek-r1 계열)"""
+        # <think> 태그가 있으면 제거하고 실제 답변만 추출
+        if '<think>' in content:
+            # <think>...</think> 이후의 실제 답변 찾기
+            parts = content.split('</think>')
+            if len(parts) > 1:
+                actual_response = parts[-1].strip()
+            else:
+                # </think>가 없는 경우 <think> 이후 모든 내용
+                actual_response = content.split('<think>')[-1].strip()
+        else:
+            actual_response = content.strip()
+        
+        # 실제 번역 결과 파싱
+        lines = actual_response.split('\n')
+        translations = []
+        
+        for line in lines:
+            line = line.strip()
+            if line and not line.startswith('<') and not line.startswith('好的') and not line.startswith('我'):
+                # 번호가 있는 경우 번호 제거
+                if line and line[0].isdigit() and '.' in line[:5]:
+                    line = line.split('.', 1)[1].strip()
+                if line:
+                    translations.append(line)
+        
+        return translations
+    
+    def _parse_english_response(self, content: str) -> List[str]:
+        """영어 모델 응답 파싱"""
+        # 문장 기반으로 분할 시도
+        translations = []
+        
+        # 번호가 있는 경우 번호별로 분할
+        if content.count('1.') >= 1 or content.count('2.') >= 1:
+            lines = content.split('\n')
+            for line in lines:
+                line = line.strip()
+                if line and not line.lower().startswith('here') and not line.lower().startswith('i'):
+                    translations.append(line)
+        else:
+            # 단일 블록인 경우 문장으로 분할
+            sentences = content.split('. ')
+            for i, sentence in enumerate(sentences):
+                sentence = sentence.strip()
+                if sentence:
+                    # 마지막 문장이 아니면 마침표 추가
+                    if i < len(sentences) - 1 and not sentence.endswith('.'):
+                        sentence += '.'
+                    translations.append(sentence)
+        
+        return translations
+    
     async def translate_batch(self, texts: List[str], target_lang: str, session: aiohttp.ClientSession) -> List[str]:
         """배치 번역"""
         if not texts:
@@ -117,28 +171,39 @@ class OllamaClient:
         # 모델 선택
         if target_lang == "korean":
             model = self.config.korean_model
-            prompt_template = """다음 현대 중국어 텍스트를 자연스러운 한국어로 번역하세요:
+            prompt_template = """다음 고전 중국어 텍스트를 자연스러운 현대 한국어로 번역하세요. 번역문만 제시하세요:
 
 {texts}
 
-한국어 번역:"""
+번역:"""
         else:
             model = self.config.english_model
-            prompt_template = """Translate the following Modern Chinese texts to English:
+            prompt_template = """Please translate from Chinese to English:
 
 {texts}
 
-English translations:"""
+English:"""
         
         # 프롬프트 생성
         numbered_texts = "\n".join(f"{i+1}. {text}" for i, text in enumerate(texts))
         prompt = prompt_template.format(texts=numbered_texts)
         
+        # 모델별 옵션 설정
+        if target_lang == "english":
+            options = {
+                "temperature": 0.3,
+                "top_p": 0.9,
+                "max_tokens": 200,
+                "stop": ["\n\n", "Chinese:", "Original:"]
+            }
+        else:
+            options = {"temperature": 0.2, "top_p": 0.9}
+            
         payload = {
             "model": model,
             "prompt": prompt,
             "stream": False,
-            "options": {"temperature": 0.2, "top_p": 0.9}
+            "options": options
         }
         
         try:
@@ -155,10 +220,16 @@ English translations:"""
                         self.error_handler.track_error("Empty Response", f"Model: {model}")
                         return [f"[Error: Empty response]" for _ in texts]
                     
-                    # 응답 파싱
-                    translations = content.split('\n')
-                    cleaned = []
+                    # 응답 파싱 - 모델별 처리
+                    translations = []
+                    if target_lang == "korean":
+                        # 한국어 모델: <think> 태그 제거 및 실제 번역만 추출
+                        translations = self._parse_korean_response(content)
+                    else:
+                        # 영어 모델: 기존 방식으로 파싱
+                        translations = self._parse_english_response(content)
                     
+                    cleaned = []
                     for trans in translations:
                         trans = trans.strip()
                         # 번호 제거
@@ -369,7 +440,7 @@ class TonguTranslator:
             await asyncio.sleep(self.config.delay_between_batches)
             
             # 결과 통합
-            for j, (original_item, korean, english) in enumerate(zip(batch, korean_translations, english_translations)):
+            for original_item, korean, english in zip(batch, korean_translations, english_translations):
                 enhanced_item = original_item.copy() if isinstance(original_item, dict) else {"original": original_item}
                 enhanced_item.update({
                     "korean_translation": korean,
@@ -433,10 +504,10 @@ async def main():
 ============================================
 
 사용법:
-  python clean_tongu.py test                    # Ollama 연결 테스트
-  python clean_tongu.py sample                  # 샘플 번역
-  python clean_tongu.py translate <input> <output>  # 파일 번역
-  python clean_tongu.py restart <command>       # 자동 재시작과 함께
+  python main.py test                    # Ollama 연결 테스트
+  python main.py sample                  # 샘플 번역
+  python main.py translate <input> <output>  # 파일 번역
+  python main.py restart <command>       # 자동 재시작과 함께
 
 특징:
   🔧 Broken pipe 문제 해결
@@ -445,10 +516,10 @@ async def main():
   📊 실시간 에러 모니터링
 
 예시:
-  python clean_tongu.py test
-  python clean_tongu.py sample
-  python clean_tongu.py translate input.jsonl output.jsonl
-  python clean_tongu.py restart sample  # 재시작 기능과 함께
+  python main.py test
+  python main.py sample
+  python main.py translate input.jsonl output.jsonl
+  python main.py restart sample  # 재시작 기능과 함께
         """)
         return
     
@@ -465,14 +536,14 @@ async def main():
             
         elif command == "translate":
             if len(sys.argv) != 4:
-                print("사용법: python clean_tongu.py translate <input_file> <output_file>")
+                print("사용법: python main.py translate <input_file> <output_file>")
                 return
             success = await translator.translate_file(sys.argv[2], sys.argv[3])
             
         elif command == "restart":
             # 자동 재시작 모드
             if len(sys.argv) < 3:
-                print("사용법: python clean_tongu.py restart <command>")
+                print("사용법: python main.py restart <command>")
                 return
             
             restart_command = sys.argv[2]

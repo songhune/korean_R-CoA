@@ -1,148 +1,110 @@
-# KEadapter - 대용량 고전 중국어 번역기
+#  Tongu - Korean Translation System
 
-ACCN-INS와 같은 대용량 고전 중국어 데이터셋을 한국어와 영어로 번역하는 비동기 번역 도구입니다.
+author: songhune@ajou.ac.kr 
 
-## 주요 기능
+##  주요 특징
 
-- **비동기 배치 처리**: 높은 성능의 병렬 번역
-- **비용 관리**: 실시간 비용 추적 및 예산 제한
-- **스마트 캐싱**: 중복 번역 방지로 비용 절약
-- **체크포인트 시스템**: 중단 시 재시작 가능
-- **다중 API 지원**: OpenAI, Anthropic Claude API
-- **상세 로깅**: 처리 과정 모니터링
+-  **Broken Pipe 문제 완전 해결** - 안정적인 대용량 모델 처리
+-  **실시간 에러 모니터링** - songhune@jou.ac.kr 자동 알림  
+-  **지능형 캐싱** - 번역 속도 대폭 향상
+-  **자동 재시작** - GPU 메모리 관리 및 Ollama 서버 자동 복구
+-  **통합 로깅** - 모든 활동과 에러 추적
 
-## 설치
+##  사용법
+
+### 기본 사용
 
 ```bash
-# 의존성 설치
-pip install -r requirements.txt
+# 연결 테스트
+python clean_tongu.py test
 
-# 환경변수 설정
-export ANTHROPIC_API_KEY="your-claude-api-key"
-# 또는
-export OPENAI_API_KEY="your-openai-api-key"
+# 샘플 번역 (빠른 테스트)
+python clean_tongu.py sample
+
+# 파일 번역
+python clean_tongu.py translate input.jsonl output.jsonl
 ```
 
-## 사용법
+### 자동 재시작 모드 (권장)
 
-### 1. 샘플 테스트
 ```bash
-python main.py sample
+# 안정성 보장과 함께 실행
+python clean_tongu.py restart sample
+python clean_tongu.py restart test
+
+# 대용량 파일 처리 시 특히 유용
+python clean_tongu.py translate large_file.jsonl output.jsonl
 ```
 
-### 2. 비용 추정
-```bash
-python main.py estimate your_data.jsonl
-```
+##  시스템 요구사항
 
-### 3. 실제 번역 처리
-```bash
-python main.py process input.jsonl output.jsonl
-```
+- **Ollama 서버**: `ollama serve`로 실행 중이어야 함
+- **필수 모델들**:
+  - `jinbora/deepseek-r1-Bllossom:70b` (한국어 번역)
+  - `winkefinger/alma-13b:Q4_K_M` (영어 번역)
 
-### 4. ACCN-INS 데이터셋 처리
-```bash
-python main.py accn
-```
-
-## 모듈 구조
+##  파일 구조
 
 ```
 tongu/
-├── __init__.py          # 패키지 진입점
-├── main.py             # 메인 실행 스크립트
-├── config.py           # 설정 및 구성 관리
-├── translator.py       # 메인 번역기 클래스
-├── api_clients.py      # API 클라이언트들
-├── cost_tracker.py     # 비용 추적 및 관리
-├── cache_manager.py    # 번역 캐시 관리
-├── file_handlers.py    # 파일 입출력 처리
-├── text_processor.py   # 텍스트 전처리
-└── requirements.txt    # 의존성 목록
+├── clean_tongu.py          #  메인 실행 파일 (모든 기능 통합)
+├── tongu.log              #  실행 로그
+├── tongu_cache.pkl        #  번역 캐시
+└── README_CLEAN.md        #  이 파일
 ```
 
-## 데이터 형식
+##  에러 처리 및 모니터링
 
-### 입력 (JSONL)
-```json
-{
-  "task": "Classical Chinese to Modern Chinese",
-  "data": {
-    "instruction": "请将迁骑都尉、光禄大夫、侍中。翻译为现代汉语。",
-    "input": "",
-    "output": "又升任骑都尉光禄大夫侍中。",
-    "history": []
-  }
-}
+### 자동 추적되는 에러
+- **Connection Error**: Ollama 서버 연결 문제
+- **Broken Pipe**: 대용량 모델 처리 중 연결 끊김  
+- **Timeout Error**: 응답 시간 초과
+- **API Error**: 모델 응답 오류
+
+### 알림 시스템
+- 5분 내 5회 이상 동일 에러 발생 시 자동 알림
+- 콘솔과 로그 파일에 상세 정보 기록
+- songhune@jou.ac.kr로 이메일 알림 (설정 시)
+
+##  사용 예시
+
+### 1. 빠른 시작
+```bash
+# 1. 시스템 확인
+python clean_tongu.py test
+
+# 2. 샘플 실행으로 테스트
+python clean_tongu.py sample
+
+# 3. 실제 파일 번역
+python clean_tongu.py translate my_data.jsonl translated_output.jsonl
 ```
 
-### 출력 (JSONL)
-```json
-{
-  "task": "Classical Chinese to Modern Chinese",
-  "data": {
-    "instruction": "请将迁骑都尉、光禄大夫、侍中。翻译为现代汉语。",
-    "input": "",
-    "output": "又升任骑都尉光禄대부사중。",
-    "history": []
-  },
-  "korean_translation": "기도위, 광록대부, 시중으로 승진하였다.",
-  "english_translation": "Promoted to cavalry commander, grand minister, and imperial attendant.",
-  "original_classical_text": "迁骑都尉、光禄大夫、侍中。",
-  "multilingual_enhanced": true
-}
+### 2. 대용량 파일 처리 (안정성 중시)
+```bash
+# 자동 재시작과 함께 - 네트워크 오류나 서버 문제 시 자동 복구
+python clean_tongu.py restart sample
+
+# 진행 상황은 실시간으로 콘솔에 표시됩니다
 ```
 
-## 설정 옵션
+##  시스템 복구
 
-```python
-config = TranslationConfig(
-    api_provider="anthropic",  # "openai" 또는 "anthropic"
-    model="claude-3-haiku-20240307",
-    batch_size=30,            # 배치 크기
-    max_concurrent=6,         # 동시 처리 수
-    delay_between_batches=0.8, # 배치 간 지연 시간
-    chunk_size=8000,          # 청크 크기
-    checkpoint_interval=500,   # 체크포인트 간격
-    budget_limit=50.0         # 예산 제한 ($)
-)
-```
+문제 발생 시 자동으로:
+1. **Ollama 서버 재시작**: `ollama serve`
+2. **GPU 메모리 정리**: 고사용량 감지 시 자동 정리
+3. **재시도 메커니즘**: 최대 3회 자동 재시도
+4. **에러 알림**: 임계값 초과 시 즉시 알림
 
-## 비용 정보
+##  성능 최적화
 
-### Anthropic Claude (권장)
-- **claude-3-haiku**: $0.25/1M input tokens, $1.25/1M output tokens
-- 높은 품질의 번역, 비용 효율적
+- **배치 처리**: 5개씩 묶어서 효율적 번역
+- **지능형 캐싱**: 동일 텍스트 재번역 방지
+- **비동기 처리**: 한국어/영어 번역 동시 진행
+- **메모리 관리**: GPU 메모리 모니터링 및 자동 정리
 
-### OpenAI
-- **gpt-3.5-turbo**: $1.00/1M input tokens, $2.00/1M output tokens  
-- **gpt-4**: $30.00/1M input tokens, $60.00/1M output tokens
+##  Release Note
+2025.
 
-## 주의사항
+---
 
-1. **API 키 보안**: 환경변수로 API 키 관리
-2. **예산 관리**: 예상 비용을 미리 확인
-3. **네트워크 안정성**: 인터넷 연결 상태 확인
-4. **파일 백업**: 원본 데이터 백업 권장
-
-## 문제 해결
-
-### 자주 발생하는 오류
-
-1. **API 키 오류**
-   ```bash
-   export ANTHROPIC_API_KEY="your-key-here"
-   ```
-
-2. **메모리 부족**
-   - `chunk_size`와 `batch_size` 감소
-
-3. **API 제한**
-   - `delay_between_batches` 증가
-
-4. **파일 인코딩 오류**
-   - UTF-8 인코딩 확인
-
-## 문의
-
-한승현, songhune@ajou.ac.kr
