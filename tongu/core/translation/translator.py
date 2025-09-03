@@ -6,12 +6,17 @@ from pathlib import Path
 from typing import List, Dict, Any
 import logging
 
-from config import TranslationConfig
-from api_clients import APIClientFactory
-from cost_tracker import CostTracker
-from cache_manager import TranslationCache
-from file_handlers import FileHandler, CheckpointManager
-from text_processor import ACCNDataProcessor
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from core.config.config import TranslationConfig
+from api.clients.api_clients import APIClientFactory
+from utils.cost.cost_tracker import CostTracker
+from utils.cache.cache_manager import TranslationCache
+from utils.file_ops.file_handlers import FileHandler, CheckpointManager
+from api.processors.text_processor import ACCNDataProcessor
+from error_handler import get_error_handler, track_error
 
 
 class LargeScaleTranslator:
@@ -43,6 +48,9 @@ class LargeScaleTranslator:
             ]
         )
         self.logger = logging.getLogger(__name__)
+        
+        # Initialize error handler
+        self.error_handler = get_error_handler()
     
     async def create_session(self):
         """HTTP 세션 생성"""
@@ -83,7 +91,19 @@ class LargeScaleTranslator:
                     new_translations = result if isinstance(result, list) else []
                     
             except Exception as e:
-                self.logger.error(f"번역 API 호출 중 오류: {e}")
+                error_msg = f"번역 API 호출 중 오류: {e}"
+                self.logger.error(error_msg)
+                
+                # Track error for monitoring
+                track_error(
+                    "API Call Failed",
+                    error_msg,
+                    api_provider=self.config.api_provider,
+                    target_lang=target_lang,
+                    batch_size=len(uncached_texts),
+                    error_type=type(e).__name__
+                )
+                
                 new_translations = [f"[Translation Error: {str(e)}]" for _ in uncached_texts]
             
             # 새 번역을 캐시에 저장
@@ -148,6 +168,17 @@ class LargeScaleTranslator:
                 print(f"\n❌ 배치 처리 실패 (청크 {chunk_id}): {e}")
                 print(f"   실패한 항목 수: {len(batch)}")
                 self.logger.error(error_msg)
+                
+                # Track batch processing error
+                track_error(
+                    "Batch Processing Failed",
+                    error_msg,
+                    chunk_id=chunk_id,
+                    batch_size=len(batch),
+                    api_provider=self.config.api_provider,
+                    error_type=type(e).__name__
+                )
+                
                 self.failed_items.extend(batch)
         
         return processed_chunk
@@ -208,6 +239,74 @@ class LargeScaleTranslator:
             
             # 체크포인트 정리 (선택사항)
             # self.checkpoint_manager.cleanup_checkpoints(base_name)
+            
+        finally:
+            await self.close_session()
+            self.cache.save_cache()
+    
+    async def resume_from_chunk(self, input_file: str, output_file: str, start_chunk_id: int = 0):
+        """특정 청크부터 번역 재개"""
+        await self.create_session()
+        
+        try:
+            input_path = Path(input_file)
+            output_path = Path(output_file)
+            
+            if not input_path.exists():
+                raise FileNotFoundError(f"Input file not found: {input_file}")
+            
+            base_name = output_path.stem
+            
+            # 기존 체크포인트 확인
+            existing_checkpoints = self.checkpoint_manager.list_checkpoints(base_name)
+            last_checkpoint_id = len(existing_checkpoints) - 1 if existing_checkpoints else -1
+            
+            self.logger.info(f"Resuming translation from chunk {start_chunk_id}")
+            self.logger.info(f"Found {len(existing_checkpoints)} existing checkpoints (up to chunk {last_checkpoint_id})")
+            
+            # 실제 재개할 청크 ID 계산
+            resume_chunk_id = max(start_chunk_id, last_checkpoint_id + 1)
+            self.logger.info(f"Will resume from chunk {resume_chunk_id} (last checkpoint: {last_checkpoint_id})")
+            
+            chunk_id = 0
+            
+            async for chunk in self.file_handler.read_json_or_jsonl_stream(input_file, self.config.chunk_size):
+                # 재개할 청크까지 스킵
+                if chunk_id < resume_chunk_id:
+                    self.logger.info(f"Skipping chunk {chunk_id} (before resume point)")
+                    chunk_id += 1
+                    continue
+                
+                # 청크 처리
+                self.logger.info(f"Processing chunk {chunk_id} (resume mode)")
+                processed_chunk = await self.process_chunk(chunk, chunk_id)
+                
+                if processed_chunk:
+                    # 체크포인트 저장
+                    await self.checkpoint_manager.save_checkpoint(
+                        processed_chunk, chunk_id, base_name
+                    )
+                
+                chunk_id += 1
+            
+            # 최종 결과 파일 생성 (모든 체크포인트 병합)
+            self.logger.info("Merging all checkpoints into final output file")
+            await self.checkpoint_manager.merge_checkpoints(base_name, str(output_path))
+            
+            # 실패한 항목 저장
+            if self.failed_items:
+                failed_file = output_path.parent / f"{output_path.stem}_failed.jsonl"
+                await self.file_handler.write_jsonl(self.failed_items, str(failed_file))
+                self.logger.info(f"Saved {len(self.failed_items)} failed items to {failed_file}")
+            
+            # 통계 출력
+            self.cost_tracker.print_final_statistics(self.processed_count, len(self.failed_items))
+            
+            print(f"\n✅ 번역 재개 완료!")
+            print(f"   시작 청크: {start_chunk_id}")
+            print(f"   처리된 항목: {self.processed_count}")
+            if self.failed_items:
+                print(f"   실패 항목: {len(self.failed_items)} (별도 파일에 저장됨)")
             
         finally:
             await self.close_session()

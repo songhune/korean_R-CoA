@@ -22,20 +22,22 @@ class TranslationConfig:
     api_provider: str = "anthropic"  # "openai", "anthropic", "ollama"
     api_key: str = ""
     model: str = "claude-3-haiku-20240307"
+    korean_model: str = "jinbora/deepseek-r1-Bllossom:70b"  # 한국어 번역 전용 모델 (Ollama용)
+    english_model: str = "winkefinger/alma-13b:Q4_K_M"  # 영어 번역 전용 모델 (Ollama용)
     ollama_base_url: str = "http://localhost:11434"  # Ollama 서버 URL
     
     # 배치 처리 설정
-    batch_size: int = 30
-    max_concurrent: int = 6
-    delay_between_batches: float = 0.8
+    batch_size: int = 50  # 30 -> 50으로 증가
+    max_concurrent: int = 10  # 6 -> 10으로 증가
+    delay_between_batches: float = 0.3  # 0.8 -> 0.3으로 감소
     
     # 재시도 설정
     max_retries: int = 3
     retry_delay: float = 2.0
     
     # 파일 처리 설정
-    chunk_size: int = 8000  # 한 번에 처리할 레코드 수
-    checkpoint_interval: int = 500  # 체크포인트 저장 간격
+    chunk_size: int = 12000  # 8000 -> 12000으로 증가 (메모리가 충분한 경우)
+    checkpoint_interval: int = 1000  # 500 -> 1000으로 증가 (체크포인트 빈도 감소)
     
     # 비용 관리
     budget_limit: float = 50.0  # $50 예산 제한
@@ -61,6 +63,41 @@ class TranslationConfig:
             print(f"2. .env 파일: {self.api_provider.upper()}_API_KEY=your-key")
             print("3. Ollama 사용: api_provider='ollama'로 설정하여 로컬 모델 사용")
             raise ValueError(f"{self.api_provider.upper()}_API_KEY가 필요합니다.")
+    
+    @classmethod
+    def create_fast_config(cls, api_provider: str = "ollama") -> 'TranslationConfig':
+        """고속 처리용 설정 생성"""
+        config = cls(api_provider=api_provider)
+        config.batch_size = 100  # 더 큰 배치 크기
+        config.max_concurrent = 15  # 더 높은 동시성
+        config.delay_between_batches = 0.1  # 더 짧은 지연
+        config.chunk_size = 20000  # 더 큰 청크 크기
+        config.checkpoint_interval = 2000  # 덜 빈번한 체크포인트
+        return config
+    
+    @classmethod
+    def create_gpu_optimized_config(cls, api_provider: str = "ollama") -> 'TranslationConfig':
+        """GPU 최적화 설정 - 배치 관리 및 안정성 중심"""
+        config = cls(api_provider=api_provider)
+        config.batch_size = 5  # GPU 메모리 고려한 안전한 배치 크기
+        config.max_concurrent = 1  # 순차 처리로 안정성 확보
+        config.delay_between_batches = 0.5  # 모델 전환 시간 확보
+        config.chunk_size = 1000  # 체크포인트 빈도 증가
+        config.checkpoint_interval = 50  # 더 자주 체크포인트
+        config.max_retries = 5  # 재시도 횟수 증가
+        config.retry_delay = 3.0  # 재시도 지연 증가
+        return config
+    
+    @classmethod 
+    def create_safe_config(cls, api_provider: str = "anthropic") -> 'TranslationConfig':
+        """안전한 처리용 설정 생성 (API 제한 고려)"""
+        config = cls(api_provider=api_provider)
+        config.batch_size = 20  # 작은 배치 크기
+        config.max_concurrent = 3  # 낮은 동시성
+        config.delay_between_batches = 1.0  # 긴 지연
+        config.chunk_size = 5000  # 작은 청크 크기
+        config.checkpoint_interval = 200  # 빈번한 체크포인트
+        return config
 
 
 class APIConfig:

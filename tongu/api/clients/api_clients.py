@@ -2,10 +2,19 @@
 
 import aiohttp
 import backoff
+import asyncio
 from typing import List, Dict, Any, Tuple
 import logging
 
-from config import TranslationConfig, APIConfig
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from core.config.config import TranslationConfig, APIConfig
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from error_handler import track_broken_pipe_error, track_connection_error, track_model_error
 
 
 class BaseAPIClient:
@@ -211,7 +220,10 @@ class OllamaClient(BaseAPIClient):
         endpoint = f"{self.base_url}/api/generate"
         
         try:
-            async with self.session.post(endpoint, json=payload) as response:
+            # Set longer timeout for model processing
+            timeout = aiohttp.ClientTimeout(total=300, connect=30)  # 5 minutes total, 30s connect
+            
+            async with self.session.post(endpoint, json=payload, timeout=timeout) as response:
                 if response.status == 200:
                     result = await response.json()
                     content = result.get("response", "").strip()
@@ -226,6 +238,8 @@ class OllamaClient(BaseAPIClient):
                             return skip_translations, usage_info
                         else:
                             print(f"\n⚠️ Ollama에서 빈 응답을 받았습니다")
+                            error_msg = "Empty response from Ollama"
+                            track_model_error(error_msg, model=model_to_use, target_lang=target_language)
                             error_translations = ["[Translation Error: Empty response from Ollama]" for _ in texts]
                             usage_info = {"input_tokens": 0, "output_tokens": 0}
                             return error_translations, usage_info
@@ -246,8 +260,8 @@ class OllamaClient(BaseAPIClient):
                     error_msg = f"Ollama API Error {response.status}: {error_text}"
                     print(f"\n❌ {error_msg}")
                     raise Exception(error_msg)
-        except aiohttp.ClientConnectorError:
-            error_msg = f"❌ Ollama 서버 연결 실패 ({self.base_url})"
+        except aiohttp.ClientConnectorError as e:
+            error_msg = f"❌ Ollama 서버 연결 실패 ({self.base_url}): {str(e)}"
             print(f"\n{error_msg}")
             print("   해결방법:")
             print("   1. ollama serve 명령으로 서버 시작")
@@ -255,8 +269,47 @@ class OllamaClient(BaseAPIClient):
             print(f"   3. 서버 URL 확인: {self.base_url}")
             self.logger.error(error_msg)
             
+            # Track connection error for monitoring
+            track_connection_error(error_msg, 
+                                        model=getattr(self, 'config', {}).get('model', 'unknown'),
+                                        base_url=self.base_url,
+                                        target_lang=target_lang)
+            
             # [Translation Error] 토큰으로 명시적 표시
             error_translations = ["[Translation Error: Ollama 서버 연결 실패]" for _ in texts]
+            usage_info = {"input_tokens": 0, "output_tokens": 0}
+            return error_translations, usage_info
+            
+        except (ConnectionResetError, BrokenPipeError) as e:
+            error_msg = f"❌ 연결이 끊어졌습니다 (Broken Pipe): {str(e)}"
+            print(f"\n{error_msg}")
+            print("   대용량 모델 처리 중 연결이 끊어질 수 있습니다.")
+            print("   잠시 후 재시도하거나 배치 크기를 줄여보세요.")
+            self.logger.error(error_msg)
+            
+            # Track broken pipe error for monitoring
+            track_broken_pipe_error(error_msg,
+                                  model=getattr(self, 'config', {}).get('model', 'unknown'),
+                                  base_url=self.base_url,
+                                  target_lang=target_lang,
+                                  batch_size=len(texts))
+            
+            error_translations = [f"[Translation Error: Connection broken - {str(e)}]" for _ in texts]
+            usage_info = {"input_tokens": 0, "output_tokens": 0}
+            return error_translations, usage_info
+            
+        except aiohttp.ServerTimeoutError as e:
+            error_msg = f"❌ 서버 응답 시간 초과: {str(e)}"
+            print(f"\n{error_msg}")
+            print("   대용량 모델이 응답하는데 시간이 오래 걸릴 수 있습니다.")
+            self.logger.error(error_msg)
+            
+            track_model_error(error_msg,
+                                     model=getattr(self, 'config', {}).get('model', 'unknown'),
+                                     target_lang=target_lang,
+                                     timeout=True)
+            
+            error_translations = [f"[Translation Error: Timeout - {str(e)}]" for _ in texts]
             usage_info = {"input_tokens": 0, "output_tokens": 0}
             return error_translations, usage_info
             
@@ -264,6 +317,12 @@ class OllamaClient(BaseAPIClient):
             error_msg = f"❌ Ollama API 호출 오류: {str(e)}"
             print(f"\n{error_msg}")
             self.logger.error(error_msg)
+            
+            # Track general API errors
+            track_model_error(error_msg,
+                                     model=getattr(self, 'config', {}).get('model', 'unknown'),
+                                     target_lang=target_lang,
+                                     error_type=type(e).__name__)
             
             # 구체적인 오류 정보와 함께 에러 토큰 반환
             error_translations = [f"[Translation Error: {str(e)}]" for _ in texts]

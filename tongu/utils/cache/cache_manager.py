@@ -5,7 +5,10 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 
-from text_processor import ClassicalTextExtractor
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from api.processors.text_processor import ClassicalTextExtractor
 
 
 class TranslationCache:
