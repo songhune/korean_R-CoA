@@ -277,6 +277,11 @@ class TonguTranslator:
         self.cache = {}
         self.cache_file = "tongu_cache.pkl"
         self.load_cache()
+        
+        # 체크포인트 설정
+        self.checkpoint_file = "checkpoints/tongu_checkpoint.json"
+        self.checkpoint_dir = Path("checkpoints")
+        self.checkpoint_dir.mkdir(exist_ok=True)
     
     def load_cache(self):
         """캐시 로드"""
@@ -294,6 +299,33 @@ class TonguTranslator:
                 pickle.dump(self.cache, f)
         except:
             pass
+    
+    def save_checkpoint(self, input_file: str, output_file: str, current_batch: int, total_batches: int, processed_count: int):
+        """체크포인트 저장"""
+        checkpoint_data = {
+            "input_file": input_file,
+            "output_file": output_file,
+            "current_batch": current_batch,
+            "total_batches": total_batches,
+            "processed_count": processed_count,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        try:
+            with open(self.checkpoint_file, 'w', encoding='utf-8') as f:
+                json.dump(checkpoint_data, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"⚠️ 체크포인트 저장 실패: {e}")
+    
+    def load_checkpoint(self) -> dict:
+        """체크포인트 로드"""
+        try:
+            if Path(self.checkpoint_file).exists():
+                with open(self.checkpoint_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        except Exception as e:
+            print(f"⚠️ 체크포인트 로드 실패: {e}")
+        return None
     
     def get_cache_key(self, text: str, target_lang: str) -> str:
         """캐시 키 생성"""
@@ -463,6 +495,66 @@ class TonguTranslator:
             print(f"❌ 파일 저장 오류: {e}")
             return False
     
+    async def translate_sample(self):
+        """샘플 번역"""
+        sample_data = [
+            {"task": "Classical Chinese to Modern Chinese", "data": {"instruction": "어떤 고전 중국어 문장을 현대 중국어로 번역하십시오.", "input": "", "output": "或遠不可徵，或弱不可任，則聽其耕商，而移其食以饁邊。", "history": []}}
+        ]
+        
+        print("🌱 샘플 번역 시작")
+        
+        for idx, item in enumerate(sample_data):
+            text = item['data']['output']
+            
+            # 한국어 번역
+            korean_result = await self.client.translate(
+                text=text, 
+                target_lang="korean", 
+                model=self.config.korean_model
+            )
+            
+            # 영어 번역  
+            english_result = await self.client.translate(
+                text=text, 
+                target_lang="english", 
+                model=self.config.english_model
+            )
+            
+            # 결과 통합
+            enhanced_item = item.copy()
+            enhanced_item.update({
+                "korean_translation": korean_result,
+                "english_translation": english_result,
+                "source_modern_chinese": "或有遙遠不能徵調的，或有罸弱不能能任的，就聽任他們農耕經商，但是移調他們的糟食充作邊軍軍韉。",
+                "original_classical_chinese": "或遠不可徵，或弱不可任，則聽其耕商，而移其食以饁邊。，能否幫我翻譯一下？",
+                "multilingual_enhanced": True
+            })
+            
+            # 결과 출력
+            output_file = "sample_ollama_translated.jsonl"
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write(json.dumps(enhanced_item, ensure_ascii=False) + '\n')
+            
+            print(f"✅ 샘플 {idx+1} 번역 완료")
+        
+        print(f"✅ 샘플 번역 완료: {output_file}")
+    
+    async def resume_translation(self):
+        """체크포인트에서 번역 재개"""
+        checkpoint = self.load_checkpoint()
+        if not checkpoint:
+            print("❌ 체크포인트를 찾을 수 없습니다")
+            return False
+            
+        input_file = checkpoint['input_file']
+        output_file = checkpoint['output_file']
+        
+        print(f"🔄 체크포인트에서 재개: {input_file}")
+        print(f"   - 현재 배치: {checkpoint['current_batch']}/{checkpoint['total_batches']}")
+        print(f"   - 처리된 항목: {checkpoint['processed_count']}개")
+        
+        return await self.translate_file(input_file, output_file, resume=True)
+    
     def check_ollama_status(self) -> bool:
         """Ollama 상태 확인"""
         try:
@@ -544,6 +636,9 @@ async def main():
             # 자동 재시작 모드
             if len(sys.argv) < 3:
                 print("사용법: python main.py restart <command>")
+                print("  sample: 샘플 번역 실행")
+                print("  test: 연결 테스트 실행")
+                print("  resume: 체크포인트에서 번역 재개")
                 return
             
             restart_command = sys.argv[2]
@@ -564,6 +659,9 @@ async def main():
                         break
                     elif restart_command == "test":
                         success = await translator.test_connection()
+                        break
+                    elif restart_command == "resume":
+                        success = await translator.resume_translation()
                         break
                     else:
                         print(f"❌ 알 수 없는 재시작 명령: {restart_command}")
