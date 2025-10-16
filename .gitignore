@@ -176,3 +176,8 @@ cython_debug/
 #pkl files
 *.pkl
 .DS_Store
+
+# VS Code
+.vscode/
+.history/
+*.code-workspace
