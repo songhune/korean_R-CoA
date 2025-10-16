@@ -16,16 +16,17 @@ import os
 import sys
 import json
 from pathlib import Path
+from typing import List
 
 # 프로젝트 루트 디렉토리를 path에 추가
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
 from network.kr_nli_generator import KoreanNLIGenerator
-from network.kr_sts_generator import KoreanSTSGenerator  
+from network.kr_sts_generator import KoreanSTSGenerator
 from network.cc_kr_processor import ClassicalChineseKoreanProcessor
 
-def load_korean_text_data(data_dir: str) -> list[str]:
+def load_korean_text_data(data_dir: str) -> List[str]:
     """한국어 텍스트 데이터 로드"""
     korean_texts = []
     
@@ -79,7 +80,7 @@ def load_korean_text_data(data_dir: str) -> list[str]:
     print(f"📊 총 한국어 텍스트: {len(korean_texts)}개")
     return korean_texts
 
-def generate_korean_nli_sts(korean_texts: list[str], output_dir: str):
+def generate_korean_nli_sts(korean_texts: List[str], output_dir: str):
     """한국어 NLI/STS 데이터 생성"""
     print("\n=== 한국어 NLI/STS 데이터 생성 시작 ===")
     
@@ -164,7 +165,7 @@ def create_dataset_summary(output_dir: str):
             
             try:
                 with open(filepath, 'r', encoding='utf-8') as f:
-                    line_count = sum(1 for line in f)
+                    line_count = sum(1 for _ in f)
                 
                 summary["dataset_info"]["files"].append({
                     "filename": filename,
