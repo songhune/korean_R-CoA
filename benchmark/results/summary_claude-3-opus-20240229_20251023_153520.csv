@@ -1,0 +1,6 @@
+﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
+claude-3-opus-20240229,classification,0.0,0.0,0.0,0.0,10,,,,,,,,
+claude-3-opus-20240229,retrieval,0.0,,,,10,0.0,,,,,,,
+claude-3-opus-20240229,punctuation,,,,,10,,0.5431901707611624,0.9625604340317813,0.6303357964421515,0.0,0.0,0.0,
+claude-3-opus-20240229,nli,0.3,0.9,0.3,0.42000000000000004,10,,,,,,,,
+claude-3-opus-20240229,translation,,,,,10,,,,,0.0,0.0,0.0,0.18347058422469717

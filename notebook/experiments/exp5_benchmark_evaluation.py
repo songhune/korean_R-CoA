@@ -24,6 +24,7 @@ import time
 import re
 from tqdm import tqdm
 import numpy as np
+import unicodedata
 
 # Metrics
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
@@ -167,6 +168,11 @@ class KClassicBenchEvaluator:
         preds_normalized = [normalize(p) for p in predictions]
         truths_normalized = [normalize(t) for t in ground_truths]
 
+        # 디버그 출력 (소량 데이터일 때만)
+        if len(predictions) <= 5:
+            for i, (pred, truth) in enumerate(zip(preds_normalized, truths_normalized)):
+                print(f"    {i+1}. Pred: '{pred}' vs Truth: '{truth}' -> {'✓' if pred == truth else '✗'}")
+
         accuracy = accuracy_score(truths_normalized, preds_normalized)
 
         # Per-class metrics
@@ -191,9 +197,27 @@ class KClassicBenchEvaluator:
             pred_book = pred.strip().split('-')[0].strip()
             truth_book = truth.strip().split('-')[0].strip()
 
+            # 괄호 내용 먼저 제거, 그 다음 한국어→한자 정규화
+            pred_book = re.sub(r'\([^)]*\)', '', pred_book).strip()
+            truth_book = re.sub(r'\([^)]*\)', '', truth_book).strip()
+
+            # 유니코드 정규화 (CJK Compatibility Ideographs → 표준 한자)
+            pred_book = unicodedata.normalize('NFKC', pred_book)
+            truth_book = unicodedata.normalize('NFKC', truth_book)
+
+            # 한국어→한자 정규화
+            pred_book = pred_book.replace('논어', '論語').replace('맹자', '孟子').replace('대학', '大學').replace('중용', '中庸')
+            truth_book = truth_book.replace('논어', '論語').replace('맹자', '孟子').replace('대학', '大學').replace('중용', '中庸')
+
             # 부분 매칭도 허용
-            if pred_book in truth_book or truth_book in pred_book:
+            match_result = (pred_book in truth_book or truth_book in pred_book)
+            if match_result:
                 correct += 1
+
+            # 디버그 출력 (소량 데이터일 때만)
+            if len(predictions) <= 5:
+                item_num = len([p for p, t in zip(predictions, ground_truths) if p and t])
+                print(f"    {item_num}. Pred: '{pred_book}' vs Truth: '{truth_book}' -> {'✓' if match_result else '✗'}")
 
         accuracy = correct / len(predictions) if predictions else 0
 
@@ -370,14 +394,16 @@ class KClassicBenchEvaluator:
                 # 모델 추론
                 try:
                     prediction = model.generate(system_prompt, user_prompt)
+                    if not prediction or prediction.strip() == "":
+                        print(f"  ⚠️  Empty prediction for item {len(predictions)+1}")
                     predictions.append(prediction)
                 except Exception as e:
-                    print(f"  ⚠️  Error: {e}")
+                    print(f"  ❌ Model generation error: {e}")
                     predictions.append("")
 
                 # API 호출 제한 대응
                 if self.model_type == 'api':
-                    time.sleep(0.5)  # Rate limiting
+                    time.sleep(1.0)  # Rate limiting - increased for GPT-4
 
             # 평가
             metrics = self.evaluate_task(task_name, predictions, task_data)
@@ -423,8 +449,11 @@ class KClassicBenchEvaluator:
         """결과 저장"""
         timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
 
+        # 모델명에서 슬래시를 언더스코어로 변경 (파일명에 사용 가능하도록)
+        safe_model_name = model_name.replace('/', '_')
+
         # JSON 저장
-        json_path = self.output_dir / f"results_{model_name}_{timestamp}.json"
+        json_path = self.output_dir / f"results_{safe_model_name}_{timestamp}.json"
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
@@ -441,7 +470,7 @@ class KClassicBenchEvaluator:
             summary_data.append(row)
 
         df = pd.DataFrame(summary_data)
-        csv_path = self.output_dir / f"summary_{model_name}_{timestamp}.csv"
+        csv_path = self.output_dir / f"summary_{safe_model_name}_{timestamp}.csv"
         df.to_csv(csv_path, index=False, encoding='utf-8-sig')
 
         print(f"💾 요약 저장: {csv_path}")
@@ -477,9 +506,16 @@ class OpenAIWrapper(BaseModelWrapper):
                 temperature=0.0,
                 max_tokens=500
             )
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            if content is None:
+                print(f"⚠️  Warning: Empty response from {self.model_name}")
+                return ""
+            return content.strip()
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"❌ OpenAI API Error: {e}")
+            print(f"   Model: {self.model_name}")
+            print(f"   System: {system_prompt[:50]}...")
+            print(f"   User: {user_prompt[:50]}...")
             return ""
 
 
@@ -511,7 +547,7 @@ class AnthropicWrapper(BaseModelWrapper):
 class HuggingFaceWrapper(BaseModelWrapper):
     """HuggingFace 모델 래퍼 (Llama, Qwen, EXAONE 등)"""
 
-    def __init__(self, model_name: str, device: str = "cuda"):
+    def __init__(self, model_name: str, device: str = "cuda", use_auth_token: bool = True):
         from transformers import AutoTokenizer, AutoModelForCausalLM
         import torch
 
@@ -519,11 +555,20 @@ class HuggingFaceWrapper(BaseModelWrapper):
         self.model_name = model_name
 
         print(f"Loading {model_name}...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        # HuggingFace token 사용 (gated models를 위해)
+        # use_auth_token is deprecated, use token instead
+        token = True if use_auth_token else None
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name,
+            token=token,
+            trust_remote_code=True
+        )
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            device_map="auto"
+            device_map="auto",
+            token=token,
+            trust_remote_code=True
         )
         print(f"✓ Model loaded")
 
@@ -551,43 +596,92 @@ class HuggingFaceWrapper(BaseModelWrapper):
             **inputs,
             max_new_tokens=500,
             temperature=0.0,
-            do_sample=False
+            do_sample=False,
+            pad_token_id=self.tokenizer.eos_token_id
         )
 
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Decode only the generated tokens (excluding input)
+        generated_tokens = outputs[0][inputs.input_ids.shape[1]:]
+        response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-        # Remove prompt from response
-        response = response[len(prompt):].strip()
-
-        return response
+        return response.strip()
 
 
 class TonguWrapper(BaseModelWrapper):
-    """Tongu 모델 래퍼"""
+    """Tongu 모델 래퍼 - SCUT-DLVCLab/TongGu-7B-Instruct"""
 
-    def __init__(self, model_path: str):
-        # Tongu 모델 로드 로직
-        # TODO: 실제 모델 로드 구현
+    def __init__(self, model_path: str = "SCUT-DLVCLab/TongGu-7B-Instruct", device: str = "cuda"):
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
         self.model_path = model_path
-        print(f"⚠️  Tongu wrapper - 구현 필요: {model_path}")
+        self.device = device
+
+        print(f"Loading Tongu model: {model_path}...")
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            device_map='auto',
+            torch_dtype=torch.bfloat16,
+            trust_remote_code=True
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        self.system_message = "你是通古，由华南理工大学DLVCLab训练而来的古文大模型。你具备丰富的古文知识，为用户提供有用、准确的回答。"
+        print(f"✓ Tongu model loaded")
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
-        # TODO: Tongu 모델 추론 구현
-        return ""
+        # Tongu의 프롬프트 형식: system_message + "\n<用户> " + query + "\n<通古> "
+        # system_prompt는 무시하고 Tongu의 기본 시스템 메시지 사용
+        prompt = f"{self.system_message}\n<用户> {user_prompt}\n<通古> "
+
+        try:
+            inputs = self.tokenizer(prompt, return_tensors='pt')
+            generate_ids = self.model.generate(
+                inputs.input_ids.to(self.device),
+                max_new_tokens=500,
+                temperature=0.0,
+                do_sample=False
+            )
+            generate_text = self.tokenizer.batch_decode(
+                generate_ids,
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False
+            )[0][len(prompt):]
+
+            return generate_text.strip()
+        except Exception as e:
+            print(f"❌ Tongu generation error: {e}")
+            return ""
 
 
 class GwenBertWrapper(BaseModelWrapper):
-    """GwenBert 모델 래퍼"""
+    """GwenBert 모델 래퍼 - ethanyt/guwenbert-base
 
-    def __init__(self, model_path: str):
-        # GwenBert 모델 로드 로직
-        # TODO: 실제 모델 로드 구현
+    Note: GwenBERT는 BERT 기반 인코더 모델로 생성 태스크에는 적합하지 않습니다.
+    주로 분류, 임베딩 등의 태스크에 사용됩니다.
+    이 래퍼는 제한적인 기능만 제공합니다.
+    """
+
+    def __init__(self, model_path: str = "ethanyt/guwenbert-base", device: str = "cuda"):
+        from transformers import AutoTokenizer, AutoModel
+        import torch
+
         self.model_path = model_path
-        print(f"⚠️  GwenBert wrapper - 구현 필요: {model_path}")
+        self.device = device
+
+        print(f"Loading GwenBERT model: {model_path}...")
+        print(f"⚠️  주의: GwenBERT는 인코더 모델로 생성 태스크에 제한적입니다.")
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.model = AutoModel.from_pretrained(model_path).to(device)
+        self.model.eval()
+        print(f"✓ GwenBERT model loaded")
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
-        # TODO: GwenBert 모델 추론 구현
-        return ""
+        """
+        GwenBERT는 생성 모델이 아니므로 실제 생성 불가능
+        임베딩만 추출 가능하여 벤치마크 평가에 적합하지 않음
+        """
+        print(f"⚠️  GwenBERT는 생성 태스크를 지원하지 않습니다.")
+        return "[GwenBERT는 생성 모델이 아닙니다]"
 
 
 # ============================================================================
@@ -600,10 +694,10 @@ def main():
 
     parser = argparse.ArgumentParser(description='K-ClassicBench Evaluation')
     parser.add_argument('--benchmark', type=str,
-                       default='/Users/songhune/Workspace/korean_eda/benchmark/k_classic_bench/k_classic_bench_full.json',
+                       default='/home/work/songhune/korean_R-CoA/benchmark/k_classic_bench/k_classic_bench_full.json',
                        help='벤치마크 JSON 파일 경로')
     parser.add_argument('--output', type=str,
-                       default='/Users/songhune/Workspace/korean_eda/benchmark/results',
+                       default='/home/work/songhune/korean_R-CoA/results',
                        help='결과 저장 디렉토리')
     parser.add_argument('--model-type', type=str, choices=['api', 'opensource', 'supervised'],
                        default='api', help='모델 타입')

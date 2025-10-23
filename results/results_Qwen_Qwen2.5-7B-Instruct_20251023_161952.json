@@ -1,0 +1,67 @@
+{
+  "model_name": "Qwen/Qwen2.5-7B-Instruct",
+  "model_type": "opensource",
+  "benchmark_version": "1.0",
+  "tasks": {
+    "classification": {
+      "metrics": {
+        "accuracy": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "명"
+      ]
+    },
+    "retrieval": {
+      "metrics": {
+        "accuracy": 1.0,
+        "correct": 1,
+        "num_samples": 1
+      },
+      "predictions": [
+        "논어"
+      ]
+    },
+    "punctuation": {
+      "metrics": {
+        "char_precision": 0.5476190476190477,
+        "char_recall": 0.9787234042553191,
+        "char_f1": 0.7022900763358778,
+        "rouge1_f1": 0.0,
+        "rouge2_f1": 0.0,
+        "rougeL_f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "구두점을 추가한 문장은 다음과 같습니다:\n\n史記·世家曰：孔子名丘，字仲尼。其先，宋人。父叔梁紇。母顔氏。以魯襄公二十二年庚戌之歲，十一月庚子，生孔子於魯昌平鄕陬邑。\n\n이렇게 구두점을 추가하면 문장의 구조와 의미를 더 명확하게 이해할 수 있습니다."
+      ]
+    },
+    "nli": {
+      "metrics": {
+        "accuracy": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "neutral\n\n전제는 임나라 사람이 옥려자에게 물어보았다는 내용을 담고 있지만, 옥려자의 답변은 명시되어 있지 않습니다. 따라서, 전제만으로는 가설이 참인지 거짓인지를 판단할 수 없습니다."
+      ]
+    },
+    "translation": {
+      "metrics": {
+        "bleu": 0.07909539079966219,
+        "rouge1_f1": 0.0,
+        "rouge2_f1": 0.0,
+        "rougeL_f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "번역: \"제일 근자한 인품이 세상에 적을 없이 살았는데, 제일 근자한 정의로움으로 제일 불정한 것을 공격하였다면, 왜 그 피가 창을 가득 채우는지 말하라.\" \n\n이 문장은 제자기(制氏記)라는 고전에서 나왔으며, 여기서 '仁人'은 근자한 사람, '至仁'은 제일 근자한 정의로움을, '至不仁'은 제일 불정한 사람을 의미합니다. '血之流杵'는 피가 창을 가득 채우는 상황을 묘사합니다. 이 문장은 근자한 사람이 불정한 사람을 공격했음에도 불구하고 그 결과가 예상치 못한 것이라는 뜻을 담고 있습니다."
+      ]
+    }
+  }
+}

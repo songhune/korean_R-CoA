@@ -1,0 +1,6 @@
+﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
+claude-3-5-sonnet-20241022,classification,0.1,1.0,0.1,0.18181818181818182,10,,,,,,,,
+claude-3-5-sonnet-20241022,retrieval,0.0,,,,10,0.0,,,,,,,
+claude-3-5-sonnet-20241022,punctuation,,,,,10,,0.2355237063591266,0.833382889821085,0.36316408298281705,0.0,0.0,0.0,
+claude-3-5-sonnet-20241022,nli,0.0,0.0,0.0,0.0,10,,,,,,,,
+claude-3-5-sonnet-20241022,translation,,,,,10,,,,,0.0,0.0,0.0,0.13953239823605537

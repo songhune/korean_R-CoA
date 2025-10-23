@@ -8,7 +8,8 @@ echo "========================================"
 echo ""
 
 # Python 환경 확인
-PYTHON_CMD=~/.pyenv/versions/3.10.10/envs/llm/bin/python
+#PYTHON_CMD=~/.pyenv/versions/3.10.10/envs/llm/bin/python
+PYTHON_CMD=/usr/bin/python
 
 if [ ! -f "$PYTHON_CMD" ]; then
     echo "⚠️  Python 환경을 찾을 수 없습니다: $PYTHON_CMD"

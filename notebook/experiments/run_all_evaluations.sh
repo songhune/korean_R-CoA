@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Python 환경 설정
+export PYTHONPATH="${PYTHONPATH}:${HOME}/.local/lib/python3.12/site-packages"
+
+# .env 파일이 있으면 환경 변수 로드
+if [ -f .env ]; then
+    echo "📋 .env 파일에서 환경 변수 로드 중..."
+    export $(grep -v '^#' .env | xargs)
+    echo "✅ 환경 변수 로드 완료"
+else
+    echo "⚠️  .env 파일을 찾을 수 없습니다"
+fi
+echo ""
+
 # K-ClassicBench 전체 모델 평가 스크립트
 # 사용법: ./run_all_evaluations.sh [test|full]
 # - test: 각 태스크당 10개 샘플로 테스트
@@ -50,7 +63,6 @@ if [ ! -z "$OPENAI_API_KEY" ]; then
     python exp5_benchmark_evaluation.py \
         --model-type api \
         --model-name gpt-4-turbo \
-        --api-key $OPENAI_API_KEY \
         $MAX_SAMPLES
 
     echo ""
@@ -58,7 +70,6 @@ if [ ! -z "$OPENAI_API_KEY" ]; then
     python exp5_benchmark_evaluation.py \
         --model-type api \
         --model-name gpt-3.5-turbo \
-        --api-key $OPENAI_API_KEY \
         $MAX_SAMPLES
 fi
 
@@ -69,7 +80,6 @@ if [ ! -z "$ANTHROPIC_API_KEY" ]; then
     python exp5_benchmark_evaluation.py \
         --model-type api \
         --model-name claude-3-5-sonnet-20241022 \
-        --api-key $ANTHROPIC_API_KEY \
         $MAX_SAMPLES
 
     echo ""
@@ -77,7 +87,6 @@ if [ ! -z "$ANTHROPIC_API_KEY" ]; then
     python exp5_benchmark_evaluation.py \
         --model-type api \
         --model-name claude-3-opus-20240229 \
-        --api-key $ANTHROPIC_API_KEY \
         $MAX_SAMPLES
 fi
 
@@ -117,20 +126,20 @@ echo "========================================"
 echo "🎓 3. 지도학습 모델 평가"
 echo "========================================"
 
-# Tongu (구현 필요)
+# Tongu
 echo ""
-echo "⚠️  Tongu 모델 - 구현 필요"
-# python exp5_benchmark_evaluation.py \
-#     --model-type supervised \
-#     --model-name tongu \
-#     $MAX_SAMPLES
+echo "🤖 TongGu-7B-Instruct 평가 중..."
+python exp5_benchmark_evaluation.py \
+    --model-type supervised \
+    --model-name SCUT-DLVCLab/TongGu-7B-Instruct \
+    $MAX_SAMPLES
 
-# GwenBert (구현 필요)
+# GwenBert (인코더 모델이라 생성 태스크에 부적합)
 echo ""
-echo "⚠️  GwenBert 모델 - 구현 필요"
+echo "⚠️  GwenBert 모델 - 인코더 모델로 생성 태스크에 부적합하여 스킵"
 # python exp5_benchmark_evaluation.py \
 #     --model-type supervised \
-#     --model-name gwenbert \
+#     --model-name ethanyt/guwenbert-base \
 #     $MAX_SAMPLES
 
 echo ""
@@ -139,7 +148,7 @@ echo "✅ 모든 평가 완료!"
 echo "========================================"
 echo ""
 echo "📊 결과 확인:"
-echo "   - 결과 디렉토리: ../../benchmark/results/"
+echo "   - 결과 디렉토리: ../../results/"
 echo "   - JSON 파일: results_*_*.json"
 echo "   - CSV 요약: summary_*_*.csv"
 echo ""

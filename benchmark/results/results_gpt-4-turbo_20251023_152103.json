@@ -1,0 +1,67 @@
+{
+  "model_name": "gpt-4-turbo",
+  "model_type": "api",
+  "benchmark_version": "1.0",
+  "tasks": {
+    "classification": {
+      "metrics": {
+        "accuracy": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        ""
+      ]
+    },
+    "retrieval": {
+      "metrics": {
+        "accuracy": 1.0,
+        "correct": 1,
+        "num_samples": 1
+      },
+      "predictions": [
+        ""
+      ]
+    },
+    "punctuation": {
+      "metrics": {
+        "char_precision": 0.0,
+        "char_recall": 0.0,
+        "char_f1": 0.0,
+        "rouge1_f1": 0.0,
+        "rouge2_f1": 0.0,
+        "rougeL_f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        ""
+      ]
+    },
+    "nli": {
+      "metrics": {
+        "accuracy": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        ""
+      ]
+    },
+    "translation": {
+      "metrics": {
+        "bleu": 0,
+        "rouge1_f1": 0.0,
+        "rouge2_f1": 0.0,
+        "rougeL_f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        ""
+      ]
+    }
+  }
+}
