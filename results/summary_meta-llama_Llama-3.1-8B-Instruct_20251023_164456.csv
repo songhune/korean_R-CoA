@@ -1,0 +1,6 @@
+﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
+meta-llama/Llama-3.1-8B-Instruct,classification,0.2,1.0,0.2,0.3333333333333333,10,,,,,,,,
+meta-llama/Llama-3.1-8B-Instruct,retrieval,0.4,,,,10,4.0,,,,,,,
+meta-llama/Llama-3.1-8B-Instruct,punctuation,,,,,10,,0.9105196117741151,0.9400285137007517,0.9221626954135542,0.0,0.0,0.0,
+meta-llama/Llama-3.1-8B-Instruct,nli,0.0,0.0,0.0,0.0,10,,,,,,,,
+meta-llama/Llama-3.1-8B-Instruct,translation,,,,,10,,,,,0.1,0.1,0.1,0.16185365754386244

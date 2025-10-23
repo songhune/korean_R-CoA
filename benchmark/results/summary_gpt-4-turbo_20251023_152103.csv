@@ -1,6 +1,0 @@
-﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
-gpt-4-turbo,classification,0.0,0.0,0.0,0.0,1,,,,,,,,
-gpt-4-turbo,retrieval,1.0,,,,1,1.0,,,,,,,
-gpt-4-turbo,punctuation,,,,,1,,0.0,0.0,0.0,0.0,0.0,0.0,
-gpt-4-turbo,nli,0.0,0.0,0.0,0.0,1,,,,,,,,
-gpt-4-turbo,translation,,,,,1,,,,,0.0,0.0,0.0,0.0
