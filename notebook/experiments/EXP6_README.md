@@ -206,16 +206,16 @@ classical Chinese text understanding requires [INSERT IMPLICATION].
 ## Success Criteria
 
 ### Minimum Viable Results
-- ✅ Complete evaluation for 3 open-source models
-- ✅ 1-shot and 3-shot results for Classification and NLI
-- ✅ Comparison with zero-shot baseline
-- ✅ At least one visualization showing improvements
+- [DONE] Complete evaluation for 3 open-source models
+- [DONE] 1-shot and 3-shot results for Classification and NLI
+- [DONE] Comparison with zero-shot baseline
+- [DONE] At least one visualization showing improvements
 
 ### Complete Results
-- ✅ All 5 target models evaluated
-- ✅ Statistical significance testing (paired t-test)
-- ✅ Error analysis with qualitative examples
-- ✅ Per-label breakdown for Classification
+- [DONE] All 5 target models evaluated
+- [DONE] Statistical significance testing (paired t-test)
+- [DONE] Error analysis with qualitative examples
+- [DONE] Per-label breakdown for Classification
 
 ## Troubleshooting
 

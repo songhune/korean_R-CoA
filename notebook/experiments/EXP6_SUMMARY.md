@@ -1,6 +1,6 @@
 # Experiment 6: Few-shot Evaluation - Implementation Summary
 
-## Status: ✅ COMPLETE - Ready to Execute
+## Status: [DONE] COMPLETE - Ready to Execute
 
 **Created**: 2025-10-27
 **Estimated Runtime**: 1-2 days
@@ -80,13 +80,13 @@ python exp6_analyze_improvements.py
 ## Target Models
 
 ### Priority Tier 1 (Open-Source - Default)
-✅ **Llama 3.1 8B** - NLI 0%, Classification 20%
-✅ **Qwen 2.5 7B** - Both 0%
-✅ **EXAONE 3.0 7.8B** - Both 0%
+[DONE] **Llama 3.1 8B** - NLI 0%, Classification 20%
+[DONE] **Qwen 2.5 7B** - Both 0%
+[DONE] **EXAONE 3.0 7.8B** - Both 0%
 
 ### Priority Tier 2 (API - Optional)
-⏳ **Claude 3.5 Sonnet** - NLI 0%, Classification 10%
-⏳ **Claude 3 Opus** - NLI 30%, Classification 0%
+[IN-PROGRESS] **Claude 3.5 Sonnet** - NLI 0%, Classification 10%
+[IN-PROGRESS] **Claude 3 Opus** - NLI 30%, Classification 0%
 
 ---
 
@@ -236,29 +236,29 @@ or fundamental capability limitations, we conduct few-shot evaluation
 ## Success Criteria
 
 ### Minimum Viable
-- ✅ Implementation complete
-- ⏳ Execution for 3 open-source models
-- ⏳ Analysis with visualizations
-- ⏳ At least one figure for paper
+- [DONE] Implementation complete
+- [IN-PROGRESS] Execution for 3 open-source models
+- [IN-PROGRESS] Analysis with visualizations
+- [IN-PROGRESS] At least one figure for paper
 
 ### Complete
-- ✅ Implementation complete
-- ⏳ All 5 target models evaluated
-- ⏳ Comprehensive analysis with statistical tests
-- ⏳ Integration into paper (Section V + Discussion)
+- [DONE] Implementation complete
+- [IN-PROGRESS] All 5 target models evaluated
+- [IN-PROGRESS] Comprehensive analysis with statistical tests
+- [IN-PROGRESS] Integration into paper (Section V + Discussion)
 
 ---
 
 ## Verification Checklist
 
-- ✅ Python scripts compile without errors
-- ✅ Shell script is executable (chmod +x)
-- ✅ Imports from exp5 verified (model wrappers available)
-- ✅ Documentation complete (README + integration notes)
-- ✅ Output directories configured correctly
-- ⏳ Benchmark file exists (`k_classic_bench_full.json`)
-- ⏳ Zero-shot results available for comparison (`aggregated_results.json`)
-- ⏳ GPU available for open-source models (H100)
+- [DONE] Python scripts compile without errors
+- [DONE] Shell script is executable (chmod +x)
+- [DONE] Imports from exp5 verified (model wrappers available)
+- [DONE] Documentation complete (README + integration notes)
+- [DONE] Output directories configured correctly
+- [IN-PROGRESS] Benchmark file exists (`k_classic_bench_full.json`)
+- [IN-PROGRESS] Zero-shot results available for comparison (`aggregated_results.json`)
+- [IN-PROGRESS] GPU available for open-source models (H100)
 
 ---
 
@@ -321,7 +321,7 @@ IEEE_for_journals_template_with_bibtex_example_files_included/
 
 ## Summary
 
-✅ **Experiment 6 is fully implemented and ready to execute.**
+[DONE] **Experiment 6 is fully implemented and ready to execute.**
 
 The complete pipeline includes:
 - Few-shot evaluation for 5 target models
