@@ -24,6 +24,7 @@ import time
 import re
 from tqdm import tqdm
 import numpy as np
+import unicodedata
 
 # Metrics
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
@@ -167,6 +168,11 @@ class KClassicBenchEvaluator:
         preds_normalized = [normalize(p) for p in predictions]
         truths_normalized = [normalize(t) for t in ground_truths]
 
+        # 디버그 출력 (소량 데이터일 때만)
+        if len(predictions) <= 5:
+            for i, (pred, truth) in enumerate(zip(preds_normalized, truths_normalized)):
+                print(f"    {i+1}. Pred: '{pred}' vs Truth: '{truth}' -> {'✓' if pred == truth else '✗'}")
+
         accuracy = accuracy_score(truths_normalized, preds_normalized)
 
         # Per-class metrics
@@ -191,9 +197,27 @@ class KClassicBenchEvaluator:
             pred_book = pred.strip().split('-')[0].strip()
             truth_book = truth.strip().split('-')[0].strip()
 
+            # 괄호 내용 먼저 제거, 그 다음 한국어→한자 정규화
+            pred_book = re.sub(r'\([^)]*\)', '', pred_book).strip()
+            truth_book = re.sub(r'\([^)]*\)', '', truth_book).strip()
+
+            # 유니코드 정규화 (CJK Compatibility Ideographs → 표준 한자)
+            pred_book = unicodedata.normalize('NFKC', pred_book)
+            truth_book = unicodedata.normalize('NFKC', truth_book)
+
+            # 한국어→한자 정규화
+            pred_book = pred_book.replace('논어', '論語').replace('맹자', '孟子').replace('대학', '大學').replace('중용', '中庸')
+            truth_book = truth_book.replace('논어', '論語').replace('맹자', '孟子').replace('대학', '大學').replace('중용', '中庸')
+
             # 부분 매칭도 허용
-            if pred_book in truth_book or truth_book in pred_book:
+            match_result = (pred_book in truth_book or truth_book in pred_book)
+            if match_result:
                 correct += 1
+
+            # 디버그 출력 (소량 데이터일 때만)
+            if len(predictions) <= 5:
+                item_num = len([p for p, t in zip(predictions, ground_truths) if p and t])
+                print(f"    {item_num}. Pred: '{pred_book}' vs Truth: '{truth_book}' -> {'✓' if match_result else '✗'}")
 
         accuracy = correct / len(predictions) if predictions else 0
 
@@ -370,14 +394,16 @@ class KClassicBenchEvaluator:
                 # 모델 추론
                 try:
                     prediction = model.generate(system_prompt, user_prompt)
+                    if not prediction or prediction.strip() == "":
+                        print(f"  ⚠️  Empty prediction for item {len(predictions)+1}")
                     predictions.append(prediction)
                 except Exception as e:
-                    print(f"  ⚠️  Error: {e}")
+                    print(f"  ❌ Model generation error: {e}")
                     predictions.append("")
 
                 # API 호출 제한 대응
                 if self.model_type == 'api':
-                    time.sleep(0.5)  # Rate limiting
+                    time.sleep(1.0)  # Rate limiting - increased for GPT-4
 
             # 평가
             metrics = self.evaluate_task(task_name, predictions, task_data)
@@ -477,9 +503,16 @@ class OpenAIWrapper(BaseModelWrapper):
                 temperature=0.0,
                 max_tokens=500
             )
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            if content is None:
+                print(f"⚠️  Warning: Empty response from {self.model_name}")
+                return ""
+            return content.strip()
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"❌ OpenAI API Error: {e}")
+            print(f"   Model: {self.model_name}")
+            print(f"   System: {system_prompt[:50]}...")
+            print(f"   User: {user_prompt[:50]}...")
             return ""
 
 

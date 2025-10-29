@@ -1,0 +1,67 @@
+{
+  "model_name": "gpt-4",
+  "model_type": "api",
+  "benchmark_version": "1.0",
+  "tasks": {
+    "classification": {
+      "metrics": {
+        "accuracy": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "詩(시)"
+      ]
+    },
+    "retrieval": {
+      "metrics": {
+        "accuracy": 0.0,
+        "correct": 0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "論語"
+      ]
+    },
+    "punctuation": {
+      "metrics": {
+        "char_precision": 0.9347826086956522,
+        "char_recall": 0.9148936170212766,
+        "char_f1": 0.924731182795699,
+        "rouge1_f1": 0.0,
+        "rouge2_f1": 0.0,
+        "rougeL_f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "史記世家曰, 孔子名丘, 字仲尼, 其先宋人. 父叔梁紇, 母顔氏, 以魯襄公二十二年庚戌之歲, 十一月庚子生孔子於魯昌平鄕陬邑."
+      ]
+    },
+    "nli": {
+      "metrics": {
+        "accuracy": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "neutral"
+      ]
+    },
+    "translation": {
+      "metrics": {
+        "bleu": 0.19131054403176068,
+        "rouge1_f1": 0.0,
+        "rouge2_f1": 0.0,
+        "rougeL_f1": 0.0,
+        "num_samples": 1
+      },
+      "predictions": [
+        "번역: 인자한 사람은 세상에서 적이 없으며, 지극히 인자한 자가 지극히 비인자한 자를 벌할 때 그 피 흘리는 것이 어찌 그리 많을까요."
+      ]
+    }
+  }
+}
