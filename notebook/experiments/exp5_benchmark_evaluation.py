@@ -467,8 +467,11 @@ class KLSBenchEvaluator:
         """결과 저장"""
         timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
 
+        # 모델명에서 슬래시를 언더스코어로 변경 (파일명에 사용 가능하도록)
+        safe_model_name = model_name.replace('/', '_')
+
         # JSON 저장
-        json_path = self.output_dir / f"results_{model_name}_{timestamp}.json"
+        json_path = self.output_dir / f"results_{safe_model_name}_{timestamp}.json"
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
@@ -485,7 +488,7 @@ class KLSBenchEvaluator:
             summary_data.append(row)
 
         df = pd.DataFrame(summary_data)
-        csv_path = self.output_dir / f"summary_{model_name}_{timestamp}.csv"
+        csv_path = self.output_dir / f"summary_{safe_model_name}_{timestamp}.csv"
         df.to_csv(csv_path, index=False, encoding='utf-8-sig')
 
         print(f"[SAVE] Summary saved to: {csv_path}")
@@ -562,7 +565,7 @@ class AnthropicWrapper(BaseModelWrapper):
 class HuggingFaceWrapper(BaseModelWrapper):
     """HuggingFace 모델 래퍼 (Llama, Qwen, EXAONE 등)"""
 
-    def __init__(self, model_name: str, device: str = "cuda"):
+    def __init__(self, model_name: str, device: str = "cuda", use_auth_token: bool = True):
         from transformers import AutoTokenizer, AutoModelForCausalLM
         import torch
 
@@ -570,11 +573,20 @@ class HuggingFaceWrapper(BaseModelWrapper):
         self.model_name = model_name
 
         print(f"Loading {model_name}...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        # HuggingFace token 사용 (gated models를 위해)
+        # use_auth_token is deprecated, use token instead
+        token = True if use_auth_token else None
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name,
+            token=token,
+            trust_remote_code=True
+        )
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            device_map="auto"
+            device_map="auto",
+            token=token,
+            trust_remote_code=True
         )
         print(f"✓ Model loaded")
 
@@ -602,43 +614,74 @@ class HuggingFaceWrapper(BaseModelWrapper):
             **inputs,
             max_new_tokens=500,
             temperature=0.0,
-            do_sample=False
+            do_sample=False,
+            pad_token_id=self.tokenizer.eos_token_id
         )
 
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Decode only the generated tokens (excluding input)
+        generated_tokens = outputs[0][inputs.input_ids.shape[1]:]
+        response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-        # Remove prompt from response
-        response = response[len(prompt):].strip()
-
-        return response
+        return response.strip()
 
 
 class TonguWrapper(BaseModelWrapper):
-    """Tongu 모델 래퍼"""
+    """Tongu 모델 래퍼 - SCUT-DLVCLab/TongGu-7B-Instruct"""
 
-    def __init__(self, model_path: str):
-        # Tongu 모델 로드 로직
-        # TODO: 실제 모델 로드 구현
+    def __init__(self, model_path: str = "SCUT-DLVCLab/TongGu-7B-Instruct", device: str = "cuda"):
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
         self.model_path = model_path
         print(f"[WARNING] Tongu wrapper not implemented: {model_path}")
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
-        # TODO: Tongu 모델 추론 구현
-        return ""
+        # Tongu의 프롬프트 형식: system_message + "\n<用户> " + query + "\n<通古> "
+        # system_prompt는 무시하고 Tongu의 기본 시스템 메시지 사용
+        prompt = f"{self.system_message}\n<用户> {user_prompt}\n<通古> "
+
+        try:
+            inputs = self.tokenizer(prompt, return_tensors='pt')
+            generate_ids = self.model.generate(
+                inputs.input_ids.to(self.device),
+                max_new_tokens=500,
+                temperature=0.0,
+                do_sample=False
+            )
+            generate_text = self.tokenizer.batch_decode(
+                generate_ids,
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False
+            )[0][len(prompt):]
+
+            return generate_text.strip()
+        except Exception as e:
+            print(f"❌ Tongu generation error: {e}")
+            return ""
 
 
 class GwenBertWrapper(BaseModelWrapper):
-    """GwenBert 모델 래퍼"""
+    """GwenBert 모델 래퍼 - ethanyt/guwenbert-base
 
-    def __init__(self, model_path: str):
-        # GwenBert 모델 로드 로직
-        # TODO: 실제 모델 로드 구현
+    Note: GwenBERT는 BERT 기반 인코더 모델로 생성 태스크에는 적합하지 않습니다.
+    주로 분류, 임베딩 등의 태스크에 사용됩니다.
+    이 래퍼는 제한적인 기능만 제공합니다.
+    """
+
+    def __init__(self, model_path: str = "ethanyt/guwenbert-base", device: str = "cuda"):
+        from transformers import AutoTokenizer, AutoModel
+        import torch
+
         self.model_path = model_path
         print(f"[WARNING] GwenBert wrapper not implemented: {model_path}")
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
-        # TODO: GwenBert 모델 추론 구현
-        return ""
+        """
+        GwenBERT는 생성 모델이 아니므로 실제 생성 불가능
+        임베딩만 추출 가능하여 벤치마크 평가에 적합하지 않음
+        """
+        print(f"⚠️  GwenBERT는 생성 태스크를 지원하지 않습니다.")
+        return "[GwenBERT는 생성 모델이 아닙니다]"
 
 
 # ============================================================================
@@ -654,7 +697,7 @@ def main():
                        default='/Users/songhune/Workspace/korean_eda/benchmark/kls_bench/kls_bench_full.json',
                        help='벤치마크 JSON 파일 경로')
     parser.add_argument('--output', type=str,
-                       default='/Users/songhune/Workspace/korean_eda/benchmark/results',
+                       default='/home/work/songhune/korean_R-CoA/results',
                        help='결과 저장 디렉토리')
     parser.add_argument('--model-type', type=str, choices=['api', 'opensource', 'supervised'],
                        default='api', help='모델 타입')

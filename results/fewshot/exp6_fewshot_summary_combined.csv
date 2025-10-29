@@ -1,0 +1,13 @@
+model,task,n_shots,accuracy,f1,num_samples
+meta-llama/Llama-3.1-8B-Instruct,classification,1,0.1,0.0401587301587301,50
+meta-llama/Llama-3.1-8B-Instruct,classification,3,0.1836734693877551,0.0653235653235653,49
+meta-llama/Llama-3.1-8B-Instruct,nli,1,0.82,0.670935080405003,50
+meta-llama/Llama-3.1-8B-Instruct,nli,3,0.72,0.3857142857142857,50
+Qwen/Qwen2.5-7B-Instruct,classification,1,0.3,0.0934294871794871,50
+Qwen/Qwen2.5-7B-Instruct,classification,3,0.2653061224489796,0.1400539557061296,49
+Qwen/Qwen2.5-7B-Instruct,nli,1,0.92,0.7787878787878788,50
+Qwen/Qwen2.5-7B-Instruct,nli,3,0.96,0.8095238095238096,50
+LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct,classification,1,0.02,0.00390625,50
+LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct,classification,3,0.1428571428571428,0.0274891774891774,49
+LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct,nli,1,0.04,0.0023148148148148,50
+LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct,nli,3,0.12,0.0073170731707317,50

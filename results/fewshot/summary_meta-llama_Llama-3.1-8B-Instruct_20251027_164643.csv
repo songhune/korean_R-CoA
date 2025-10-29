@@ -1,0 +1,5 @@
+model,task,n_shots,accuracy,f1,num_samples
+meta-llama/Llama-3.1-8B-Instruct,classification,1,0.1,0.04015873015873016,50
+meta-llama/Llama-3.1-8B-Instruct,classification,3,0.1836734693877551,0.06532356532356533,49
+meta-llama/Llama-3.1-8B-Instruct,nli,1,0.82,0.670935080405003,50
+meta-llama/Llama-3.1-8B-Instruct,nli,3,0.72,0.3857142857142857,50

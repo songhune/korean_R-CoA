@@ -1,0 +1,5 @@
+model,task,n_shots,accuracy,f1,num_samples
+Qwen/Qwen2.5-7B-Instruct,classification,1,0.3,0.09342948717948718,50
+Qwen/Qwen2.5-7B-Instruct,classification,3,0.2653061224489796,0.14005395570612963,49
+Qwen/Qwen2.5-7B-Instruct,nli,1,0.92,0.7787878787878788,50
+Qwen/Qwen2.5-7B-Instruct,nli,3,0.96,0.8095238095238096,50

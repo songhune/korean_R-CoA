@@ -1,22 +1,35 @@
 #!/bin/bash
 
-# KLSBench 전체 모델 평가 스크립트
-# 사용법: ./run_all_evaluations.sh [MODE] [RATIO]
+# Python environment setup
+export PYTHONPATH="${PYTHONPATH}:${HOME}/.local/lib/python3.12/site-packages"
+
+# Load environment variables from .env if exists
+if [ -f .env ]; then
+    echo "[CONFIG] Loading environment variables from .env"
+    export $(grep -v '^#' .env | xargs)
+    echo "[OK] Environment variables loaded"
+else
+    echo "[WARNING] .env file not found"
+fi
+echo ""
+
+# KLSBench Full Model Evaluation Script
+# Usage: ./run_all_evaluations.sh [MODE] [RATIO]
 #
 # MODE:
-#   - test: 각 태스크당 10개 샘플로 테스트
-#   - sample: 전체의 일정 비율 샘플링 (RATIO 필요)
-#   - full: 전체 벤치마크 평가
+#   - test: Test with 10 samples per task
+#   - sample: Sample a ratio of full benchmark (requires RATIO)
+#   - full: Evaluate full benchmark
 #
-# RATIO: sample 모드에서 샘플링 비율 (예: 0.1, 0.3, 0.5)
+# RATIO: Sampling ratio for sample mode (e.g., 0.1, 0.3, 0.5)
 #
-# 예시:
-#   ./run_all_evaluations.sh test          # 10개 샘플 테스트
-#   ./run_all_evaluations.sh sample 0.3    # 전체의 30% 샘플링
-#   ./run_all_evaluations.sh full          # 전체 평가
+# Examples:
+#   ./run_all_evaluations.sh test          # Test with 10 samples
+#   ./run_all_evaluations.sh sample 0.3    # Sample 30% of data
+#   ./run_all_evaluations.sh full          # Full evaluation
 
-MODE=${1:-test}  # 기본값: test
-RATIO=${2:-0.3}  # 기본값: 0.3 (30%)
+MODE=${1:-test}  # Default: test
+RATIO=${2:-0.3}  # Default: 0.3 (30%)
 
 if [ "$MODE" = "test" ]; then
     MAX_SAMPLES="--max-samples 10"
@@ -137,20 +150,20 @@ echo "========================================"
 echo "[3/3] Supervised Learning Models"
 echo "========================================"
 
-# Tongu (Not implemented yet)
+# TongGu
 echo ""
-echo "[WARNING] Tongu model - Implementation needed"
-# python exp5_benchmark_evaluation.py \
-#     --model-type supervised \
-#     --model-name tongu \
-#     $MAX_SAMPLES
+echo "[TongGu-7B-Instruct] Evaluating..."
+python exp5_benchmark_evaluation.py \
+    --model-type supervised \
+    --model-name SCUT-DLVCLab/TongGu-7B-Instruct \
+    $MAX_SAMPLES
 
-# GwenBert (Not implemented yet)
+# GwenBert (encoder model, not suitable for generation tasks)
 echo ""
-echo "[WARNING] GwenBert model - Implementation needed"
+echo "[WARNING] GwenBert model - Encoder model, not suitable for generation tasks"
 # python exp5_benchmark_evaluation.py \
 #     --model-type supervised \
-#     --model-name gwenbert \
+#     --model-name ethanyt/guwenbert-base \
 #     $MAX_SAMPLES
 
 echo ""
