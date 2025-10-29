@@ -39,19 +39,22 @@ class KClassicBenchEvaluator:
                  benchmark_path: str,
                  output_dir: str,
                  model_type: str = "api",  # "api", "opensource", "supervised"
-                 max_samples_per_task: Optional[int] = None):
+                 max_samples_per_task: Optional[int] = None,
+                 sample_ratio: Optional[float] = None):
         """
         Args:
             benchmark_path: 벤치마크 JSON 파일 경로
             output_dir: 결과 저장 디렉토리
             model_type: 모델 타입 (api/opensource/supervised)
             max_samples_per_task: 태스크당 최대 샘플 수 (None이면 전체)
+            sample_ratio: 샘플링 비율 (0.0~1.0, None이면 전체)
         """
         self.benchmark_path = Path(benchmark_path)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.model_type = model_type
         self.max_samples_per_task = max_samples_per_task
+        self.sample_ratio = sample_ratio
 
         # 벤치마크 로드
         self.load_benchmark()
@@ -69,7 +72,7 @@ class KClassicBenchEvaluator:
         print(f"  ✓ 총 {self.benchmark['benchmark_info']['total_size']:,}개 항목")
         print(f"  ✓ {len(self.benchmark['tasks'])}개 태스크")
 
-        # 샘플 제한 적용
+        # 샘플 제한 적용 (우선순위: max_samples > sample_ratio)
         if self.max_samples_per_task:
             print(f"\n⚠️  각 태스크당 최대 {self.max_samples_per_task}개 샘플로 제한")
             for task_name, task_data in self.benchmark['tasks'].items():
@@ -77,6 +80,21 @@ class KClassicBenchEvaluator:
                 task_data['data'] = task_data['data'][:self.max_samples_per_task]
                 task_data['size'] = len(task_data['data'])
                 print(f"  - {task_name}: {original_size} → {task_data['size']}")
+        elif self.sample_ratio:
+            print(f"\n📊 샘플링 비율 {self.sample_ratio} ({self.sample_ratio*100:.1f}%) 적용")
+            total_sampled = 0
+            for task_name, task_data in self.benchmark['tasks'].items():
+                original_size = len(task_data['data'])
+                sample_size = max(1, int(original_size * self.sample_ratio))
+
+                # 랜덤 샘플링 (재현성을 위해 seed 고정)
+                np.random.seed(42)
+                indices = np.random.choice(original_size, sample_size, replace=False)
+                task_data['data'] = [task_data['data'][i] for i in sorted(indices)]
+                task_data['size'] = len(task_data['data'])
+                total_sampled += task_data['size']
+                print(f"  - {task_name}: {original_size} → {task_data['size']} ({task_data['size']/original_size*100:.1f}%)")
+            print(f"  - 총계: {self.benchmark['benchmark_info']['total_size']} → {total_sampled} ({total_sampled/self.benchmark['benchmark_info']['total_size']*100:.1f}%)")
 
     def setup_prompts(self):
         """프롬프트 템플릿 설정"""
@@ -646,6 +664,8 @@ def main():
                        help='API 키 (API 모델 사용시)')
     parser.add_argument('--max-samples', type=int, default=None,
                        help='태스크당 최대 샘플 수 (테스트용)')
+    parser.add_argument('--sample-ratio', type=float, default=None,
+                       help='샘플링 비율 (0.0~1.0, 예: 0.3=30%%)')
 
     args = parser.parse_args()
 
@@ -654,7 +674,8 @@ def main():
         benchmark_path=args.benchmark,
         output_dir=args.output,
         model_type=args.model_type,
-        max_samples_per_task=args.max_samples
+        max_samples_per_task=args.max_samples,
+        sample_ratio=args.sample_ratio
     )
 
     # 모델 초기화

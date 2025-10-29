@@ -1,18 +1,38 @@
 #!/bin/bash
 
 # K-ClassicBench 전체 모델 평가 스크립트
-# 사용법: ./run_all_evaluations.sh [test|full]
-# - test: 각 태스크당 10개 샘플로 테스트
-# - full: 전체 벤치마크 평가
+# 사용법: ./run_all_evaluations.sh [MODE] [RATIO]
+#
+# MODE:
+#   - test: 각 태스크당 10개 샘플로 테스트
+#   - sample: 전체의 일정 비율 샘플링 (RATIO 필요)
+#   - full: 전체 벤치마크 평가
+#
+# RATIO: sample 모드에서 샘플링 비율 (예: 0.1, 0.3, 0.5)
+#
+# 예시:
+#   ./run_all_evaluations.sh test          # 10개 샘플 테스트
+#   ./run_all_evaluations.sh sample 0.3    # 전체의 30% 샘플링
+#   ./run_all_evaluations.sh full          # 전체 평가
 
 MODE=${1:-test}  # 기본값: test
+RATIO=${2:-0.3}  # 기본값: 0.3 (30%)
 
 if [ "$MODE" = "test" ]; then
     MAX_SAMPLES="--max-samples 10"
     echo "🧪 테스트 모드: 각 태스크당 10개 샘플"
+elif [ "$MODE" = "sample" ]; then
+    MAX_SAMPLES="--sample-ratio $RATIO"
+    echo "📊 샘플링 모드: 전체의 ${RATIO} ($(echo "$RATIO * 100" | bc)%) 샘플링"
+    echo "   - Classification: $(echo "808 * $RATIO" | bc | cut -d. -f1)개"
+    echo "   - Retrieval: $(echo "1209 * $RATIO" | bc | cut -d. -f1)개"
+    echo "   - Punctuation: $(echo "2000 * $RATIO" | bc | cut -d. -f1)개"
+    echo "   - NLI: $(echo "1854 * $RATIO" | bc | cut -d. -f1)개"
+    echo "   - Translation: $(echo "2000 * $RATIO" | bc | cut -d. -f1)개"
+    echo "   - 총계: $(echo "7871 * $RATIO" | bc | cut -d. -f1)개"
 else
     MAX_SAMPLES=""
-    echo "🚀 전체 평가 모드"
+    echo "🚀 전체 평가 모드: 7,871개 항목"
 fi
 
 echo "========================================"
