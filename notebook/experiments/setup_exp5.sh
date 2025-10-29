@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# K-ClassicBench 평가 환경 설정 스크립트
+# KLSBench 평가 환경 설정 스크립트
 
 echo "========================================"
-echo "K-ClassicBench 평가 환경 설정"
+echo "KLSBench 평가 환경 설정"
 echo "========================================"
 echo ""
 

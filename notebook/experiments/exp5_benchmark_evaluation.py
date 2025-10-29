@@ -1,5 +1,5 @@
 """
-K-ClassicBench Evaluation Framework
+KLSBench Evaluation Framework
 한국 고전 문헌 벤치마크 평가 프레임워크
 
 지원 모델:
@@ -32,8 +32,8 @@ from rouge_score import rouge_scorer
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 
 
-class KClassicBenchEvaluator:
-    """K-ClassicBench 벤치마크 평가기"""
+class KLSBenchEvaluator:
+    """KLSBench 벤치마크 평가기"""
 
     def __init__(self,
                  benchmark_path: str,
@@ -64,37 +64,37 @@ class KClassicBenchEvaluator:
 
     def load_benchmark(self):
         """벤치마크 데이터 로드"""
-        print(f"📂 벤치마크 로딩: {self.benchmark_path}")
+        print(f"[LOAD] Benchmark: {self.benchmark_path}")
         with open(self.benchmark_path, 'r', encoding='utf-8') as f:
             self.benchmark = json.load(f)
 
-        print(f"  ✓ {self.benchmark['benchmark_info']['name']}")
-        print(f"  ✓ 총 {self.benchmark['benchmark_info']['total_size']:,}개 항목")
-        print(f"  ✓ {len(self.benchmark['tasks'])}개 태스크")
+        print(f"  Benchmark: {self.benchmark['benchmark_info']['name']}")
+        print(f"  Total items: {self.benchmark['benchmark_info']['total_size']:,}")
+        print(f"  Tasks: {len(self.benchmark['tasks'])}")
 
-        # 샘플 제한 적용 (우선순위: max_samples > sample_ratio)
+        # Apply sampling limits (priority: max_samples > sample_ratio)
         if self.max_samples_per_task:
-            print(f"\n⚠️  각 태스크당 최대 {self.max_samples_per_task}개 샘플로 제한")
+            print(f"\n[SAMPLING] Limited to {self.max_samples_per_task} samples per task")
             for task_name, task_data in self.benchmark['tasks'].items():
                 original_size = len(task_data['data'])
                 task_data['data'] = task_data['data'][:self.max_samples_per_task]
                 task_data['size'] = len(task_data['data'])
-                print(f"  - {task_name}: {original_size} → {task_data['size']}")
+                print(f"  - {task_name}: {original_size} -> {task_data['size']}")
         elif self.sample_ratio:
-            print(f"\n📊 샘플링 비율 {self.sample_ratio} ({self.sample_ratio*100:.1f}%) 적용")
+            print(f"\n[SAMPLING] Ratio {self.sample_ratio} ({self.sample_ratio*100:.1f}%) applied")
             total_sampled = 0
             for task_name, task_data in self.benchmark['tasks'].items():
                 original_size = len(task_data['data'])
                 sample_size = max(1, int(original_size * self.sample_ratio))
 
-                # 랜덤 샘플링 (재현성을 위해 seed 고정)
+                # Random sampling with fixed seed for reproducibility
                 np.random.seed(42)
                 indices = np.random.choice(original_size, sample_size, replace=False)
                 task_data['data'] = [task_data['data'][i] for i in sorted(indices)]
                 task_data['size'] = len(task_data['data'])
                 total_sampled += task_data['size']
-                print(f"  - {task_name}: {original_size} → {task_data['size']} ({task_data['size']/original_size*100:.1f}%)")
-            print(f"  - 총계: {self.benchmark['benchmark_info']['total_size']} → {total_sampled} ({total_sampled/self.benchmark['benchmark_info']['total_size']*100:.1f}%)")
+                print(f"  - {task_name}: {original_size} -> {task_data['size']} ({task_data['size']/original_size*100:.1f}%)")
+            print(f"  - Total: {self.benchmark['benchmark_info']['total_size']} -> {total_sampled} ({total_sampled/self.benchmark['benchmark_info']['total_size']*100:.1f}%)")
 
     def setup_prompts(self):
         """프롬프트 템플릿 설정"""
@@ -390,7 +390,7 @@ class KClassicBenchEvaluator:
     def run_evaluation(self, model, model_name: str) -> Dict:
         """전체 벤치마크 평가 실행"""
         print(f"\n{'='*70}")
-        print(f"🚀 모델 평가 시작: {model_name}")
+        print(f"[START] Model evaluation: {model_name}")
         print(f"{'='*70}\n")
 
         results = {
@@ -401,7 +401,7 @@ class KClassicBenchEvaluator:
         }
 
         for task_name, task_data in self.benchmark['tasks'].items():
-            print(f"\n📊 [{task_name.upper()}] 평가 중... ({task_data['size']}개 샘플)")
+            print(f"\n[{task_name.upper()}] Evaluating {task_data['size']} samples...")
 
             predictions = []
 
@@ -413,10 +413,10 @@ class KClassicBenchEvaluator:
                 try:
                     prediction = model.generate(system_prompt, user_prompt)
                     if not prediction or prediction.strip() == "":
-                        print(f"  ⚠️  Empty prediction for item {len(predictions)+1}")
+                        print(f"  [WARNING] Empty prediction for item {len(predictions)+1}")
                     predictions.append(prediction)
                 except Exception as e:
-                    print(f"  ❌ Model generation error: {e}")
+                    print(f"  [ERROR] Model generation error: {e}")
                     predictions.append("")
 
                 # API 호출 제한 대응
@@ -472,7 +472,7 @@ class KClassicBenchEvaluator:
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
-        print(f"\n💾 결과 저장: {json_path}")
+        print(f"\n[SAVE] Results saved to: {json_path}")
 
         # CSV 요약 저장
         summary_data = []
@@ -488,7 +488,7 @@ class KClassicBenchEvaluator:
         csv_path = self.output_dir / f"summary_{model_name}_{timestamp}.csv"
         df.to_csv(csv_path, index=False, encoding='utf-8-sig')
 
-        print(f"💾 요약 저장: {csv_path}")
+        print(f"[SAVE] Summary saved to: {csv_path}")
 
 
 # ============================================================================
@@ -523,11 +523,11 @@ class OpenAIWrapper(BaseModelWrapper):
             )
             content = response.choices[0].message.content
             if content is None:
-                print(f"⚠️  Warning: Empty response from {self.model_name}")
+                print(f"[WARNING] Empty response from {self.model_name}")
                 return ""
             return content.strip()
         except Exception as e:
-            print(f"❌ OpenAI API Error: {e}")
+            print(f"[ERROR] OpenAI API Error: {e}")
             print(f"   Model: {self.model_name}")
             print(f"   System: {system_prompt[:50]}...")
             print(f"   User: {user_prompt[:50]}...")
@@ -620,7 +620,7 @@ class TonguWrapper(BaseModelWrapper):
         # Tongu 모델 로드 로직
         # TODO: 실제 모델 로드 구현
         self.model_path = model_path
-        print(f"⚠️  Tongu wrapper - 구현 필요: {model_path}")
+        print(f"[WARNING] Tongu wrapper not implemented: {model_path}")
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         # TODO: Tongu 모델 추론 구현
@@ -634,7 +634,7 @@ class GwenBertWrapper(BaseModelWrapper):
         # GwenBert 모델 로드 로직
         # TODO: 실제 모델 로드 구현
         self.model_path = model_path
-        print(f"⚠️  GwenBert wrapper - 구현 필요: {model_path}")
+        print(f"[WARNING] GwenBert wrapper not implemented: {model_path}")
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         # TODO: GwenBert 모델 추론 구현
@@ -649,9 +649,9 @@ def main():
     """메인 실행 함수"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='K-ClassicBench Evaluation')
+    parser = argparse.ArgumentParser(description='KLSBench Evaluation')
     parser.add_argument('--benchmark', type=str,
-                       default='/Users/songhune/Workspace/korean_eda/benchmark/k_classic_bench/k_classic_bench_full.json',
+                       default='/Users/songhune/Workspace/korean_eda/benchmark/kls_bench/kls_bench_full.json',
                        help='벤치마크 JSON 파일 경로')
     parser.add_argument('--output', type=str,
                        default='/Users/songhune/Workspace/korean_eda/benchmark/results',
@@ -670,7 +670,7 @@ def main():
     args = parser.parse_args()
 
     # Evaluator 초기화
-    evaluator = KClassicBenchEvaluator(
+    evaluator = KLSBenchEvaluator(
         benchmark_path=args.benchmark,
         output_dir=args.output,
         model_type=args.model_type,
@@ -702,7 +702,7 @@ def main():
     results = evaluator.run_evaluation(model, args.model_name)
 
     print("\n" + "="*70)
-    print("✅ 평가 완료!")
+    print("[COMPLETE] Evaluation finished")
     print("="*70)
 
 
