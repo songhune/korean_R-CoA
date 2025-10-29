@@ -28,6 +28,14 @@ import unicodedata
 
 # Metrics
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
+
+# Configuration loader
+try:
+    from config_loader import Config
+    CONFIG_AVAILABLE = True
+except ImportError:
+    CONFIG_AVAILABLE = False
+    print("[WARNING] config_loader not available, using default paths")
 from rouge_score import rouge_scorer
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 
@@ -692,25 +700,45 @@ def main():
     """메인 실행 함수"""
     import argparse
 
+    # Load config for default values
+    config = None
+    if CONFIG_AVAILABLE:
+        try:
+            config = Config()
+        except Exception as e:
+            print(f"[WARNING] Failed to load config: {e}")
+
+    # Set defaults from config or fallback values
+    default_benchmark = config.get_benchmark_path() if config else \
+        '/Users/songhune/Workspace/korean_eda/benchmark/kls_bench/kls_bench_full.json'
+    default_output = config.get_output_dir() if config else \
+        '/Users/songhune/Workspace/korean_eda/benchmark/results'
+
     parser = argparse.ArgumentParser(description='KLSBench Evaluation')
+    parser.add_argument('--config', type=str, default=None,
+                       help='Path to config.yaml (default: auto-detect)')
     parser.add_argument('--benchmark', type=str,
-                       default='/Users/songhune/Workspace/korean_eda/benchmark/kls_bench/kls_bench_full.json',
-                       help='벤치마크 JSON 파일 경로')
+                       default=default_benchmark,
+                       help='Benchmark JSON file path')
     parser.add_argument('--output', type=str,
-                       default='/home/work/songhune/korean_R-CoA/results',
-                       help='결과 저장 디렉토리')
+                       default=default_output,
+                       help='Output directory for results')
     parser.add_argument('--model-type', type=str, choices=['api', 'opensource', 'supervised'],
-                       default='api', help='모델 타입')
+                       default='api', help='Model type')
     parser.add_argument('--model-name', type=str, required=True,
-                       help='모델 이름 (예: gpt-4, claude-3-5-sonnet, meta-llama/Llama-3.1-8B)')
+                       help='Model name (e.g., gpt-4, claude-3-5-sonnet, meta-llama/Llama-3.1-8B)')
     parser.add_argument('--api-key', type=str, default=None,
-                       help='API 키 (API 모델 사용시)')
+                       help='API key (for API models)')
     parser.add_argument('--max-samples', type=int, default=None,
-                       help='태스크당 최대 샘플 수 (테스트용)')
+                       help='Maximum samples per task (for testing)')
     parser.add_argument('--sample-ratio', type=float, default=None,
-                       help='샘플링 비율 (0.0~1.0, 예: 0.3=30%%)')
+                       help='Sampling ratio (0.0~1.0, e.g., 0.3=30%%)')
 
     args = parser.parse_args()
+
+    # Reload config if custom path provided
+    if args.config and CONFIG_AVAILABLE:
+        config = Config(args.config)
 
     # Evaluator 초기화
     evaluator = KLSBenchEvaluator(
