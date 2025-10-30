@@ -168,13 +168,13 @@ run_zero_shot() {
     echo "[$model_name] Evaluating..."
 
     if [ "$model_type" = "api" ]; then
-        python exp5/exp5_benchmark_evaluation.py \
+        python3 exp5/exp5_benchmark_evaluation.py \
             --model-type api \
             --model-name "$model_name" \
             --api-key "$api_key" \
             $MAX_SAMPLES
     else
-        python exp5/exp5_benchmark_evaluation.py \
+        python3 exp5/exp5_benchmark_evaluation.py \
             --model-type "$model_type" \
             --model-name "$model_name" \
             $MAX_SAMPLES
@@ -190,7 +190,7 @@ run_few_shot() {
     echo "[$model_name] Evaluating (few-shot)..."
 
     if [ "$model_type" = "api" ]; then
-        python exp6/exp6_fewshot_evaluation.py \
+        python3 exp6/exp6_fewshot_evaluation.py \
             --benchmark ../../benchmark/kls_bench/kls_bench_full.json \
             --model-name "$model_name" \
             --model-type api \
@@ -200,7 +200,7 @@ run_few_shot() {
             $MAX_SAMPLES \
             --output ../../benchmark/results/fewshot
     else
-        python exp6/exp6_fewshot_evaluation.py \
+        python3 exp6/exp6_fewshot_evaluation.py \
             --benchmark ../../benchmark/kls_bench/kls_bench_full.json \
             --model-name "$model_name" \
             --model-type "$model_type" \
@@ -288,7 +288,7 @@ else
     echo "   - CSV summary: summary_*_*.csv"
     echo ""
     echo "To analyze improvements:"
-    echo "   python exp6_analyze_improvements.py"
+    echo "   python3 exp6_analyze_improvements.py"
 fi
 
 echo ""

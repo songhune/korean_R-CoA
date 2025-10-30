@@ -5,19 +5,31 @@ Evaluation experiments for **KLSBench** (Korean Literary Style Benchmark) - a co
 ## Quick Start
 
 ```bash
-# Install dependencies
+# 1. Install dependencies (REQUIRED - do this first!)
 pip install -r requirements_evaluation.txt
 
-# Configure API keys (create .env file)
+# 2. Configure API keys
+# Option A: Export directly
 export OPENAI_API_KEY='your-key'
 export ANTHROPIC_API_KEY='your-key'
 
-# Run evaluation
+# Option B: Create .env file (recommended)
+cat > .env << EOF
+export OPENAI_API_KEY='your-key'
+export ANTHROPIC_API_KEY='your-key'
+EOF
+
+# 3. Run evaluation
 ./run_evaluation.sh test              # Test mode (10 samples)
 ./run_evaluation.sh sample 0.3        # Sample 30%
 ./run_evaluation.sh full              # Full evaluation
-./run_evaluation.sh fewshot "1 3"     # Few-shot learning
+./run_evaluation.sh fewshot "1 3"     # Few-shot (1-shot, 3-shot)
 ```
+
+**Important**:
+
+- Install dependencies BEFORE running evaluations
+- Few-shot mode works: `./run_evaluation.sh fewshot "1 3 5"` for 1-shot, 3-shot, and 5-shot
 
 ## Directory Structure
 
