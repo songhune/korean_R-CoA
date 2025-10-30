@@ -347,7 +347,7 @@ class KoreanSTSGenerator:
                 }
                 f.write(json.dumps(json_obj, ensure_ascii=False) + '\n')
         
-        print(f"✅ STS 데이터셋 저장 완료: {output_path} ({len(pairs)}개)")
+        print(f" STS 데이터셋 저장 완료: {output_path} ({len(pairs)}개)")
         
         # 점수 분포 출력
         scores = [pair.score for pair in pairs]

@@ -315,7 +315,7 @@ class TonguTranslator:
             with open(self.checkpoint_file, 'w', encoding='utf-8') as f:
                 json.dump(checkpoint_data, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            print(f"⚠️ 체크포인트 저장 실패: {e}")
+            print(f" 체크포인트 저장 실패: {e}")
     
     def load_checkpoint(self) -> dict:
         """체크포인트 로드"""
@@ -324,7 +324,7 @@ class TonguTranslator:
                 with open(self.checkpoint_file, 'r', encoding='utf-8') as f:
                     return json.load(f)
         except Exception as e:
-            print(f"⚠️ 체크포인트 로드 실패: {e}")
+            print(f" 체크포인트 로드 실패: {e}")
         return None
     
     def get_cache_key(self, text: str, target_lang: str) -> str:
@@ -338,16 +338,16 @@ class TonguTranslator:
                 async with session.get(f"{self.config.ollama_base_url}/api/tags") as response:
                     if response.status == 200:
                         models = await response.json()
-                        print("✅ Ollama 서버 연결 성공!")
-                        print("🤖 사용 가능한 모델:")
+                        print(" Ollama 서버 연결 성공!")
+                        print(" 사용 가능한 모델:")
                         for model in models.get('models', []):
                             print(f"   - {model['name']}")
                         return True
                     else:
-                        print("❌ Ollama 서버 연결 실패")
+                        print(" Ollama 서버 연결 실패")
                         return False
         except Exception as e:
-            print(f"❌ 연결 오류: {e}")
+            print(f" 연결 오류: {e}")
             self.error_handler.track_error("Connection Test Failed", str(e))
             return False
     
@@ -421,12 +421,12 @@ class TonguTranslator:
             print(f"   영어: {english}")
         
         self.save_cache()
-        print("\n✅ 샘플 번역 완료!")
+        print("\n 샘플 번역 완료!")
     
     async def translate_file(self, input_file: str, output_file: str, resume: bool = False):
         """파일 번역"""
         if not Path(input_file).exists():
-            print(f"❌ 파일을 찾을 수 없습니다: {input_file}")
+            print(f" 파일을 찾을 수 없습니다: {input_file}")
             return False
         
         print(f"📁 파일 번역: {input_file} -> {output_file}")
@@ -439,7 +439,7 @@ class TonguTranslator:
                 else:
                     data = json.load(f)
         except Exception as e:
-            print(f"❌ 파일 읽기 오류: {e}")
+            print(f" 파일 읽기 오류: {e}")
             return False
         
         # 체크포인트 재개 처리
@@ -458,26 +458,26 @@ class TonguTranslator:
             else:
                 checkpoint_input_abs = checkpoint_input
             
-            print(f"🔍 경로 비교:")
+            print(f" 경로 비교:")
             print(f"   체크포인트: {checkpoint_input} → {checkpoint_input_abs}")
             print(f"   현재 파일: {input_file}")
             
             # 경로 비교 (파일 존재 여부 확인 후)
             paths_match = False
             try:
-                print(f"🔍 문자열 비교: {checkpoint_input_abs == input_file}")
+                print(f" 문자열 비교: {checkpoint_input_abs == input_file}")
                 if checkpoint_input_abs == input_file:
                     paths_match = True
-                    print("✅ 문자열 경로 일치")
+                    print(" 문자열 경로 일치")
                 elif Path(checkpoint_input_abs).exists() and Path(input_file).exists():
                     paths_match = Path(checkpoint_input_abs).samefile(Path(input_file))
-                    print(f"✅ 파일 시스템 비교: {paths_match}")
+                    print(f" 파일 시스템 비교: {paths_match}")
                 else:
-                    print(f"❌ 파일 존재 여부: checkpoint={Path(checkpoint_input_abs).exists()}, current={Path(input_file).exists()}")
+                    print(f" 파일 존재 여부: checkpoint={Path(checkpoint_input_abs).exists()}, current={Path(input_file).exists()}")
             except Exception as e:
-                print(f"⚠️ 경로 비교 오류: {e}")
+                print(f" 경로 비교 오류: {e}")
             
-            print(f"🎯 최종 매칭 결과: {paths_match}")
+            print(f" 최종 매칭 결과: {paths_match}")
             
             if checkpoint and paths_match:
                 start_batch = checkpoint.get('current_batch', 0)
@@ -492,13 +492,13 @@ class TonguTranslator:
                                     processed_items.append(json.loads(line.strip()))
                         print(f"🔄 체크포인트에서 재개: 배치 {start_batch}/{total_batches}, 이미 처리된 항목: {len(processed_items)}개")
                     except Exception as e:
-                        print(f"⚠️ 기존 출력 파일 로드 실패: {e}, 처음부터 시작합니다")
+                        print(f" 기존 출력 파일 로드 실패: {e}, 처음부터 시작합니다")
                         start_batch = 0
                         processed_items = []
             else:
-                print("⚠️ 체크포인트 정보가 현재 파일과 맞지 않습니다. 처음부터 시작합니다.")
+                print(" 체크포인트 정보가 현재 파일과 맞지 않습니다. 처음부터 시작합니다.")
         
-        print(f"📊 총 {len(data)}개 항목 처리 (배치 {start_batch + 1}부터 시작)")
+        print(f" 총 {len(data)}개 항목 처리 (배치 {start_batch + 1}부터 시작)")
         
         # 배치 처리
         for batch_idx in range(start_batch, total_batches):
@@ -549,9 +549,9 @@ class TonguTranslator:
                     with open(output_file, 'w', encoding='utf-8') as f:
                         for item in processed_items:
                             f.write(json.dumps(item, ensure_ascii=False) + '\n')
-                    print(f"💾 중간 저장 완료: {len(processed_items)}개 항목")
+                    print(f" 중간 저장 완료: {len(processed_items)}개 항목")
                 except Exception as e:
-                    print(f"⚠️ 중간 저장 실패: {e}")
+                    print(f" 중간 저장 실패: {e}")
                 
                 self.save_cache()
         
@@ -562,11 +562,11 @@ class TonguTranslator:
                     f.write(json.dumps(item, ensure_ascii=False) + '\n')
             
             self.save_cache()
-            print(f"✅ 번역 완료: {len(processed_items)}개 항목 저장됨")
+            print(f" 번역 완료: {len(processed_items)}개 항목 저장됨")
             return True
             
         except Exception as e:
-            print(f"❌ 파일 저장 오류: {e}")
+            print(f" 파일 저장 오류: {e}")
             return False
     
     
@@ -574,7 +574,7 @@ class TonguTranslator:
         """체크포인트에서 번역 재개"""
         checkpoint = self.load_checkpoint()
         if not checkpoint:
-            print("❌ 체크포인트를 찾을 수 없습니다")
+            print(" 체크포인트를 찾을 수 없습니다")
             return False
             
         input_path = checkpoint['input_file']
@@ -616,7 +616,7 @@ class TonguTranslator:
             output_dir = "translated_chunks"  # 번역된 청크 저장 디렉토리
             return await self.translate_chunks(chunks_dir, output_dir, start_chunk=current_batch)
         else:
-            print(f"❌ 입력 파일을 찾을 수 없습니다: {input_path}")
+            print(f" 입력 파일을 찾을 수 없습니다: {input_path}")
             return False
     
     async def translate_chunks(self, chunks_dir: str, output_dir: str, start_chunk: int = 0):
@@ -629,7 +629,7 @@ class TonguTranslator:
         chunk_files = sorted(chunks_path.glob("ACCN-INS_chunk_*.jsonl"))
         
         if not chunk_files:
-            print(f"❌ {chunks_dir}에서 청크 파일을 찾을 수 없습니다")
+            print(f" {chunks_dir}에서 청크 파일을 찾을 수 없습니다")
             return False
         
         total_chunks = len(chunk_files)
@@ -637,7 +637,7 @@ class TonguTranslator:
         
         # 시작 청크 범위 확인
         if start_chunk >= total_chunks:
-            print(f"✅ 모든 청크 처리 완료! (요청: {start_chunk}, 총: {total_chunks})")
+            print(f" 모든 청크 처리 완료! (요청: {start_chunk}, 총: {total_chunks})")
             return True
         
         print(f"🔄 청크 {start_chunk}부터 처리 시작")
@@ -650,7 +650,7 @@ class TonguTranslator:
             
             # 이미 처리된 파일 스킵
             if output_file.exists():
-                print(f"⏭️ 스킵: {chunk_name} (이미 처리됨)")
+                print(f"⏭ 스킵: {chunk_name} (이미 처리됨)")
                 success_count += 1
                 continue
                 
@@ -670,15 +670,15 @@ class TonguTranslator:
                         total_batches=total_chunks,
                         processed_count=success_count
                     )
-                    print(f"✅ 완료: {chunk_name}")
+                    print(f" 완료: {chunk_name}")
                 else:
-                    print(f"❌ 실패: {chunk_name}")
+                    print(f" 실패: {chunk_name}")
                     
             except Exception as e:
-                print(f"❌ 에러 [{chunk_name}]: {e}")
+                print(f" 에러 [{chunk_name}]: {e}")
                 self.error_handler.track_error("Chunk Processing Error", str(e), chunk=chunk_name)
         
-        print(f"🎉 청크 처리 완료: {success_count}/{total_chunks}")
+        print(f" 청크 처리 완료: {success_count}/{total_chunks}")
         return success_count == total_chunks
     
     def check_ollama_status(self) -> bool:
@@ -730,10 +730,10 @@ async def main():
   python main.py restart <command>       # 자동 재시작과 함께
 
 특징:
-  🔧 Broken pipe 문제 해결
+   Broken pipe 문제 해결
   🚨 자동 에러 알림 (songhune@jou.ac.kr)
-  💾 번역 캐싱으로 속도 향상
-  📊 실시간 에러 모니터링
+   번역 캐싱으로 속도 향상
+   실시간 에러 모니터링
   🧩 청크 기반 대용량 파일 처리
 
 예시:
@@ -786,7 +786,7 @@ async def main():
             max_retries = 3
             
             for attempt in range(1, max_retries + 1):
-                print(f"📋 시도 {attempt}/{max_retries}")
+                print(f" 시도 {attempt}/{max_retries}")
                 
                 # Ollama 상태 확인
                 if not translator.check_ollama_status():
@@ -805,12 +805,12 @@ async def main():
                         success = await translator.resume_translation()
                         break
                     else:
-                        print(f"❌ 알 수 없는 재시작 명령: {restart_command}")
+                        print(f" 알 수 없는 재시작 명령: {restart_command}")
                         success = False
                         break
                         
                 except Exception as e:
-                    print(f"❌ 시도 {attempt} 실패: {e}")
+                    print(f" 시도 {attempt} 실패: {e}")
                     translator.error_handler.track_error("Execution Failed", str(e))
                     if attempt < max_retries:
                         time.sleep(30)
@@ -818,12 +818,12 @@ async def main():
                         success = False
             
         else:
-            print(f"❌ 알 수 없는 명령: {command}")
+            print(f" 알 수 없는 명령: {command}")
             success = False
         
         # 결과 출력
         if success:
-            print("🎉 완료!")
+            print(" 완료!")
         else:
             print("💥 실패!")
             sys.exit(1)
@@ -833,7 +833,7 @@ async def main():
         sys.exit(130)
         
     except Exception as e:
-        print(f"❌ 예상치 못한 오류: {e}")
+        print(f" 예상치 못한 오류: {e}")
         translator.error_handler.track_error("Unexpected Error", str(e))
         sys.exit(1)
 

@@ -449,7 +449,7 @@ class KLSBenchEvaluator:
 
     def print_task_results(self, task_name: str, metrics: Dict):
         """태스크 결과 출력"""
-        print(f"\n  📈 {task_name.upper()} 결과:")
+        print(f"\n   {task_name.upper()} 결과:")
 
         if task_name == 'classification':
             print(f"    - Accuracy: {metrics['accuracy']:.4f}")
@@ -664,7 +664,7 @@ class TonguWrapper(BaseModelWrapper):
 
             return generate_text.strip()
         except Exception as e:
-            print(f"❌ Tongu generation error: {e}")
+            print(f" Tongu generation error: {e}")
             return ""
 
 
@@ -688,7 +688,7 @@ class GwenBertWrapper(BaseModelWrapper):
         GwenBERT는 생성 모델이 아니므로 실제 생성 불가능
         임베딩만 추출 가능하여 벤치마크 평가에 적합하지 않음
         """
-        print(f"⚠️  GwenBERT는 생성 태스크를 지원하지 않습니다.")
+        print(f"  GwenBERT는 생성 태스크를 지원하지 않습니다.")
         return "[GwenBERT는 생성 모델이 아닙니다]"
 
 

@@ -18,7 +18,7 @@ class EncodingDetector:
             raw_data = f.read(100000)  # 처음 100KB만 읽어서 감지
         
         detected = chardet.detect(raw_data)
-        print(f"🔍 자동 감지 결과: {detected}")
+        print(f" 자동 감지 결과: {detected}")
         
         return detected
     
@@ -47,14 +47,14 @@ class EncodingDetector:
                     'columns': list(df.columns)[:5]  # 처음 5개 컬럼만
                 }
                 
-                print(f"✅ {encoding:12} | 샘플: {sample_text[:50]}...")
+                print(f" {encoding:12} | 샘플: {sample_text[:50]}...")
                 
             except Exception as e:
                 results[encoding] = {
                     'success': False,
                     'error': str(e)[:100]
                 }
-                print(f"❌ {encoding:12} | 에러: {str(e)[:50]}...")
+                print(f" {encoding:12} | 에러: {str(e)[:50]}...")
         
         return results
     
@@ -103,7 +103,7 @@ class EncodingDetector:
     
     def find_best_encoding(self, file_path: str) -> str:
         """가장 적합한 인코딩 찾기"""
-        print(f"\n🎯 {file_path} 최적 인코딩 찾기")
+        print(f"\n {file_path} 최적 인코딩 찾기")
         
         # 1. 자동 감지
         detected = self.detect_file_encoding(file_path)
@@ -115,7 +115,7 @@ class EncodingDetector:
         best_encoding = None
         best_score = -1
         
-        print(f"\n📊 품질 평가:")
+        print(f"\n 품질 평가:")
         for encoding, result in results.items():
             if not result['success']:
                 continue
@@ -144,11 +144,11 @@ class EncodingDetector:
             with open(output_path, 'w', encoding=target_encoding) as f:
                 f.write(content)
             
-            print(f"✅ 변환 완료: {input_path} → {output_path}")
+            print(f" 변환 완료: {input_path} → {output_path}")
             print(f"   {source_encoding} → {target_encoding}")
             
         except Exception as e:
-            print(f"❌ 변환 실패: {e}")
+            print(f" 변환 실패: {e}")
     
     def check_all_files(self, file_paths: list):
         """여러 파일의 인코딩을 일괄 점검"""
@@ -160,10 +160,10 @@ class EncodingDetector:
                 best_encoding = self.find_best_encoding(file_path)
                 results[file_path] = best_encoding
             else:
-                print(f"❌ 파일 없음: {file_path}")
+                print(f" 파일 없음: {file_path}")
                 results[file_path] = None
         
-        print(f"\n📋 최종 권장 인코딩:")
+        print(f"\n 최종 권장 인코딩:")
         for file_path, encoding in results.items():
             if encoding:
                 print(f"{Path(file_path).name:20} → {encoding}")
@@ -209,7 +209,7 @@ def fix_gwashi_encoding():
             # 올바른 인코딩으로 재해석
             correct_content = content.encode(wrong).decode(original)
             
-            print(f"🧪 {wrong}→{original} 테스트:")
+            print(f" {wrong}→{original} 테스트:")
             print(f"   원본: {content[:100]}...")
             print(f"   수정: {correct_content[:100]}...")
             
@@ -219,7 +219,7 @@ def fix_gwashi_encoding():
             print()
             
         except Exception as e:
-            print(f"❌ {wrong}→{original} 실패: {e}")
+            print(f" {wrong}→{original} 실패: {e}")
 
 # gwashi.csv 문제 해결 실행
 fix_gwashi_encoding()

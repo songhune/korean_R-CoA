@@ -57,20 +57,20 @@ class ClassicalChineseKoreanProcessor:
                         cc_kr_pair = self._extract_cc_kr_from_dialog(data)
                         if cc_kr_pair:
                             self.cc_kr_pairs.append(cc_kr_pair)
-            print(f"✅ Saseo JSONL 로드: {len([p for p in self.cc_kr_pairs if p.source == 'saseo'])}개")
+            print(f" Saseo JSONL 로드: {len([p for p in self.cc_kr_pairs if p.source == 'saseo'])}개")
         except Exception as e:
-            print(f"❌ Saseo JSONL 로드 실패: {e}")
+            print(f" Saseo JSONL 로드 실패: {e}")
         
         # 2. sigwon CSV 데이터 로드 (원문-번역)
         try:
             sigwon_df = pd.read_csv(sigwon_csv_path, encoding='utf-8')
             sigwon_pairs = self._extract_cc_kr_from_sigwon(sigwon_df)
             self.cc_kr_pairs.extend(sigwon_pairs)
-            print(f"✅ Sigwon CSV 로드: {len(sigwon_pairs)}개")
+            print(f" Sigwon CSV 로드: {len(sigwon_pairs)}개")
         except Exception as e:
-            print(f"❌ Sigwon CSV 로드 실패: {e}")
+            print(f" Sigwon CSV 로드 실패: {e}")
         
-        print(f"📊 총 CC-KR 쌍: {len(self.cc_kr_pairs)}개")
+        print(f" 총 CC-KR 쌍: {len(self.cc_kr_pairs)}개")
     
     def _extract_cc_kr_from_dialog(self, dialog_data: Dict) -> Optional[CCKRPair]:
         """대화 데이터에서 CC-KR 추출"""
@@ -427,5 +427,5 @@ class ClassicalChineseKoreanProcessor:
             for item in sts_data:
                 f.write(json.dumps(item, ensure_ascii=False) + '\n')
         
-        print(f"✅ CC-KR NLI 데이터셋 저장: {len(nli_data)}개")
-        print(f"✅ CC-KR STS 데이터셋 저장: {len(sts_data)}개")
+        print(f" CC-KR NLI 데이터셋 저장: {len(nli_data)}개")
+        print(f" CC-KR STS 데이터셋 저장: {len(sts_data)}개")

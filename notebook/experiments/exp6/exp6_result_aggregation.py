@@ -54,10 +54,10 @@ class ResultAggregator:
                     result['file_path'] = str(json_file)
                     model_results[model_name].append(result)
             except Exception as e:
-                print(f"  ⚠️  파일 로드 실패: {json_file.name} - {e}")
+                print(f"    파일 로드 실패: {json_file.name} - {e}")
 
         # 각 모델의 최신 결과만 선택
-        print(f"\n📊 모델별 최신 결과 선택:")
+        print(f"\n 모델별 최신 결과 선택:")
         for model_name, results in model_results.items():
             # 타임스탬프 기준 정렬
             results.sort(key=lambda x: x['timestamp'], reverse=True)
@@ -65,11 +65,11 @@ class ResultAggregator:
             self.results.append(latest)
             print(f"  ✓ {model_name}: {latest['timestamp']}")
 
-        print(f"\n✅ 총 {len(self.results)}개 모델 결과 로드 완료")
+        print(f"\n 총 {len(self.results)}개 모델 결과 로드 완료")
 
     def create_summary_table(self) -> pd.DataFrame:
         """결과를 요약 테이블로 변환"""
-        print("\n📋 요약 테이블 생성 중...")
+        print("\n 요약 테이블 생성 중...")
 
         rows = []
         for result in self.results:
@@ -126,7 +126,7 @@ class ResultAggregator:
         # 1. 전체 요약 테이블
         summary_path = output_dir / "aggregated_summary.csv"
         self.df.to_csv(summary_path, index=False, encoding='utf-8-sig')
-        print(f"\n💾 요약 테이블 저장: {summary_path}")
+        print(f"\n 요약 테이블 저장: {summary_path}")
 
         # 2. 피벗 테이블 (모델 × 태스크)
         pivot = self.df.pivot_table(
@@ -137,13 +137,13 @@ class ResultAggregator:
         )
         pivot_path = output_dir / "aggregated_pivot.csv"
         pivot.to_csv(pivot_path, encoding='utf-8-sig')
-        print(f"💾 피벗 테이블 저장: {pivot_path}")
+        print(f" 피벗 테이블 저장: {pivot_path}")
 
         # 3. 모델별 평균 성능
         model_avg = self.df.groupby('model')['primary_metric'].mean().sort_values(ascending=False)
         model_avg_path = output_dir / "model_average_performance.csv"
         model_avg.to_csv(model_avg_path, header=['average_score'], encoding='utf-8-sig')
-        print(f"💾 모델 평균 성능: {model_avg_path}")
+        print(f" 모델 평균 성능: {model_avg_path}")
 
         return pivot
 
@@ -152,7 +152,7 @@ class ResultAggregator:
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        print("\n🎨 시각화 생성 중...")
+        print("\n 시각화 생성 중...")
 
         # 한글 폰트 설정
         plt.rcParams['font.family'] = 'DejaVu Sans'
@@ -170,7 +170,7 @@ class ResultAggregator:
         # 4. 레이더 차트
         self._create_radar_chart(output_dir)
 
-        print(f"✅ 시각화 완료: {output_dir}")
+        print(f" 시각화 완료: {output_dir}")
 
     def _create_heatmap(self, output_dir: Path):
         """히트맵 생성"""
@@ -282,7 +282,7 @@ class ResultAggregator:
     def print_summary_statistics(self):
         """요약 통계 출력"""
         print("\n" + "=" * 70)
-        print("📊 K-ClassicBench 평가 결과 요약")
+        print(" K-ClassicBench 평가 결과 요약")
         print("=" * 70)
 
         # 1. 모델별 평균 성능
@@ -292,14 +292,14 @@ class ResultAggregator:
             print(f"  {rank}. {model:50s} {score:.4f}")
 
         # 2. 태스크별 최고 성능 모델
-        print("\n🎯 태스크별 최고 성능:")
+        print("\n 태스크별 최고 성능:")
         for task in self.df['task'].unique():
             task_df = self.df[self.df['task'] == task]
             best_row = task_df.loc[task_df['primary_metric'].idxmax()]
             print(f"  - {task:15s}: {best_row['model']:40s} ({best_row['primary_metric']:.4f})")
 
         # 3. 모델 타입별 평균 성능
-        print("\n🔍 모델 타입별 평균 성능:")
+        print("\n 모델 타입별 평균 성능:")
         type_avg = self.df.groupby('model_type')['primary_metric'].mean().sort_values(ascending=False)
         for model_type, score in type_avg.items():
             print(f"  - {model_type:15s}: {score:.4f}")
@@ -333,7 +333,7 @@ def main():
     # 통계 출력
     aggregator.print_summary_statistics()
 
-    print("\n✅ 결과 통합 및 시각화 완료!")
+    print("\n 결과 통합 및 시각화 완료!")
 
 
 if __name__ == "__main__":

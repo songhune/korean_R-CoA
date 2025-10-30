@@ -12,17 +12,17 @@ echo ""
 PYTHON_CMD=/usr/bin/python
 
 if [ ! -f "$PYTHON_CMD" ]; then
-    echo "⚠️  Python 환경을 찾을 수 없습니다: $PYTHON_CMD"
+    echo "  Python 환경을 찾을 수 없습니다: $PYTHON_CMD"
     echo "   Python 경로를 확인하세요."
     exit 1
 fi
 
-echo "✅ Python: $PYTHON_CMD"
+echo " Python: $PYTHON_CMD"
 $PYTHON_CMD --version
 echo ""
 
 # 필수 패키지 설치
-echo "📦 필수 패키지 설치 중..."
+echo " 필수 패키지 설치 중..."
 echo ""
 
 $PYTHON_CMD -m pip install --upgrade pip
@@ -45,7 +45,7 @@ $PYTHON_CMD -c "import nltk; nltk.download('punkt')"
 
 echo ""
 echo "========================================"
-echo "✅ 기본 환경 설정 완료!"
+echo " 기본 환경 설정 완료!"
 echo "========================================"
 echo ""
 echo "추가 패키지 설치 (선택사항):"

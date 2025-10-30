@@ -73,7 +73,7 @@ class KLSBenchGenerator:
 
     def preprocess_data(self):
         """데이터 전처리"""
-        print("\n🔧 데이터 전처리 중...")
+        print("\n 데이터 전처리 중...")
 
         # 과거시험 데이터: 빈 값 제거
         self.translated_df = self.translated_df.dropna(subset=['category'])
@@ -93,7 +93,7 @@ class KLSBenchGenerator:
         Task 1: 분류 (Classification)
         문체(賦/詩/疑/義) 분류 태스크 생성
         """
-        print(f"\n📋 [1/5] 분류(Classification) 태스크 생성 중... (목표: {target_size}개)")
+        print(f"\n [1/5] 분류(Classification) 태스크 생성 중... (목표: {target_size}개)")
 
         task_data = []
 
@@ -139,7 +139,7 @@ class KLSBenchGenerator:
         Task 2: 검색 (Retrieval)
         주어진 문장의 출처(Book/Chapter) 식별 태스크 생성
         """
-        print(f"\n🔍 [2/5] 검색(Retrieval) 태스크 생성 중... (목표: {target_size}개)")
+        print(f"\n [2/5] 검색(Retrieval) 태스크 생성 중... (목표: {target_size}개)")
 
         task_data = []
 
@@ -191,7 +191,7 @@ class KLSBenchGenerator:
         Original (구두점 없는 한문) → Original_quotation (구두점 있는 한문)
         Comment (구두점 없는 주석) → Comment_quotation (구두점 있는 주석)
         """
-        print(f"\n✏️  [3/5] 구두점(Punctuation) 태스크 생성 중... (목표: {target_size}개)")
+        print(f"\n✏  [3/5] 구두점(Punctuation) 태스크 생성 중... (목표: {target_size}개)")
 
         task_data = []
 
@@ -441,7 +441,7 @@ class KLSBenchGenerator:
         Task 5: 번역 (Translation)
         한문 ↔ 한글 ↔ 영문 번역 태스크 생성
         """
-        print(f"\n🌐 [5/5] 번역(Translation) 태스크 생성 중... (목표: {target_size}개)")
+        print(f"\n [5/5] 번역(Translation) 태스크 생성 중... (목표: {target_size}개)")
 
         task_data = []
 
@@ -558,7 +558,7 @@ class KLSBenchGenerator:
     def generate_benchmark(self):
         """전체 벤치마크 생성"""
         print("\n" + "="*70)
-        print("🚀 KLSBench 벤치마크 생성 시작")
+        print(" KLSBench 벤치마크 생성 시작")
         print("="*70)
 
         # 각 태스크 생성
@@ -626,7 +626,7 @@ class KLSBenchGenerator:
     def save_benchmark(self, benchmark: Dict):
         """벤치마크 저장"""
         print("\n" + "="*70)
-        print("💾 벤치마크 저장 중...")
+        print(" 벤치마크 저장 중...")
         print("="*70)
 
         # 1) 전체 벤치마크 JSON 저장
@@ -666,7 +666,7 @@ class KLSBenchGenerator:
 
 한국 고전 문헌 이해를 위한 포괄적인 벤치마크
 
-## 📋 개요
+##  개요
 
 **KLSBench**는 C3Bench를 참고하여 개발된 한국 고전 문헌 이해 벤치마크입니다.
 대규모 언어 모델(LLM)의 한국 고전 한문 및 사서 데이터에 대한 이해 능력을 다각도로 평가합니다.
@@ -676,7 +676,7 @@ class KLSBenchGenerator:
 - **태스크 수**: {len(benchmark['benchmark_info']['tasks'])}개
 - **지원 언어**: {', '.join(benchmark['benchmark_info']['languages'])}
 
-## 🎯 태스크 구성
+##  태스크 구성
 
 | 태스크 | 설명 | 항목 수 | 평가 지표 |
 |:---|:---|---:|:---|
@@ -686,7 +686,7 @@ class KLSBenchGenerator:
             readme_content += f"| **{task_name}** | {task_info['description']} | {task_info['size']:,} | {task_info['metric']} |\n"
 
         readme_content += f"""
-## 📊 데이터 통계
+##  데이터 통계
 
 ### 1. Classification (분류)
 
@@ -741,7 +741,7 @@ class KLSBenchGenerator:
             readme_content += f"- **{pair}**: {count:,}개\n"
 
         readme_content += """
-## 🚀 사용 방법
+##  사용 방법
 
 ### Python에서 로드
 
@@ -791,7 +791,7 @@ kls_bench/
 └── README.md                          # 본 문서
 ```
 
-## 🎓 데이터 출처
+##  데이터 출처
 
 1. **과거시험 데이터**: 한국 과거시험 문제 및 답안 (문체 분류 포함)
 2. **사서(四書) 데이터**: 논어, 맹자, 대학, 중용 등 유교 경전
@@ -815,7 +815,7 @@ kls_bench/
 - **C3Bench**: [논문 링크]
 - **관련 연구**: 고전 한문 자연어처리 연구
 
-## 📧 문의
+##  문의
 
 벤치마크 관련 문의사항은 이메일로 연락 주시기 바랍니다.
 
@@ -832,15 +832,15 @@ Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
     def print_statistics(self, benchmark: Dict):
         """벤치마크 통계 출력"""
         print("\n" + "="*70)
-        print("📊 벤치마크 통계")
+        print(" 벤치마크 통계")
         print("="*70)
 
-        print(f"\n🎯 전체 요약")
+        print(f"\n 전체 요약")
         print(f"  - 벤치마크 이름: {benchmark['benchmark_info']['name']}")
         print(f"  - 총 항목 수: {benchmark['benchmark_info']['total_size']:,}개")
         print(f"  - 태스크 수: {len(benchmark['benchmark_info']['tasks'])}개")
 
-        print(f"\n📋 태스크별 통계:")
+        print(f"\n 태스크별 통계:")
         for task_name, task_info in benchmark['tasks'].items():
             print(f"\n  [{task_name.upper()}]")
             print(f"    - 항목 수: {task_info['size']:,}개")
@@ -866,7 +866,7 @@ Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
                     print(f"      • {pair}: {count:,}개")
 
         print("\n" + "="*70)
-        print("✅ 벤치마크 생성 완료!")
+        print(" 벤치마크 생성 완료!")
         print("="*70)
 
 
@@ -889,7 +889,7 @@ def main():
     # 벤치마크 생성
     benchmark = generator.generate_benchmark()
 
-    print(f"\n🎉 벤치마크가 성공적으로 생성되었습니다!")
+    print(f"\n 벤치마크가 성공적으로 생성되었습니다!")
     print(f"📁 출력 디렉토리: {output_dir}")
 
 

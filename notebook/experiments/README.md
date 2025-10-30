@@ -160,7 +160,7 @@ python utils/config_loader.py --sample-size 0.3
 | Mode | Samples | Time | Cost (GPT-4) | Use Case |
 |:-----|--------:|-----:|-------------:|:---------|
 | **test** | 50 | 5-10 min | <$1 | Quick testing |
-| **sample 0.3** | 2,361 | 1 hour | $6-7 | Balanced evaluation ⭐ |
+| **sample 0.3** | 2,361 | 1 hour | $6-7 | Balanced evaluation  |
 | **full** | 7,871 | 3-5 hours | $19-20 | Final results |
 | **fewshot** | 250 | 30 min | $3-5 | Few-shot learning |
 
@@ -184,17 +184,17 @@ After Unicode normalization:
 
 ## Supported Models
 
-### API Models ✅
+### API Models 
 - GPT-4 Turbo, GPT-3.5 Turbo
 - Claude 3.5 Sonnet, Claude 3 Opus
 
-### Open Source Models ✅
+### Open Source Models 
 - Llama 3.1 8B (`meta-llama/Llama-3.1-8B-Instruct`)
 - Qwen 2.5 7B (`Qwen/Qwen2.5-7B-Instruct`)
 - EXAONE 3.0 7.8B (`LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct`)
 
-### Supervised Models 🔧
-- TongGu 7B (`SCUT-DLVCLab/TongGu-7B-Instruct`) ✅
+### Supervised Models 
+- TongGu 7B (`SCUT-DLVCLab/TongGu-7B-Instruct`) 
 - GwenBert (`ethanyt/guwenbert-base`) - Limited functionality
 
 ## Results
@@ -388,4 +388,4 @@ python exp5/exp5_benchmark_evaluation.py \
 
 **Last Updated**: 2025-10-30
 **Version**: 3.0
-**Status**: Active ✅
+**Status**: Active 

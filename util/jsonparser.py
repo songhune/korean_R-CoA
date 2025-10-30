@@ -29,21 +29,21 @@ class KwasiLLMConverter:
             self.gwashi_df = pd.read_csv(gwashi_path, encoding='cp949')
             print(f"gwashi.csv 로드 완료: {len(self.gwashi_df)}행")
         except Exception as e:
-            print(f"❌ gwashi.csv 로드 실패: {e}")
+            print(f" gwashi.csv 로드 실패: {e}")
             self.gwashi_df = pd.DataFrame()
         
         try:
             self.munjib_df = pd.read_csv(munjib_path, encoding='utf-8')
             print(f"munjib.csv 로드 완료: {len(self.munjib_df)}행")
         except Exception as e:
-            print(f"❌ munjib.csv 로드 실패: {e}")
+            print(f" munjib.csv 로드 실패: {e}")
             self.munjib_df = pd.DataFrame()
         
         try:
             self.sigwon_df = pd.read_csv(sigwon_path, encoding='utf-8')
             print(f"sigwon.csv 로드 완료: {len(self.sigwon_df)}행")
         except Exception as e:
-            print(f"❌ sigwon.csv 로드 실패: {e}")
+            print(f" sigwon.csv 로드 실패: {e}")
             self.sigwon_df = pd.DataFrame()
         
         total_loaded = len(self.gwashi_df) + len(self.munjib_df) + len(self.sigwon_df)
@@ -279,9 +279,9 @@ class KwasiLLMConverter:
         try:
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(llm_dataset, f, ensure_ascii=False, indent=2)
-            print(f"✅ 변환 완료: {output_path}")
+            print(f" 변환 완료: {output_path}")
         except Exception as e:
-            print(f"❌ JSON 저장 실패: {e}")
+            print(f" JSON 저장 실패: {e}")
             raise
         
         return llm_dataset

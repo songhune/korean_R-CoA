@@ -67,7 +67,7 @@ def setup_korean_fonts_robust():
     # 캐시 클리어 (중요!)
     fm._rebuild()
 
-    print(f"✅ [FONT] 한글/한자 폰트 설정 완료: {selected_font}")
+    print(f" [FONT] 한글/한자 폰트 설정 완료: {selected_font}")
     return selected_font
 
 

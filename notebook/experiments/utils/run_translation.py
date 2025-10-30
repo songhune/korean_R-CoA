@@ -38,7 +38,7 @@ load_dotenv(env_path)
 # API 클라이언트 초기화
 api_key = os.getenv("ANTHROPIC_API_KEY")
 if not api_key:
-    print("❌ ANTHROPIC_API_KEY가 .env 파일에 없습니다!")
+    print(" ANTHROPIC_API_KEY가 .env 파일에 없습니다!")
     sys.exit(1)
 
 client = anthropic.Anthropic(api_key=api_key)
@@ -69,7 +69,7 @@ def load_data():
     df['has_abstract'] = df['abstract'].notna() & (df['abstract'] != '')
     df['has_content'] = df['content'].notna() & (df['content'] != '')
 
-    print(f"✅ 총 {len(df):,}개 문제 로드")
+    print(f" 총 {len(df):,}개 문제 로드")
     print(f"   - Abstract 있음: {df['has_abstract'].sum():,}")
     print(f"   - Content 있음: {df['has_content'].sum():,}")
 
@@ -108,14 +108,14 @@ def translate_text(text, target_lang="Korean", max_retries=3):
             return message.content[0].text.strip()
         except anthropic.RateLimitError as e:
             wait_time = 2 ** attempt
-            print(f"⚠️ Rate limit - {wait_time}초 대기...")
+            print(f" Rate limit - {wait_time}초 대기...")
             time.sleep(wait_time)
         except Exception as e:
             if attempt < max_retries - 1:
-                print(f"⚠️ 재시도 {attempt+1}/{max_retries}: {str(e)[:50]}")
+                print(f" 재시도 {attempt+1}/{max_retries}: {str(e)[:50]}")
                 time.sleep(2 ** attempt)
             else:
-                print(f"❌ 번역 실패: {str(e)[:100]}")
+                print(f" 번역 실패: {str(e)[:100]}")
                 return ""
 
     return ""
@@ -124,7 +124,7 @@ def translate_text(text, target_lang="Korean", max_retries=3):
 def translate_abstract(df, test_limit=None):
     """Abstract 번역 (한국어 + 영어)"""
     print("\n" + "="*80)
-    print("📝 Abstract 번역 시작")
+    print(" Abstract 번역 시작")
     print("="*80)
 
     df['abstract_ko'] = ""
@@ -133,7 +133,7 @@ def translate_abstract(df, test_limit=None):
     abstract_rows = df[df['has_abstract']]
     if test_limit:
         abstract_rows = abstract_rows.head(test_limit)
-        print(f"🧪 테스트 모드: {len(abstract_rows)}개만 번역")
+        print(f" 테스트 모드: {len(abstract_rows)}개만 번역")
 
     print(f"\n총 {len(abstract_rows):,}개 Abstract 번역")
 
@@ -149,14 +149,14 @@ def translate_abstract(df, test_limit=None):
         df.at[idx, 'abstract_en'] = translate_text(row['abstract'], "English")
         time.sleep(0.5)
 
-    print("✅ Abstract 번역 완료")
+    print(" Abstract 번역 완료")
     return df
 
 
 def translate_content(df, test_limit=None):
     """Content 번역 (한국어 + 영어)"""
     print("\n" + "="*80)
-    print("📝 Content 번역 시작")
+    print(" Content 번역 시작")
     print("="*80)
 
     df['content_ko'] = ""
@@ -165,7 +165,7 @@ def translate_content(df, test_limit=None):
     content_rows = df[df['has_content']]
     if test_limit:
         content_rows = content_rows.head(test_limit)
-        print(f"🧪 테스트 모드: {len(content_rows)}개만 번역")
+        print(f" 테스트 모드: {len(content_rows)}개만 번역")
 
     print(f"\n총 {len(content_rows):,}개 Content 번역")
 
@@ -181,7 +181,7 @@ def translate_content(df, test_limit=None):
         df.at[idx, 'content_en'] = translate_text(row['content'], "English")
         time.sleep(0.5)
 
-    print("✅ Content 번역 완료")
+    print(" Content 번역 완료")
     return df
 
 
@@ -200,10 +200,10 @@ def save_results(df, translate_abstract_flag, translate_content_flag):
     df[save_cols].to_csv(output_file, index=False, encoding='utf-8-sig')
 
     print("\n" + "="*80)
-    print("✅ 번역 완료!")
+    print(" 번역 완료!")
     print("="*80)
     print(f"📁 저장 위치: {output_file}")
-    print(f"📊 총 {len(df):,}개 문제")
+    print(f" 총 {len(df):,}개 문제")
 
     if translate_abstract_flag:
         translated = (df['abstract_ko'] != "").sum()
@@ -226,28 +226,28 @@ def main():
 
     # 옵션 검증
     if not args.abstract and not args.content:
-        print("❌ --abstract 또는 --content 옵션을 지정해주세요")
+        print(" --abstract 또는 --content 옵션을 지정해주세요")
         parser.print_help()
         sys.exit(1)
 
     # 시작
     print("="*80)
-    print("🚀 3번 실험: 과시 데이터 번역 시작")
+    print(" 3번 실험: 과시 데이터 번역 시작")
     print("="*80)
-    print(f"📝 Abstract 번역: {'✅' if args.abstract else '❌'}")
-    print(f"📝 Content 번역: {'✅' if args.content else '❌'}")
+    print(f" Abstract 번역: {'' if args.abstract else ''}")
+    print(f" Content 번역: {'' if args.content else ''}")
     if args.test:
-        print(f"🧪 테스트 모드: {args.test}개씩만 번역")
+        print(f" 테스트 모드: {args.test}개씩만 번역")
     else:
-        print(f"💰 예상 비용: ~$23 (약 ₩31,000)")
-        print(f"⏱️  예상 시간: ~1시간")
+        print(f" 예상 비용: ~$23 (약 ₩31,000)")
+        print(f"⏱  예상 시간: ~1시간")
     print("="*80)
 
     # 확인
     if not args.test:
         response = input("\n진행하시겠습니까? (yes/no): ")
         if response.lower() not in ['yes', 'y']:
-            print("❌ 취소되었습니다")
+            print(" 취소되었습니다")
             sys.exit(0)
 
     # 데이터 로드
@@ -267,14 +267,14 @@ def main():
         save_results(df, args.abstract, args.content)
 
     except KeyboardInterrupt:
-        print("\n\n⚠️ 사용자가 중단했습니다")
-        print("💾 현재까지 번역된 결과를 저장합니다...")
+        print("\n\n 사용자가 중단했습니다")
+        print(" 현재까지 번역된 결과를 저장합니다...")
         save_results(df, args.abstract, args.content)
         sys.exit(1)
 
     # 소요 시간
     elapsed = time.time() - start_time
-    print(f"\n⏱️  소요 시간: {elapsed/60:.1f}분")
+    print(f"\n⏱  소요 시간: {elapsed/60:.1f}분")
 
 
 if __name__ == "__main__":

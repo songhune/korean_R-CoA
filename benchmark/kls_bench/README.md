@@ -74,7 +74,7 @@ It comprehensively assesses the capabilities of Large Language Models (LLMs) to 
 - **classical_chinese → korean**: 1,320개
 - **korean → english**: 680개
 
-## 🚀 사용 방법
+##  사용 방법
 
 ### Python에서 로드
 
@@ -124,7 +124,7 @@ k_classic_bench/
 └── README.md                          # 본 문서
 ```
 
-## 🎓 데이터 출처
+##  데이터 출처
 
 1. **과거시험 데이터**: 한국 과거시험 문제 및 답안 (문체 분류 포함)
 2. **사서(四書) 데이터**: 논어, 맹자, 대학, 중용 등 유교 경전
@@ -148,7 +148,7 @@ k_classic_bench/
 - **C3Bench**: [논문 링크]
 - **관련 연구**: 고전 한문 자연어처리 연구
 
-## 📧 문의
+##  문의
 
 벤치마크 관련 문의사항은 이메일로 연락 주시기 바랍니다.
 

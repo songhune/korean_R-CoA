@@ -257,4 +257,4 @@ class KoreanNLIGenerator:
                 }
                 f.write(json.dumps(json_obj, ensure_ascii=False) + '\n')
         
-        print(f"✅ NLI 데이터셋 저장 완료: {output_path} ({len(triples)}개)")
+        print(f" NLI 데이터셋 저장 완료: {output_path} ({len(triples)}개)")

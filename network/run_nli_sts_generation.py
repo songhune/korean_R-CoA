@@ -38,9 +38,9 @@ def load_korean_text_data(data_dir: str) -> List[str]:
             df = pd.read_csv(gwashi_path, encoding='cp949')
             contents = df['contents'].dropna().astype(str).tolist()
             korean_texts.extend([text for text in contents if len(text.strip()) > 20])
-            print(f"✅ gwashi.csv에서 {len(contents)}개 텍스트 로드")
+            print(f" gwashi.csv에서 {len(contents)}개 텍스트 로드")
     except Exception as e:
-        print(f"❌ gwashi.csv 로드 실패: {e}")
+        print(f" gwashi.csv 로드 실패: {e}")
     
     # 2. 문집 데이터
     try:
@@ -51,9 +51,9 @@ def load_korean_text_data(data_dir: str) -> List[str]:
             if 'answer_contents' in df.columns:
                 contents = df['answer_contents'].dropna().astype(str).tolist()
                 korean_texts.extend([text for text in contents if len(text.strip()) > 20])
-                print(f"✅ munjib.csv에서 {len(contents)}개 텍스트 로드")
+                print(f" munjib.csv에서 {len(contents)}개 텍스트 로드")
     except Exception as e:
-        print(f"❌ munjib.csv 로드 실패: {e}")
+        print(f" munjib.csv 로드 실패: {e}")
     
     # 3. 사서 한국어 해설 (JSONL에서 추출)
     try:
@@ -73,11 +73,11 @@ def load_korean_text_data(data_dir: str) -> List[str]:
                                 content = content.strip()
                                 if len(content) > 20:
                                     korean_texts.append(content)
-            print(f"✅ saseo JSONL에서 텍스트 추가 로드")
+            print(f" saseo JSONL에서 텍스트 추가 로드")
     except Exception as e:
-        print(f"❌ saseo JSONL 로드 실패: {e}")
+        print(f" saseo JSONL 로드 실패: {e}")
     
-    print(f"📊 총 한국어 텍스트: {len(korean_texts)}개")
+    print(f" 총 한국어 텍스트: {len(korean_texts)}개")
     return korean_texts
 
 def generate_korean_nli_sts(korean_texts: List[str], output_dir: str):
@@ -109,8 +109,8 @@ def generate_korean_nli_sts(korean_texts: List[str], output_dir: str):
     sts_output_path = os.path.join(output_dir, "korean_sts.jsonl")
     sts_generator.save_to_jsonl(sts_pairs, sts_output_path)
     
-    print(f"✅ 한국어 NLI: {len(nli_triples)}개")
-    print(f"✅ 한국어 STS: {len(sts_pairs)}개")
+    print(f" 한국어 NLI: {len(nli_triples)}개")
+    print(f" 한국어 STS: {len(sts_pairs)}개")
 
 def generate_cc_kr_nli_sts(data_dir: str, output_dir: str):
     """CC-KR 기반 NLI/STS 데이터 생성"""
@@ -143,7 +143,7 @@ def create_requirements_file(output_dir: str):
     with open(requirements_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(requirements))
     
-    print(f"✅ 필요 패키지 목록 생성: {requirements_path}")
+    print(f" 필요 패키지 목록 생성: {requirements_path}")
 
 def create_dataset_summary(output_dir: str):
     """생성된 데이터셋 요약 정보 생성"""
@@ -183,13 +183,13 @@ def create_dataset_summary(output_dir: str):
                             "sample": sample
                         }
             except Exception as e:
-                print(f"⚠️ {filename} 분석 실패: {e}")
+                print(f" {filename} 분석 실패: {e}")
     
     summary_path = os.path.join(output_dir, "dataset_summary.json")
     with open(summary_path, 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
     
-    print(f"✅ 데이터셋 요약 생성: {summary_path}")
+    print(f" 데이터셋 요약 생성: {summary_path}")
 
 def main():
     parser = argparse.ArgumentParser(description="NLI/STS 데이터 생성 도구")
@@ -205,10 +205,10 @@ def main():
     # 출력 디렉토리 생성
     os.makedirs(args.output_dir, exist_ok=True)
     
-    print("🚀 NLI/STS 데이터 생성 시작")
+    print(" NLI/STS 데이터 생성 시작")
     print(f"📁 데이터 디렉토리: {args.data_dir}")
     print(f"📁 출력 디렉토리: {args.output_dir}")
-    print(f"🔧 모드: {args.mode}")
+    print(f" 모드: {args.mode}")
     
     try:
         if args.mode in ["all", "kr_only"]:
@@ -218,7 +218,7 @@ def main():
             if korean_texts:
                 generate_korean_nli_sts(korean_texts, args.output_dir)
             else:
-                print("❌ 한국어 텍스트 데이터를 찾을 수 없습니다.")
+                print(" 한국어 텍스트 데이터를 찾을 수 없습니다.")
         
         if args.mode in ["all", "cc_kr_only"]:
             generate_cc_kr_nli_sts(args.data_dir, args.output_dir)
@@ -227,11 +227,11 @@ def main():
         create_requirements_file(args.output_dir)
         create_dataset_summary(args.output_dir)
         
-        print("\n🎉 모든 작업 완료!")
-        print(f"📊 결과 확인: {args.output_dir}/dataset_summary.json")
+        print("\n 모든 작업 완료!")
+        print(f" 결과 확인: {args.output_dir}/dataset_summary.json")
         
     except Exception as e:
-        print(f"❌ 오류 발생: {e}")
+        print(f" 오류 발생: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
