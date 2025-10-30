@@ -5233,7 +5233,7 @@
       "task": "classification",
       "id": "cls_0476",
       "input": "漢文帝與匈奴和親",
-      "label": "論",
+      "label": "論",
       "question_id": "Q0818978a19ae",
       "metadata": {
         "has_korean": true,
@@ -5244,7 +5244,7 @@
       "task": "classification",
       "id": "cls_0477",
       "input": "闢四門",
-      "label": "論",
+      "label": "論",
       "question_id": "Q314ca5817e15",
       "metadata": {
         "has_korean": true,
@@ -8775,7 +8775,7 @@
       "task": "classification",
       "id": "cls_0798",
       "input": "君子不盡利而遺民.",
-      "label": "禮義",
+      "label": "禮義",
       "question_id": "Q28add9f5c625",
       "metadata": {
         "has_korean": true,
@@ -8786,7 +8786,7 @@
       "task": "classification",
       "id": "cls_0799",
       "input": "杜擧.",
-      "label": "禮義",
+      "label": "禮義",
       "question_id": "Q6b8c61e029dc",
       "metadata": {
         "has_korean": true,
@@ -8797,7 +8797,7 @@
       "task": "classification",
       "id": "cls_0800",
       "input": "君子多文以爲富",
-      "label": "禮義",
+      "label": "禮義",
       "question_id": "Qdc6a1b980b76",
       "metadata": {
         "has_korean": true,
@@ -8808,7 +8808,7 @@
       "task": "classification",
       "id": "cls_0801",
       "input": "禮義以爲干櫓.",
-      "label": "禮義",
+      "label": "禮義",
       "question_id": "Q6b8c61e029dc",
       "metadata": {
         "has_korean": true,
@@ -8819,7 +8819,7 @@
       "task": "classification",
       "id": "cls_0802",
       "input": "天子以德爲車.",
-      "label": "禮義",
+      "label": "禮義",
       "question_id": "Q69140cf979ac",
       "metadata": {
         "has_korean": true,
@@ -8830,7 +8830,7 @@
       "task": "classification",
       "id": "cls_0803",
       "input": "報者天下之利.",
-      "label": "禮義",
+      "label": "禮義",
       "question_id": "Q2fbc3a1aac10",
       "metadata": {
         "has_korean": true,
