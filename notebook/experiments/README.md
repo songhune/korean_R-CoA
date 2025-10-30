@@ -1,154 +1,117 @@
 # KLSBench Experiments
 
-This directory contains evaluation experiments for **KLSBench** (Korean Literary Style Benchmark), a comprehensive benchmark for evaluating large language models on Korean classical literature understanding.
+Evaluation experiments for **KLSBench** (Korean Literary Style Benchmark) - a comprehensive benchmark for evaluating LLMs on Korean classical literature understanding.
 
 ## Quick Start
 
 ```bash
-# 1. Install dependencies
+# Install dependencies
 pip install -r requirements_evaluation.txt
 
-# 2. Configure API keys (optional)
+# Configure API keys (create .env file)
 export OPENAI_API_KEY='your-key'
 export ANTHROPIC_API_KEY='your-key'
 
-# 3. Run evaluation
-./run_evaluation.sh test
+# Run evaluation
+./run_evaluation.sh test              # Test mode (10 samples)
+./run_evaluation.sh sample 0.3        # Sample 30%
+./run_evaluation.sh full              # Full evaluation
+./run_evaluation.sh fewshot "1 3"     # Few-shot learning
 ```
 
 ## Directory Structure
 
 ```
 experiments/
-├── README.md                           # This file
-├── config.yaml                         # Central configuration
-├── run_evaluation.sh                   # Unified evaluation runner ⭐
+├── README.md                    # This file
+├── config.yaml                  # Configuration
+├── run_evaluation.sh           # Unified evaluation runner
+├── requirements_evaluation.txt  # Python dependencies
 │
-├── Evaluation Scripts
-│   ├── exp5_benchmark_evaluation.py   # Zero-shot evaluation framework
-│   ├── exp6_fewshot_evaluation.py     # Few-shot evaluation framework
-│   ├── exp6_analyze_improvements.py   # Few-shot analysis
-│   └── exp6_result_aggregation.py     # Result aggregation
+├── exp5/                        # Experiment 5: Zero-shot evaluation
+│   ├── exp5_benchmark_evaluation.py
+│   ├── setup_exp5.sh
+│   └── 5번실험.ipynb
 │
-├── Utilities
-│   ├── config_loader.py               # Configuration loader
-│   ├── fix_classification_labels.py   # Unicode normalization tool
-│   └── kls_bench_generator.py         # Benchmark generator
+├── exp6/                        # Experiment 6: Few-shot learning
+│   ├── exp6_fewshot_evaluation.py
+│   ├── exp6_analyze_improvements.py
+│   └── exp6_result_aggregation.py
 │
-├── Setup
-│   ├── setup_exp5.sh                  # Environment setup
-│   └── requirements_evaluation.txt    # Python dependencies
+├── utils/                       # Utilities
+│   ├── config_loader.py         # Config management
+│   ├── fix_classification_labels.py
+│   ├── kls_bench_generator.py
+│   ├── font_fix.py
+│   ├── rename_kclassicbench.sh
+│   └── run_translation.py
 │
-├── Documentation
-│   ├── README_exp5.md                 # Experiment 5 guide (Korean)
-│   ├── README_UNIFIED_RUNNER.md       # Unified runner guide (English)
-│   ├── SUMMARY_exp5.md                # Experiment 5 summary
-│   ├── EXP6_README.md                 # Experiment 6 guide
-│   ├── EXP6_SUMMARY.md                # Experiment 6 summary
-│   └── SAMPLING_GUIDE.md              # Sampling strategy guide
-│
-├── Notebooks
-│   ├── 1번실험.ipynb                   # Experiment 1
-│   ├── 2번실험.ipynb                   # Experiment 2
-│   ├── 3번실험.ipynb                   # Experiment 3
-│   ├── 4번실험.ipynb                   # Experiment 4
-│   ├── 5번실험.ipynb                   # Experiment 5 ⭐
-│   └── kls_bench_summary.ipynb        # Benchmark summary
-│
-└── deprecated/                         # Deprecated scripts
-    ├── run_all_evaluations.sh
-    ├── exp6_run_fewshot.sh
-    └── README.md
+└── [1-4]번실험.ipynb            # Earlier experiments
 ```
 
-## Experiments Overview
+## Experiments
 
-### Experiment 5: Zero-Shot Evaluation ⭐
-**Main evaluation framework for KLSBench**
+### Experiment 5: Zero-Shot Evaluation
 
-- **Script**: [exp5_benchmark_evaluation.py](exp5_benchmark_evaluation.py)
-- **Runner**: [run_evaluation.sh](run_evaluation.sh)
-- **Config**: [config.yaml](config.yaml)
-- **Documentation**: [README_exp5.md](README_exp5.md), [SUMMARY_exp5.md](SUMMARY_exp5.md)
+**Location**: [exp5/](exp5/)
 
-**Features:**
+Complete evaluation framework for KLSBench with zero-shot learning.
+
+**Key Features**:
 - 5 evaluation tasks (classification, retrieval, punctuation, NLI, translation)
 - Support for API models (GPT-4, Claude) and open-source models (Llama, Qwen, EXAONE)
-- Configurable sampling (test/sample/full modes)
-- YAML-based configuration
-- Professional logging and results
+- Configurable sampling modes (test/sample/full)
+- 19 classification labels (Unicode normalized)
 
-**Quick Run:**
+**Run**:
 ```bash
-./run_evaluation.sh test              # Test mode (10 samples)
-./run_evaluation.sh sample 0.3        # Sample 30% of data
-./run_evaluation.sh full              # Full evaluation
-```
-
-### Experiment 6: Few-Shot Learning
-**Evaluating few-shot learning performance**
-
-- **Script**: [exp6_fewshot_evaluation.py](exp6_fewshot_evaluation.py)
-- **Runner**: `./run_evaluation.sh fewshot`
-- **Documentation**: [EXP6_README.md](EXP6_README.md), [EXP6_SUMMARY.md](EXP6_SUMMARY.md)
-
-**Features:**
-- 1-shot, 3-shot, 5-shot evaluation
-- Dynamic example selection
-- Performance comparison analysis
-- Focused on classification and NLI tasks
-
-**Quick Run:**
-```bash
-./run_evaluation.sh fewshot "1 3"     # 1-shot and 3-shot
-./run_evaluation.sh fewshot "1 3 5"   # All shot configurations
-```
-
-### Earlier Experiments
-- **Experiment 1-4**: Initial development and data preparation
-- **Notebooks**: Interactive analysis and visualization
-
-## Usage Modes
-
-### 1. Test Mode (Quick Testing)
-```bash
+# Test mode
 ./run_evaluation.sh test
-```
-- **Samples**: 10 per task (50 total)
-- **Time**: 5-10 minutes
-- **Cost**: <$1
-- **Purpose**: Quick validation
 
-### 2. Sample Mode (Recommended)
-```bash
+# Sample mode (recommended: 30%)
 ./run_evaluation.sh sample 0.3
-```
-- **Samples**: 30% of data (2,361 items)
-- **Time**: ~1 hour
-- **Cost**: $6-7 (GPT-4)
-- **Purpose**: Balanced evaluation with statistical validity
 
-### 3. Full Mode (Final Results)
-```bash
+# Full evaluation
 ./run_evaluation.sh full
 ```
-- **Samples**: 7,871 items (100%)
-- **Time**: 3-5 hours
-- **Cost**: $19-20 (GPT-4)
-- **Purpose**: Complete evaluation for publication
 
-### 4. Few-Shot Mode
+**Files**:
+- [exp5/exp5_benchmark_evaluation.py](exp5/exp5_benchmark_evaluation.py) - Main evaluation framework
+- [exp5/setup_exp5.sh](exp5/setup_exp5.sh) - Environment setup
+- [exp5/5번실험.ipynb](exp5/5번실험.ipynb) - Interactive analysis
+
+### Experiment 6: Few-Shot Learning
+
+**Location**: [exp6/](exp6/)
+
+Evaluating few-shot learning performance with dynamic example selection.
+
+**Key Features**:
+- 1-shot, 3-shot, 5-shot evaluation
+- Focused on classification and NLI tasks
+- Performance improvement analysis
+- Result aggregation and visualization
+
+**Run**:
 ```bash
+# Few-shot evaluation
 ./run_evaluation.sh fewshot "1 3 5"
+
+# Analyze improvements
+cd exp6 && python exp6_analyze_improvements.py
+
+# Aggregate results
+python exp6_result_aggregation.py
 ```
-- **Samples**: 50 per task (limited for speed)
-- **Time**: 30 minutes
-- **Cost**: $3-5
-- **Purpose**: Evaluate few-shot learning capability
+
+**Files**:
+- [exp6/exp6_fewshot_evaluation.py](exp6/exp6_fewshot_evaluation.py) - Few-shot evaluation
+- [exp6/exp6_analyze_improvements.py](exp6/exp6_analyze_improvements.py) - Analysis
+- [exp6/exp6_result_aggregation.py](exp6/exp6_result_aggregation.py) - Aggregation
 
 ## Configuration
 
-All settings are managed via [config.yaml](config.yaml):
+All settings managed via [config.yaml](config.yaml):
 
 ```yaml
 # Benchmark paths
@@ -168,11 +131,44 @@ models:
         enabled: true
 ```
 
-**View configuration:**
+**Utilities**:
 ```bash
-python config_loader.py --summary
-python config_loader.py --models all
+# View configuration
+python utils/config_loader.py --summary
+
+# List models
+python utils/config_loader.py --models all
+
+# Calculate sample size
+python utils/config_loader.py --sample-size 0.3
 ```
+
+## Evaluation Modes
+
+| Mode | Samples | Time | Cost (GPT-4) | Use Case |
+|:-----|--------:|-----:|-------------:|:---------|
+| **test** | 50 | 5-10 min | <$1 | Quick testing |
+| **sample 0.3** | 2,361 | 1 hour | $6-7 | Balanced evaluation ⭐ |
+| **full** | 7,871 | 3-5 hours | $19-20 | Final results |
+| **fewshot** | 250 | 30 min | $3-5 | Few-shot learning |
+
+## Evaluation Tasks
+
+| Task | Description | Items | Metric |
+|:-----|:------------|------:|:-------|
+| **Classification** | Literary style classification | 808 | Accuracy, F1 |
+| **Retrieval** | Source text identification | 1,209 | Accuracy |
+| **Punctuation** | Punctuation restoration | 2,000 | F1, ROUGE |
+| **NLI** | Natural language inference | 1,854 | Accuracy, F1 |
+| **Translation** | Multilingual translation | 2,000 | BLEU, ROUGE |
+
+**Total**: 7,871 items across 5 tasks
+
+### Classification Labels (19 classes)
+
+After Unicode normalization:
+- **Balanced** (95 each): 賦, 詩, 疑, 義, 策, 表
+- **Other**: 論(53), 銘(53), 箋(49), 頌(24), 禮義(13), 箴(12), 易義(9), 詩義(7), 書義(6), 詔(5), 制(3), 講(2), 擬(2)
 
 ## Supported Models
 
@@ -181,82 +177,61 @@ python config_loader.py --models all
 - Claude 3.5 Sonnet, Claude 3 Opus
 
 ### Open Source Models ✅
-- Llama 3.1 8B
-- Qwen 2.5 7B
-- EXAONE 3.0 7.8B
+- Llama 3.1 8B (`meta-llama/Llama-3.1-8B-Instruct`)
+- Qwen 2.5 7B (`Qwen/Qwen2.5-7B-Instruct`)
+- EXAONE 3.0 7.8B (`LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct`)
 
 ### Supervised Models 🔧
-- TongGu 7B ✅
-- GwenBert (limited functionality)
-
-## Evaluation Tasks
-
-| Task | Description | Items | Metric |
-|:-----|:------------|------:|:-------|
-| **Classification** | Classify literary style | 808 | Accuracy, F1 |
-| **Retrieval** | Identify source text | 1,209 | Accuracy |
-| **Punctuation** | Restore punctuation | 2,000 | F1, ROUGE |
-| **NLI** | Natural language inference | 1,854 | Accuracy, F1 |
-| **Translation** | Translate between languages | 2,000 | BLEU, ROUGE |
-
-**Total**: 7,871 items across 5 tasks
-
-### Classification Labels
-After Unicode normalization (2025-10-30):
-- **19 unique labels** (reduced from 21)
-- Fixed Unicode Compatibility Ideographs
-- Balanced classes: 賦, 詩, 疑, 義, 策, 表 (95 items each)
-- See [fix_classification_labels.py](fix_classification_labels.py) for details
+- TongGu 7B (`SCUT-DLVCLab/TongGu-7B-Instruct`) ✅
+- GwenBert (`ethanyt/guwenbert-base`) - Limited functionality
 
 ## Results
 
-Results are saved to `../../benchmark/results/`:
+Results saved to `../../benchmark/results/`:
 
 ```
 results/
-├── results_gpt-4-turbo_*.json         # Detailed results
-├── summary_gpt-4-turbo_*.csv          # Summary CSV
+├── results_gpt-4-turbo_*.json
+├── summary_gpt-4-turbo_*.csv
 ├── fewshot/
 │   ├── fewshot_*_*.json
 │   └── summary_*_*.csv
 └── aggregated/
     ├── aggregated_summary.csv
-    ├── heatmap_performance.png
-    └── radar_chart.png
+    └── *.png (visualizations)
 ```
 
-## Recent Updates (2025-10-30)
+## Utilities
 
-### ✨ Unified Evaluation Runner
-- Single entry point for all evaluation types
-- YAML-based configuration
-- 4 modes: test, sample, full, fewshot
+### Configuration Management
+```bash
+python utils/config_loader.py --summary
+python utils/config_loader.py --models all
+```
 
-### 🔧 Unicode Normalization Fix
-- Fixed duplicate classification labels (21 → 19)
-- Normalized CJK compatibility ideographs
-- Tool: [fix_classification_labels.py](fix_classification_labels.py)
+### Unicode Normalization
+```bash
+python utils/fix_classification_labels.py --verify
+```
 
-### 📝 Rebranding
-- K-ClassicBench → **KLSBench**
-- English-first documentation
-- Professional logging format
+### Benchmark Generation
+```bash
+python utils/kls_bench_generator.py
+```
 
-### 📂 Code Cleanup
-- Moved deprecated scripts to [deprecated/](deprecated/)
-- Updated all documentation
-- Centralized configuration
+### Font Fix
+```bash
+python utils/font_fix.py <input_file> <output_file>
+```
 
 ## Cost Estimates
 
-| Mode | Samples | GPT-4 Cost | Claude Cost |
-|:-----|--------:|-----------:|------------:|
+| Mode | Samples | GPT-4 | Claude |
+|:-----|--------:|------:|-------:|
 | Test | 50 | <$1 | <$1 |
 | Sample 30% | 2,361 | $6-7 | $4-5 |
 | Full | 7,871 | $19-20 | $12-15 |
 | Few-shot | 250 | $3-5 | $2-3 |
-
-**Always test with small samples first!**
 
 ## Environment Requirements
 
@@ -266,48 +241,64 @@ pip install -r requirements_evaluation.txt
 ```
 
 Key packages:
-- PyYAML (configuration)
-- transformers, torch (models)
-- openai, anthropic (API clients)
-- scikit-learn, rouge-score, nltk (metrics)
+- PyYAML, transformers, torch
+- openai, anthropic
+- scikit-learn, rouge-score, nltk
 
 ### Hardware
-- **CPU**: Any modern CPU
 - **RAM**: 16GB+ recommended
-- **GPU**: Optional for open-source models
-  - 7B models: 16GB+ VRAM
-  - 70B models: 40GB+ VRAM (8-bit quantization)
+- **GPU**: Optional (16GB+ VRAM for 7B models)
+
+## Recent Changes (2025-10-30)
+
+### Directory Reorganization
+- Created `exp5/`, `exp6/`, `utils/` directories
+- Consolidated all font_fix scripts into one
+- Removed all legacy README files
+- Simplified directory structure
+
+### Unicode Normalization
+- Fixed duplicate classification labels (21 → 19)
+- Normalized CJK compatibility ideographs
+
+### Unified Runner
+- Single entry point for all evaluations
+- YAML-based configuration
+- 4 modes: test, sample, full, fewshot
+
+### Rebranding
+- K-ClassicBench → KLSBench
+- Professional logging format
+- English-first documentation
 
 ## Troubleshooting
 
-### Configuration Issues
+### Configuration
 ```bash
-# View current configuration
-python config_loader.py --summary
+# Check configuration
+python utils/config_loader.py --summary
 
-# Verify benchmark paths
+# Verify paths
 ls ../../benchmark/kls_bench/kls_bench_full.json
 ```
 
-### API Key Issues
+### API Keys
 ```bash
-# Check if keys are set
-echo $OPENAI_API_KEY
-echo $ANTHROPIC_API_KEY
-
 # Set keys
 export OPENAI_API_KEY='your-key'
 export ANTHROPIC_API_KEY='your-key'
+
+# Or create .env file
+echo "export OPENAI_API_KEY='your-key'" > .env
 ```
 
 ### Unicode Issues
 ```bash
-# Verify label normalization
-python fix_classification_labels.py --verify
+python utils/fix_classification_labels.py --verify
 ```
 
-### GPU Memory Issues
-Use 8-bit quantization for large models:
+### GPU Memory
+Use 8-bit quantization:
 ```python
 model = AutoModel.from_pretrained(
     model_name,
@@ -319,46 +310,58 @@ model = AutoModel.from_pretrained(
 ## Development
 
 ### Adding New Models
-1. Edit [config.yaml](config.yaml) to add model configuration
-2. Implement model wrapper in evaluation script (if needed)
+1. Edit [config.yaml](config.yaml)
+2. Implement wrapper in evaluation script (if needed)
 3. Test with `./run_evaluation.sh test`
 
 ### Adding New Tasks
 1. Add task data to benchmark JSON
-2. Implement evaluation logic in `exp5_benchmark_evaluation.py`
+2. Implement evaluation logic
 3. Update task metadata in [config.yaml](config.yaml)
 
 ### Running Tests
 ```bash
-# Quick test all models
+# Quick test
 ./run_evaluation.sh test
 
-# Test specific model
-python exp5_benchmark_evaluation.py \
+# Specific model
+python exp5/exp5_benchmark_evaluation.py \
     --model-type api \
     --model-name gpt-4-turbo \
     --api-key $OPENAI_API_KEY \
     --max-samples 5
 ```
 
-## Documentation
+## File Organization
 
-- [README_UNIFIED_RUNNER.md](README_UNIFIED_RUNNER.md) - Unified runner detailed guide
-- [README_exp5.md](README_exp5.md) - Experiment 5 guide (Korean)
-- [SUMMARY_exp5.md](SUMMARY_exp5.md) - Experiment 5 summary
-- [EXP6_README.md](EXP6_README.md) - Few-shot evaluation guide
-- [SAMPLING_GUIDE.md](SAMPLING_GUIDE.md) - Sampling strategy guide
-- [config.yaml](config.yaml) - Configuration reference
+### Scripts
+- `run_evaluation.sh` - Main evaluation runner
+- `exp5/setup_exp5.sh` - Environment setup
+
+### Configuration
+- `config.yaml` - Central configuration
+- `requirements_evaluation.txt` - Python dependencies
+- `.env` - API keys (create manually)
+
+### Experiments
+- `exp5/` - Zero-shot evaluation
+- `exp6/` - Few-shot learning
+- `[1-4]번실험.ipynb` - Earlier experiments
+
+### Utilities
+- `utils/config_loader.py` - Config management
+- `utils/fix_classification_labels.py` - Unicode normalization
+- `utils/kls_bench_generator.py` - Benchmark generation
+- `utils/font_fix.py` - Font normalization
+- `utils/run_translation.py` - Translation utilities
 
 ## References
 
 - **Benchmark**: [../../benchmark/kls_bench/README.md](../../benchmark/kls_bench/README.md)
-- **C3Bench Paper**: Classical Chinese Understanding Benchmark
+- **C3Bench**: Classical Chinese Understanding Benchmark
 - **Data Sources**: Gwageo examination data, Four Books (四書)
 
 ## Citation
-
-If you use KLSBench in your research, please cite:
 
 ```bibtex
 @misc{klsbench2024,
@@ -369,21 +372,8 @@ If you use KLSBench in your research, please cite:
 }
 ```
 
-## Support
-
-For issues or questions:
-- Check [README_UNIFIED_RUNNER.md](README_UNIFIED_RUNNER.md)
-- Review experiment summaries
-- Check configuration with `python config_loader.py --summary`
-
 ---
 
 **Last Updated**: 2025-10-30
-**Version**: 2.0
-**Status**: Active Development ✅
-
-**Key Files**:
-- Runner: [run_evaluation.sh](run_evaluation.sh)
-- Config: [config.yaml](config.yaml)
-- Zero-shot: [exp5_benchmark_evaluation.py](exp5_benchmark_evaluation.py)
-- Few-shot: [exp6_fewshot_evaluation.py](exp6_fewshot_evaluation.py)
+**Version**: 3.0
+**Status**: Active ✅
