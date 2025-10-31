@@ -9,7 +9,7 @@ notebook/examine/
 ├── README.md                      # 이 파일
 ├── 전문가평가_설문지.md             # 상세 설문지 (참고용)
 ├── 평가_가이드.md                  # 평가자를 위한 가이드 문서
-├── 평가_템플릿_생성.py              # Excel 템플릿 생성 스크립트
+├── sample_benchmark_data.py       # 벤치마크 데이터 랜덤 샘플링 스크립트
 └── [생성될 파일]
     ├── expert_evaluation_sample.json   # 샘플링된 평가 데이터
     └── 전문가평가_템플릿.xlsx           # 실제 평가용 Excel 파일
@@ -19,65 +19,109 @@ notebook/examine/
 
 ### 1. 평가 데이터 샘플링
 
-벤치마크에서 10% 샘플을 추출합니다 (총 780개 항목):
+벤치마크 데이터에서 랜덤 샘플을 추출합니다. 재현성을 위해 랜덤 시드를 사용합니다.
 
 ```bash
 cd notebook/examine
 
-# 방법 1: kls_bench_generator 사용
-python3 ../experiments/utils/kls_bench_generator.py \
-    --sample 0.1 \
-    --output expert_evaluation_sample.json
+# JSON 형식 (프로그래밍 용도)
+python3 sample_benchmark_data.py --seed 42 --samples 10 --output expert_evaluation_sample.json
 
-# 방법 2: Python 코드로 직접 샘플링
-python3 -c "
-import json
-import random
+# Markdown 형식 (전문가 평가용 - 추천!)
+python3 sample_benchmark_data.py --seed 42 --samples 10 --format markdown --output expert_evaluation_sample.md
 
-with open('../../benchmark/kls_bench/kls_bench_full.json') as f:
-    data = json.load(f)
+# 태스크별로 다른 개수 샘플링
+python3 sample_benchmark_data.py --seed 42 --samples-per-task "classification=80,retrieval=120,punctuation=200,nli=180,translation=200" --format markdown --output evaluation.md
 
-sampled = {}
-for task, items in data.items():
-    sample_size = int(len(items) * 0.1)
-    sampled[task] = random.sample(items, sample_size)
-
-with open('expert_evaluation_sample.json', 'w', encoding='utf-8') as f:
-    json.dump(sampled, f, ensure_ascii=False, indent=2)
-
-print(f'샘플링 완료: {sum(len(v) for v in sampled.values())}개 항목')
-"
+# 다른 시드로 샘플링 (다른 랜덤 샘플)
+python3 sample_benchmark_data.py --seed 100 --samples 20 --format markdown
 ```
 
-### 2. Excel 평가 템플릿 생성
+**주요 파라미터**:
+- `--seed`: 랜덤 시드 (재현성을 위해, 기본값: 42)
+- `--samples`: 모든 태스크에 동일 개수
+- `--samples-per-task`: 태스크별 개수 지정
+- `--format`: 출력 형식 (json 또는 markdown/md, 기본값: json)
+- `--output`: 출력 파일명 (기본값: expert_evaluation_sample.json)
 
-샘플링된 데이터를 Excel 형식으로 변환합니다:
+**재현성**: 동일한 시드를 사용하면 항상 동일한 샘플을 얻을 수 있습니다.
 
-```bash
-python3 평가_템플릿_생성.py \
-    --input expert_evaluation_sample.json \
-    --output 전문가평가_템플릿.xlsx
+**형식 선택**:
+- **JSON**: 프로그래밍으로 분석할 때 사용
+- **Markdown**: 비전공자 평가자에게 전달할 때 사용 (체크박스, 입력란 포함)
+
+### 2. 샘플 데이터 확인
+
+**JSON 형식** 예시:
+```json
+{
+  "metadata": {
+    "seed": 42,
+    "total_samples": 780,
+    "tasks": {
+      "classification": 80,
+      "retrieval": 120,
+      ...
+    }
+  },
+  "data": {
+    "classification": [...],
+    "retrieval": [...],
+    ...
+  }
+}
 ```
 
-**필요한 패키지**:
-```bash
-pip3 install pandas openpyxl
+**Markdown 형식** 예시:
+```markdown
+# KLSBench 전문가 평가 샘플 데이터
+
+- **랜덤 시드**: 42
+- **총 샘플 수**: 10개
+
+## CLASSIFICATION
+
+### 1. cls_0655
+
+**원문**: 徐偃王行仁義
+
+**라벨**: 論
+
+**평가**:
+- [ ] 정확함
+- [ ] 부정확함
+
+**올바른 라벨** (부정확한 경우):
+
+**난이도** (1-5):
+
+**의견**:
+
+---
 ```
+
+Markdown 형식은 평가자가 직접 체크박스를 선택하고 의견을 작성할 수 있습니다.
 
 ### 3. 평가자에게 전달
 
 다음 파일들을 평가자에게 전달합니다:
 
 1. **필수**:
-   - `전문가평가_템플릿.xlsx` - 실제 평가 파일
+   - `expert_evaluation_sample.md` - 샘플링된 평가 데이터 (Markdown 형식, **추천**)
    - `평가_가이드.md` - 평가 방법 안내
 
 2. **선택** (참고용):
    - `전문가평가_설문지.md` - 상세 설문 항목
 
+**Markdown 형식의 장점**:
+- GitHub, Notion, Obsidian 등에서 바로 편집 가능
+- 체크박스(`- [ ]`)를 클릭하여 평가 가능
+- 프로그래밍 지식 없이도 쉽게 작성 가능
+- 버전 관리 시스템(Git)과 호환
+
 ### 4. 평가 결과 수집
 
-평가자로부터 작성 완료된 Excel 파일을 받습니다.
+평가자로부터 작성 완료된 평가 결과를 받습니다.
 
 ## 평가 개요
 
@@ -101,33 +145,44 @@ pip3 install pandas openpyxl
 - **예상 시간**: 2-3시간
 - **사례금**: 10만원
 
-## Excel 템플릿 구조
+## 샘플 데이터 구조
 
-생성되는 Excel 파일은 다음과 같은 시트로 구성됩니다:
+생성된 JSON 파일은 각 태스크별로 다음 필드를 포함합니다:
 
-### 1. Classification 시트
-| 번호 | ID | 원문 | 현재_라벨 | 정확성 | 올바른_라벨 | 난이도(1-5) | 의견 |
-|-----|----|----|---------|-------|----------|-----------|-----|
+### 1. Classification
+- `id`: 항목 ID
+- `input`: 한문 원문
+- `label`: 문체 분류 (賦/詩/疑/義)
+- `metadata`: 추가 메타데이터
 
-### 2. Retrieval 시트
-| 번호 | ID | Query | Document | 관련성 | 관련없는_이유 | 난이도(1-5) | 의견 |
-|-----|----|----|---------|-------|----------|-----------|-----|
+### 2. Retrieval
+- `id`: 항목 ID
+- `input`: Query 텍스트
+- `answer`: 출처 (책 - 챕터)
+- `book`, `chapter`: 서지 정보
+- `metadata`: 추가 메타데이터
 
-### 3. Punctuation 시트
-| 번호 | ID | 원문(구두점_없음) | 정답(구두점_있음) | 정확성 | 수정_제안 | 오류_유형 | 난이도(1-5) | 의견 |
-|-----|----|----|---------|-------|----------|---------|-----------|-----|
+### 3. Punctuation
+- `id`: 항목 ID
+- `input`: 구두점 없는 원문
+- `answer`: 구두점이 있는 정답
+- `source`: 출처
+- `metadata`: 한글 번역 등 추가 정보
 
-### 4. NLI 시트
-| 번호 | ID | Premise | Hypothesis | 현재_라벨 | 정확성 | 올바른_라벨 | 판단_근거 | 난이도(1-5) | 의견 |
-|-----|----|----|---------|-------|----------|---------|-----------|-----|----|
+### 4. NLI
+- `id`: 항목 ID
+- `premise`: 전제 문장
+- `hypothesis`: 가설 문장
+- `label`: 관계 (entailment/neutral/contradiction)
+- `category`: 관계 유형
+- `explanation`: 설명
 
-### 5. Translation 시트
-| 번호 | ID | 한문_원문 | 제시된_번역 | 정확성 | 수정_제안 | 오역_유형 | 자연스러움 | 난이도(1-5) | 의견 |
-|-----|----|----|---------|-------|----------|---------|-----------|-----|----|
-
-### 6. 전반적평가 시트
-| 태스크 | 전반적_품질 | 개선_필요_사항 |
-|-------|----------|-------------|
+### 5. Translation
+- `id`: 항목 ID
+- `source_text`: 원문
+- `target_text`: 번역문
+- `source_lang`, `target_lang`: 언어 쌍
+- `metadata`: 추가 메타데이터
 
 ## 평가 결과 분석
 
@@ -135,19 +190,26 @@ pip3 install pandas openpyxl
 
 ### 1. 정량 분석
 ```python
-import pandas as pd
+import json
 
-# Excel 읽기
-excel_file = '전문가평가_템플릿_완성.xlsx'
-df_class = pd.read_excel(excel_file, sheet_name='Classification')
+# 평가 결과 읽기
+with open('expert_evaluation_result.json', 'r', encoding='utf-8') as f:
+    result = json.load(f)
 
-# 정확도 계산
-accuracy = (df_class['정확성'] == '정확함').sum() / len(df_class)
-print(f'Classification 정확도: {accuracy*100:.2f}%')
+# 태스크별 통계 계산
+for task_name, items in result['data'].items():
+    total = len(items)
+    correct = sum(1 for item in items if item.get('is_correct', True))
+    accuracy = correct / total if total > 0 else 0
 
-# 난이도 평균
-avg_difficulty = df_class['난이도(1-5)'].mean()
-print(f'평균 난이도: {avg_difficulty:.2f}')
+    print(f'{task_name}:')
+    print(f'  - 정확도: {accuracy*100:.2f}% ({correct}/{total})')
+
+    # 난이도 분석
+    difficulties = [item.get('difficulty', 3) for item in items if 'difficulty' in item]
+    if difficulties:
+        avg_diff = sum(difficulties) / len(difficulties)
+        print(f'  - 평균 난이도: {avg_diff:.2f}')
 ```
 
 ### 2. 정성 분석
