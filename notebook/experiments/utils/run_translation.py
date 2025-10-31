@@ -28,7 +28,7 @@ from datetime import datetime
 # 프로젝트 루트 경로
 BASE = Path(__file__).parent.parent.parent
 IN_JSONL = BASE / "notebook/eda_outputs/1번실험/triples_no_answer.jsonl"
-OUT_DIR = BASE / "notebook/experiments/graphs"
+OUT_DIR = BASE / "notebook/experimen../../results/figures"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # .env 로드

@@ -65,7 +65,11 @@ def setup_korean_fonts_robust():
     matplotlib.rcParams['axes.unicode_minus'] = False
 
     # 캐시 클리어 (중요!)
-    fm._rebuild()
+    try:
+        fm._rebuild()
+    except AttributeError:
+        # Newer versions of matplotlib don't have _rebuild
+        pass
 
     print(f" [FONT] 한글/한자 폰트 설정 완료: {selected_font}")
     return selected_font

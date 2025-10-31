@@ -1,103 +1,174 @@
+# =============================================================================
 # KLSBench Evaluation Configuration
-# ====================================
+# =============================================================================
+# Last Updated: 2025-10-31
+# Version: 2.0 (Post-Reorganization)
+#
+# This configuration file controls all aspects of the KLSBench evaluation
+# pipeline including benchmark paths, output directories, and model settings.
+# =============================================================================
 
-# Benchmark paths
+# -----------------------------------------------------------------------------
+# Benchmark Data Paths
+# -----------------------------------------------------------------------------
+# Location of the KLSBench benchmark data files (JSON format)
+# Relative paths from this config file location
+
 benchmark:
-  full: "../../benchmark/kls_bench/kls_bench_full.json"
-  classification: "../../benchmark/kls_bench/kls_bench_classification.json"
-  retrieval: "../../benchmark/kls_bench/kls_bench_retrieval.json"
-  punctuation: "../../benchmark/kls_bench/kls_bench_punctuation.json"
-  nli: "../../benchmark/kls_bench/kls_bench_nli.json"
-  translation: "../../benchmark/kls_bench/kls_bench_translation.json"
+  full: "../../benchmark/kls_bench/kls_bench_full.json"              # All 5 tasks combined (7,871 items)
+  classification: "../../benchmark/kls_bench/kls_bench_classification.json"  # 808 items
+  retrieval: "../../benchmark/kls_bench/kls_bench_retrieval.json"            # 1,209 items
+  punctuation: "../../benchmark/kls_bench/kls_bench_punctuation.json"        # 2,000 items
+  nli: "../../benchmark/kls_bench/kls_bench_nli.json"                        # 1,854 items
+  translation: "../../benchmark/kls_bench/kls_bench_translation.json"        # 2,000 items
 
-# Output directories
+# -----------------------------------------------------------------------------
+# Output Directories
+# -----------------------------------------------------------------------------
+# All outputs are organized under /results/ directory
+# Updated paths after 2025-10-31 reorganization
+
 output:
-  base: "../../benchmark/results"
-  fewshot: "../../benchmark/results/fewshot"
-  aggregated: "../../benchmark/results/aggregated"
+  base: "../../results/raw_evaluation"    # Raw evaluation results (JSON + CSV per model)
+  fewshot: "../../results/fewshot"        # Few-shot evaluation results
+  aggregated: "../../results/aggregated"  # Aggregated analysis across models
+  figures: "../../results/figures"        # All publication-ready figures
+  tables: "../../results/tables"          # All CSV tables (examples, stats, performance)
 
-# Evaluation modes
+# -----------------------------------------------------------------------------
+# Evaluation Modes
+# -----------------------------------------------------------------------------
+# Control the size and scope of evaluations
+
 modes:
+  # Test mode: Quick validation with minimal samples
   test:
     max_samples: 10
-    description: "Test with 10 samples per task"
+    description: "Test run with 10 samples per task"
 
+  # Sample mode: Partial evaluation for rapid iteration
   sample:
     default_ratio: 0.3
     description: "Sample a ratio of full benchmark"
     ratios:
-      quick: 0.1      # ~787 items
-      balanced: 0.3   # ~2,361 items (recommended)
-      detailed: 0.5   # ~3,936 items
+      quick: 0.1      # ~787 items (10% of full)
+      balanced: 0.3   # ~2,361 items (30% of full) - Recommended
+      detailed: 0.5   # ~3,936 items (50% of full)
 
+  # Full mode: Complete benchmark evaluation
   full:
     description: "Evaluate full benchmark (7,871 items)"
 
-# Few-shot configurations
-fewshot:
-  enabled: true
-  shots: [1, 3, 5]
-  max_samples: 50
-  tasks: ["classification", "nli"]
+# -----------------------------------------------------------------------------
+# Few-Shot Configuration
+# -----------------------------------------------------------------------------
+# Settings for few-shot evaluation experiments
 
-# Model configurations
+fewshot:
+  enabled: true                              # Enable/disable few-shot evaluation
+  shots: [1, 3, 5]                          # Number of examples to provide
+  max_samples: 50                           # Maximum samples per task
+  tasks: ["classification", "nli"]          # Tasks that benefit from few-shot
+
+# -----------------------------------------------------------------------------
+# Model Configurations
+# -----------------------------------------------------------------------------
+# Models to evaluate, organized by type
+
 models:
+  # Commercial API models
   api:
+    # OpenAI models
     openai:
       - name: "gpt-4-turbo"
         enabled: true
       - name: "gpt-3.5-turbo"
         enabled: true
 
+    # Anthropic models
     anthropic:
       - name: "claude-3-5-sonnet-20241022"
         enabled: true
       - name: "claude-3-opus-20240229"
         enabled: true
 
+  # Open-source models (via Hugging Face)
   opensource:
     - name: "meta-llama/Llama-3.1-8B-Instruct"
       enabled: true
+
     - name: "Qwen/Qwen2.5-7B-Instruct"
       enabled: true
+
     - name: "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct"
       enabled: true
 
+  # Supervised/specialized models
   supervised:
     - name: "SCUT-DLVCLab/TongGu-7B-Instruct"
       enabled: true
+      note: "Classical Chinese specialized model"
+
     - name: "ethanyt/guwenbert-base"
       enabled: false
-      note: "Encoder model, not suitable for generation tasks"
+      note: "Encoder-only model, not suitable for generation tasks"
 
-# Task information
+# -----------------------------------------------------------------------------
+# Task Information
+# -----------------------------------------------------------------------------
+# Metadata about each benchmark task
+
 tasks:
   classification:
     total_items: 808
-    description: "Classify literary style (Fu/Shi/Yi/I)"
+    description: "Classify literary genre (21 classes: 賦/詩/疑/義/策 etc.)"
     metric: "Accuracy"
+    difficulty: "Very Hard"  # Average score: 0.04
 
   retrieval:
     total_items: 1209
-    description: "Identify source from Four Books"
+    description: "Identify source from Four Books (論語/孟子/大學/中庸)"
     metric: "Accuracy"
+    difficulty: "Easy"  # Average score: 0.81
 
   punctuation:
     total_items: 2000
-    description: "Restore punctuation to classical Chinese"
+    description: "Restore punctuation to unpunctuated classical text"
     metric: "F1 Score"
+    difficulty: "Medium"  # Average score: 0.70
 
   nli:
     total_items: 1854
-    description: "Determine logical relationship"
+    description: "Determine logical relationship (entailment/neutral/contradiction)"
     metric: "Accuracy"
+    difficulty: "Hard"  # Average score: 0.23
 
   translation:
     total_items: 2000
-    description: "Translate between languages"
+    description: "Translate Literary Sinitic↔Korean↔English"
     metric: "BLEU Score"
+    difficulty: "Hard"  # Average score: 0.18
 
-# Python environment
+# -----------------------------------------------------------------------------
+# Python Environment
+# -----------------------------------------------------------------------------
+# Environment configuration for evaluation scripts
+
 environment:
+  # Additional Python path (if needed)
   pythonpath_append: "${HOME}/.local/lib/python3.12/site-packages"
+
+  # Environment variables file (optional)
   env_file: ".env"
+
+# =============================================================================
+# Notes:
+# -----------------------------------------------------------------------------
+# 1. All paths are relative to this config file location
+# 2. Output directories are automatically created if they don't exist
+# 3. Models can be enabled/disabled without removing from config
+# 4. Task information is used for result reporting and visualization
+#
+# For complete documentation, see:
+# /Users/songhune/Workspace/korean_eda/results/COMPLETE_GUIDE.md
+# =============================================================================

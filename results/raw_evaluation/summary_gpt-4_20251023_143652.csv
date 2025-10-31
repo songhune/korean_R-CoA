@@ -1,0 +1,6 @@
+﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
+gpt-4,classification,0.0,0.0,0.0,0.0,2,,,,,,,,
+gpt-4,retrieval,1.0,,,,2,2.0,,,,,,,
+gpt-4,punctuation,,,,,2,,0.9147597254004577,0.9048152295632699,0.9097340124504811,0.0,0.0,0.0,
+gpt-4,nli,0.5,0.5,0.5,0.5,2,,,,,,,,
+gpt-4,translation,,,,,2,,,,,0.0,0.0,0.0,0.3678542362006103

@@ -311,10 +311,10 @@ def main():
     """메인 실행 함수"""
     parser = argparse.ArgumentParser(description='K-ClassicBench Result Aggregation')
     parser.add_argument('--results-dir', type=str,
-                       default='/home/work/songhune/korean_R-CoA/results',
+                       default='../../results/raw_evaluation',
                        help='결과 파일 디렉토리')
     parser.add_argument('--output-dir', type=str,
-                       default='/home/work/songhune/korean_R-CoA/results/aggregated',
+                       default='../../results/aggregated',
                        help='통합 결과 저장 디렉토리')
 
     args = parser.parse_args()
