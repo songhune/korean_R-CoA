@@ -15,7 +15,7 @@
     <header class="header">
         <nav class="nav-container">
             <div class="logo">
-                <h1>📚 KLSBench</h1>
+                <h1>KLSBench</h1>
             </div>
             <ul class="nav-links">
                 <li><a href="#about">About</a></li>
@@ -35,7 +35,7 @@
                 <h2 class="hero-subtitle">Korean Literary Sinitic Benchmark</h2>
                 <p class="hero-description">
                     A comprehensive benchmark for evaluating Large Language Models on
-                    Korean Literary Sinitic (한국한문, 韓國漢文)
+                    Korean Literary Sinitic (한문, 韓國漢文)
                 </p>
                 <div class="hero-stats">
                     <div class="stat-item">
@@ -66,33 +66,33 @@
             <div class="about-content">
                 <div class="about-text">
                     <p>
-                        Large Language Models (LLMs) have shown limited success on low-resource
-                        historical languages. <strong>Korean Literary Sinitic (KLS)</strong> is a low-resource
-                        language with connections to modern Chinese (shared characters) and Korean
-                        (60% vocabulary overlap).
+                        Large Language Models (LLMs) have demonstrated limited performance on low-resource
+                        historical languages. <strong>Korean Literary Sinitic (KLS)</strong>, a low-resource
+                        historical language, exhibits significant connections to modern Chinese through shared
+                        characters and to Korean through substantial lexical overlap (approximately 60%).
                     </p>
                     <p>
-                        No comprehensive benchmark exists for evaluating LLM performance on KLS.
-                        We present <strong>KLSBench</strong>, comprising <strong>7,871 instances</strong> across
-                        five tasks: classification, retrieval, punctuation, natural language inference,
-                        and translation.
+                        To address the absence of a comprehensive evaluation framework for LLM performance on KLS,
+                        we introduce <strong>KLSBench</strong>, a benchmark comprising <strong>7,871 instances</strong>
+                        spanning five distinct tasks: classification, retrieval, punctuation, natural language
+                        inference, and translation.
                     </p>
                     <p>
-                        The dataset uses data from <strong>Joseon Dynasty civil service examinations</strong>
-                        and the <strong>Four Books (四書)</strong>, providing a unique challenge for
-                        understanding historical texts requiring cultural knowledge and logical reasoning.
+                        The dataset incorporates materials from <strong>Joseon Dynasty civil service examinations</strong>
+                        and the <strong>Four Books (四書)</strong>, presenting distinct challenges in understanding
+                        historical texts that require both cultural knowledge and logical reasoning capabilities.
                     </p>
                 </div>
                 <div class="about-highlights">
                     <div class="highlight-card">
-                        <h3>📊 Data Sources</h3>
+                        <h3>Data Sources</h3>
                         <ul>
                             <li>Joseon Dynasty Civil Service Exams</li>
                             <li>Four Books (논어, 맹자, 대학, 중용)</li>
                         </ul>
                     </div>
                     <div class="highlight-card">
-                        <h3>🎯 Key Findings</h3>
+                        <h3>Key Findings</h3>
                         <ul>
                             <li>Retrieval: 83% accuracy</li>
                             <li>Classification: 4% accuracy</li>
@@ -110,7 +110,6 @@
             <h2 class="section-title">Benchmark Tasks</h2>
             <div class="tasks-grid">
                 <div class="task-card" data-task="classification">
-                    <div class="task-icon">📝</div>
                     <h3 class="task-title">Classification</h3>
                     <p class="task-description">주어진 고전 문헌의 문체(賦/詩/疑/義)를 분류</p>
                     <div class="task-stats">
@@ -120,7 +119,6 @@
                 </div>
 
                 <div class="task-card" data-task="retrieval">
-                    <div class="task-icon">🔍</div>
                     <h3 class="task-title">Retrieval</h3>
                     <p class="task-description">주어진 문장이 유래한 원문의 출처(Book/Chapter)를 식별</p>
                     <div class="task-stats">
@@ -130,7 +128,6 @@
                 </div>
 
                 <div class="task-card" data-task="nli">
-                    <div class="task-icon">🤔</div>
                     <h3 class="task-title">Natural Language Inference</h3>
                     <p class="task-description">두 문장 간의 논리적 관계(entailment/contradiction/neutral)를 판단</p>
                     <div class="task-stats">
@@ -140,7 +137,6 @@
                 </div>
 
                 <div class="task-card" data-task="translation">
-                    <div class="task-icon">🌐</div>
                     <h3 class="task-title">Translation</h3>
                     <p class="task-description">한문, 한글, 영문 간의 번역 수행</p>
                     <div class="task-stats">
@@ -150,7 +146,6 @@
                 </div>
 
                 <div class="task-card" data-task="punctuation">
-                    <div class="task-icon">✏️</div>
                     <h3 class="task-title">Punctuation</h3>
                     <p class="task-description">구두점이 없는 백문(白文)에 적절한 구두점을 복원</p>
                     <div class="task-stats">
@@ -201,30 +196,30 @@
                     <h3>Best Performance</h3>
                     <div class="result-task">Retrieval</div>
                     <div class="result-score">83%</div>
-                    <p>Models can effectively identify sources when given sufficient context</p>
+                    <p>Models demonstrate effective source identification capabilities when provided with sufficient contextual information</p>
                 </div>
 
                 <div class="result-card">
-                    <h3>Challenging Tasks</h3>
+                    <h3>Most Challenging Task</h3>
                     <div class="result-task">Classification</div>
                     <div class="result-score">4%</div>
-                    <p>Requires deep understanding of classical rhetoric and writing styles</p>
+                    <p>Performance remains limited, requiring comprehensive understanding of classical rhetorical conventions and stylistic variations</p>
                 </div>
 
                 <div class="result-card">
-                    <h3>Cultural Context</h3>
+                    <h3>Cultural Dependencies</h3>
                     <div class="result-task">NLI</div>
                     <div class="result-score">23%</div>
-                    <p>Logical reasoning fails without historical and cultural knowledge</p>
+                    <p>Logical reasoning performance is constrained by insufficient historical and cultural contextual knowledge</p>
                 </div>
             </div>
 
             <div class="results-insight">
-                <h3>Key Insights</h3>
+                <h3>Key Findings</h3>
                 <ul>
-                    <li>Models fail on tasks requiring cultural knowledge despite potential cross-lingual advantages</li>
-                    <li>Understanding Literary Sinitic requires specialized training on historical context</li>
-                    <li>Classical rhetoric goes beyond simple cross-lingual transfer from modern Chinese or Korean</li>
+                    <li>Models exhibit substantial performance degradation on tasks requiring cultural knowledge, despite potential advantages from cross-lingual transfer</li>
+                    <li>Comprehension of Literary Sinitic necessitates specialized training incorporating historical and cultural context</li>
+                    <li>Classical rhetorical understanding extends beyond simple cross-lingual transfer from modern Chinese or Korean</li>
                 </ul>
             </div>
         </div>
