@@ -40,6 +40,76 @@ DEFAULT_AGGREGATED_DIR = PROJECT_ROOT / "results" / "aggregated"
 DEFAULT_FEWSHOT_DIR = PROJECT_ROOT / "results" / "fewshot"
 
 
+def abbreviate_model_name(model_name: str) -> str:
+    """
+    모델 이름을 축약하여 그래프에서 보기 좋게 만듦
+
+    예시:
+    - meta-llama/Llama-3.1-8B-Instruct -> Llama-3.1-8B
+    - Qwen/Qwen2.5-7B-Instruct -> Qwen2.5-7B
+    - claude-3-5-sonnet-20241022 -> Claude-3.5-Sonnet
+    """
+    # OpenAI 모델
+    if 'gpt-4o' in model_name.lower():
+        if 'mini' in model_name.lower():
+            return 'GPT-4o-mini'
+        return 'GPT-4o'
+    if 'gpt-4-turbo' in model_name.lower():
+        return 'GPT-4-Turbo'
+    if 'gpt-3.5-turbo' in model_name.lower():
+        return 'GPT-3.5-Turbo'
+
+    # Anthropic 모델
+    if 'claude-3-5-sonnet' in model_name.lower() or 'claude-3.5-sonnet' in model_name.lower():
+        return 'Claude-3.5-Sonnet'
+    if 'claude-3-opus' in model_name.lower():
+        return 'Claude-3-Opus'
+    if 'claude-3-sonnet' in model_name.lower():
+        return 'Claude-3-Sonnet'
+    if 'claude-3-haiku' in model_name.lower():
+        return 'Claude-3-Haiku'
+
+    # Meta Llama 모델
+    if 'llama' in model_name.lower():
+        if '3.3' in model_name:
+            size = '70B' if '70b' in model_name.lower() else '8B'
+            return f'Llama-3.3-{size}'
+        if '3.1' in model_name:
+            size = '70B' if '70b' in model_name.lower() else '8B'
+            return f'Llama-3.1-{size}'
+        if '3.0' in model_name or 'llama-3-' in model_name.lower():
+            size = '70B' if '70b' in model_name.lower() else '8B'
+            return f'Llama-3-{size}'
+
+    # Qwen 모델
+    if 'qwen' in model_name.lower():
+        if '2.5' in model_name:
+            size = '72B' if '72b' in model_name.lower() else '32B' if '32b' in model_name.lower() else '7B'
+            return f'Qwen2.5-{size}'
+        if '2' in model_name:
+            size = '72B' if '72b' in model_name.lower() else '7B'
+            return f'Qwen2-{size}'
+
+    # Google Gemini 모델
+    if 'gemini' in model_name.lower():
+        if '1.5-pro' in model_name.lower():
+            return 'Gemini-1.5-Pro'
+        if '1.5-flash' in model_name.lower():
+            return 'Gemini-1.5-Flash'
+        if '1.0-pro' in model_name.lower():
+            return 'Gemini-1.0-Pro'
+
+    # 기타 모델 - 경로 제거
+    if '/' in model_name:
+        model_name = model_name.split('/')[-1]
+
+    # -Instruct, -Chat 등 접미사 제거
+    for suffix in ['-Instruct', '-Chat', '-instruct', '-chat']:
+        model_name = model_name.replace(suffix, '')
+
+    return model_name
+
+
 def configure_matplotlib():
     if setup_korean_fonts_robust:
         setup_korean_fonts_robust()
@@ -145,6 +215,9 @@ class FewShotAnalyzer:
 
         # Combine dataframes
         combined = pd.concat([zeroshot_df, fewshot_df], ignore_index=True)
+
+        # Abbreviate model names for better visualization
+        combined['model'] = combined['model'].apply(abbreviate_model_name)
 
         # Calculate improvements
         improvements = []
