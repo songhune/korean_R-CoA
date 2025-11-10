@@ -23,6 +23,9 @@ import argparse
 from config_loader import Config
 from font_fix import setup_korean_fonts_robust, get_korean_font
 
+A4_WIDTH_INCH = 8.27
+A4_HEIGHT_INCH = 11.69
+
 
 class AppendixGenerator:
     """Main class for generating KLSBench appendix materials with updated paths"""
@@ -54,8 +57,21 @@ class AppendixGenerator:
     def _setup_fonts(self):
         """Setup fonts with English priority"""
         korean_font = setup_korean_fonts_robust()
-        plt.rcParams['font.family'] = ['DejaVu Sans', 'Arial', korean_font] if korean_font else ['DejaVu Sans', 'Arial']
-        plt.rcParams['axes.unicode_minus'] = False
+        if not korean_font:
+            korean_font = 'AppleGothic'
+            plt.rcParams['font.family'] = korean_font
+            plt.rcParams['axes.unicode_minus'] = False
+
+        plt.rcParams.update({
+            'savefig.dpi': 300,
+            'font.size': 11,
+            'axes.titlesize': 16,
+            'axes.labelsize': 13,
+            'xtick.labelsize': 11,
+            'ytick.labelsize': 11,
+            'legend.fontsize': 11,
+        })
+        sns.set_style("whitegrid")
         print(f"✓ Font setup complete (primary: English, fallback: {korean_font})")
 
     def _load_benchmark_data(self) -> Dict[str, List[Dict]]:
@@ -161,29 +177,35 @@ class AppendixGenerator:
         # Create visualization
         genre_counts = Counter([item['label'] for item in data])
 
-        fig, ax = plt.subplots(figsize=(14, 8))
         genres = list(genre_counts.keys())
         counts = list(genre_counts.values())
 
         sorted_pairs = sorted(zip(genres, counts), key=lambda x: x[1], reverse=True)
-        genres, counts = zip(*sorted_pairs)
+        if sorted_pairs:
+            genres, counts = zip(*sorted_pairs)
+        else:
+            genres, counts = [], []
+
+        fig_height = max(A4_HEIGHT_INCH * 0.65, 0.35 * max(len(genres), 1))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, fig_height))
 
         colors = plt.cm.tab20(np.linspace(0, 1, len(genres)))
         bars = ax.barh(range(len(genres)), counts, color=colors)
         ax.set_yticks(range(len(genres)))
-        ax.set_yticklabels(genres)
-        ax.set_xlabel('Number of Examples', fontsize=12)
-        ax.set_ylabel('Genre', fontsize=12)
-        ax.set_title('Classification: Genre Distribution (21 Classes)', fontsize=14, fontweight='bold')
+        ax.set_yticklabels(genres, fontsize=12)
+        ax.set_xlabel('Number of Examples', fontsize=16)
+        ax.set_ylabel('Genre', fontsize=16)
+        ax.set_title('Classification: Genre Distribution (21 Classes)', fontsize=18, fontweight='bold')
         ax.grid(axis='x', alpha=0.3)
+        ax.tick_params(axis='x', labelsize=12)
 
         for i, (bar, count) in enumerate(zip(bars, counts)):
-            ax.text(count + 1, i, str(count), va='center', fontsize=9)
+            ax.text(count + 1, i, str(count), va='center', fontsize=12)
 
-        plt.tight_layout()
-        fig_path = self.appendix_a_dir / 'genre_distribution.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.appendix_a_dir / 'genre_distribution.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_retrieval_examples(self):
@@ -212,26 +234,27 @@ class AppendixGenerator:
         # Visualization
         book_counts = Counter([item['book'] for item in data])
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.55))
         books = list(book_counts.keys())
         counts = list(book_counts.values())
 
         colors = plt.cm.Set3(np.linspace(0, 1, len(books)))
         ax.bar(range(len(books)), counts, color=colors)
         ax.set_xticks(range(len(books)))
-        ax.set_xticklabels(books, rotation=45, ha='right')
-        ax.set_ylabel('Number of Examples', fontsize=12)
-        ax.set_xlabel('Book', fontsize=12)
-        ax.set_title('Retrieval: Distribution by Source Book', fontsize=14, fontweight='bold')
+        ax.set_xticklabels(books, rotation=45, ha='right', fontsize=12)
+        ax.set_ylabel('Number of Examples', fontsize=16)
+        ax.set_xlabel('Book', fontsize=16)
+        ax.set_title('Retrieval: Distribution by Source Book', fontsize=18, fontweight='bold')
         ax.grid(axis='y', alpha=0.3)
+        ax.tick_params(axis='y', labelsize=12)
 
         for i, count in enumerate(counts):
-            ax.text(i, count + 10, str(count), ha='center', va='bottom', fontsize=10)
+            ax.text(i, count + 10, str(count), ha='center', va='bottom', fontsize=14)
 
-        plt.tight_layout()
-        fig_path = self.appendix_a_dir / 'book_distribution.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.appendix_a_dir / 'book_distribution.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_punctuation_examples(self):
@@ -256,7 +279,7 @@ class AppendixGenerator:
         # Visualization
         lang_counts = Counter([item.get('language', 'Korean') for item in data])
 
-        fig, ax = plt.subplots(figsize=(8, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 0.85, A4_HEIGHT_INCH * 0.55))
         languages = list(lang_counts.keys())
         counts = list(lang_counts.values())
 
@@ -264,17 +287,19 @@ class AppendixGenerator:
         wedges, texts, autotexts = ax.pie(counts, labels=languages, autopct='%1.1f%%',
                                            colors=colors, startangle=90)
 
+        for text in texts:
+            text.set_fontsize(14)
         for autotext in autotexts:
             autotext.set_color('white')
-            autotext.set_fontsize(12)
+            autotext.set_fontsize(14)
             autotext.set_fontweight('bold')
 
-        ax.set_title('Punctuation: Language Distribution', fontsize=14, fontweight='bold')
-        plt.tight_layout()
+        ax.set_title('Punctuation: Language Distribution', fontsize=18, fontweight='bold')
+        fig.tight_layout()
 
-        fig_path = self.appendix_a_dir / 'language_distribution.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig_path = self.appendix_a_dir / 'language_distribution.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_nli_examples(self):
@@ -304,26 +329,27 @@ class AppendixGenerator:
         # Visualization
         label_counts = Counter([item['label'] for item in data])
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.55))
         labels_list = list(label_counts.keys())
         counts = list(label_counts.values())
 
         colors = ['#90EE90', '#FFD700', '#FF6B6B']
         bars = ax.bar(range(len(labels_list)), counts, color=colors)
         ax.set_xticks(range(len(labels_list)))
-        ax.set_xticklabels([l.capitalize() for l in labels_list])
-        ax.set_ylabel('Number of Examples', fontsize=12)
-        ax.set_xlabel('Label', fontsize=12)
-        ax.set_title('NLI: Label Distribution', fontsize=14, fontweight='bold')
+        ax.set_xticklabels([l.capitalize() for l in labels_list], fontsize=14)
+        ax.set_ylabel('Number of Examples', fontsize=16)
+        ax.set_xlabel('Label', fontsize=16)
+        ax.set_title('NLI: Label Distribution', fontsize=18, fontweight='bold')
         ax.grid(axis='y', alpha=0.3)
+        ax.tick_params(axis='y', labelsize=12)
 
         for i, count in enumerate(counts):
-            ax.text(i, count + 20, str(count), ha='center', va='bottom', fontsize=11, fontweight='bold')
+            ax.text(i, count + 20, str(count), ha='center', va='bottom', fontsize=14, fontweight='bold')
 
-        plt.tight_layout()
-        fig_path = self.appendix_a_dir / 'nli_label_distribution.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.appendix_a_dir / 'nli_label_distribution.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_translation_examples(self):
@@ -349,26 +375,27 @@ class AppendixGenerator:
         # Visualization
         pair_counts = Counter([f"{item['source_lang']} → {item['target_lang']}" for item in data])
 
-        fig, ax = plt.subplots(figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, A4_HEIGHT_INCH * 0.55))
         pairs = list(pair_counts.keys())
         counts = list(pair_counts.values())
 
         colors = plt.cm.Pastel1(np.linspace(0, 1, len(pairs)))
         bars = ax.bar(range(len(pairs)), counts, color=colors)
         ax.set_xticks(range(len(pairs)))
-        ax.set_xticklabels(pairs, rotation=20, ha='right')
-        ax.set_ylabel('Number of Examples', fontsize=12)
-        ax.set_xlabel('Translation Pair', fontsize=12)
-        ax.set_title('Translation: Distribution by Language Pair', fontsize=14, fontweight='bold')
+        ax.set_xticklabels(pairs, rotation=20, ha='right', fontsize=12)
+        ax.set_ylabel('Number of Examples', fontsize=16)
+        ax.set_xlabel('Translation Pair', fontsize=16)
+        ax.set_title('Translation: Distribution by Language Pair', fontsize=18, fontweight='bold')
         ax.grid(axis='y', alpha=0.3)
+        ax.tick_params(axis='y', labelsize=12)
 
         for i, count in enumerate(counts):
-            ax.text(i, count + 20, str(count), ha='center', va='bottom', fontsize=10)
+            ax.text(i, count + 20, str(count), ha='center', va='bottom', fontsize=14)
 
-        plt.tight_layout()
-        fig_path = self.appendix_a_dir / 'translation_pairs.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.appendix_a_dir / 'translation_pairs.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_per_class_performance(self):

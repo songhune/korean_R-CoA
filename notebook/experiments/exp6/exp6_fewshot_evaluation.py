@@ -34,11 +34,14 @@ from tqdm import tqdm
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent))
 
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_FEWSHOT_RESULTS_DIR = PROJECT_ROOT / "results" / "fewshot"
+
 
 class FewShotEvaluator:
     """Few-shot evaluation for JC2Bench"""
 
-    def __init__(self, benchmark_path: str, results_dir: str = "../../results/fewshot"):
+    def __init__(self, benchmark_path: str, results_dir: str = str(DEFAULT_FEWSHOT_RESULTS_DIR)):
         """
         Initialize few-shot evaluator
 
@@ -383,7 +386,7 @@ def main():
                        help='Tasks to evaluate')
     parser.add_argument('--max-samples', type=int, default=50,
                        help='Max samples per task (for faster evaluation)')
-    parser.add_argument('--output', type=str, default='../../results/fewshot',
+    parser.add_argument('--output', type=str, default=str(DEFAULT_FEWSHOT_RESULTS_DIR),
                        help='Output directory')
 
     args = parser.parse_args()

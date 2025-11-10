@@ -7,6 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import platform
+from collections import OrderedDict
 
 def setup_korean_fonts_robust():
     """
@@ -19,50 +20,94 @@ def setup_korean_fonts_robust():
     font_candidates = []
     if system == 'Darwin':  # macOS
         font_candidates = [
-            'AppleGothic',
-            'Apple SD Gothic Neo',
-            'AppleMyungjo',
-            'Apple SD 산돌고딕 Neo',
-            'Nanum Gothic',
-            'NanumGothic',
+            'Songti SC',           # 한자 지원 (macOS 기본 제공)
+            'AppleMyungjo',        # 한글/한자 지원
+            'LiSong Pro',          # 한자 지원
+            'Hiragino Mincho ProN', # 한자 지원
+            'Apple SD Gothic Neo', # 한글 지원
+            'AppleGothic',         # 한글 지원
+            'Hiragino Sans GB',    # 간체 중국어 지원
+            'Hiragino Sans',       # 기본 지원
+            'NanumMyeongjo',       # 한글 지원
+            'NanumGothic',         # 한글 지원
+            'Arial Unicode MS',    # 유니코드 지원
         ]
     elif system == 'Windows':
         font_candidates = [
-            'Malgun Gothic',
-            'Gulim',
-            'Batang',
-            'NanumGothic',
+            'SimSun',              # 한자 지원 (Windows 기본)
+            'PMingLiU',            # 번체 중국어
+            'MingLiU',             # 번체 중국어
+            'MS Mincho',           # 일본어 한자
+            'Batang',              # 한글/한자 지원
+            'Malgun Gothic',       # 한글 지원
+            'Gulim',               # 한글 지원
+            'NanumMyeongjo',       # 한글 지원
+            'NanumGothic',         # 한글 지원
+            'Arial Unicode MS',    # 유니코드 지원
         ]
-    else:  # Linux
+    else:  # Linux or others
         font_candidates = [
-            'NanumGothic',
-            'Noto Sans CJK KR',
-            'Noto Sans KR',
+            'Noto Serif CJK KR',   # 한글/한자 지원
+            'Noto Serif CJK SC',   # 간체 중국어
+            'Noto Sans CJK KR',    # 한글/한자 지원
+            'Noto Sans CJK SC',    # 간체 중국어
+            'NanumMyeongjo',       # 한글 지원
+            'NanumGothic',         # 한글 지원
+            'WenQuanYi Micro Hei', # 한자 지원
+            'AR PL UMing CN',      # 한자 지원
+            'AR PL UKai CN',       # 한자 지원
         ]
 
     # 사용 가능한 폰트 찾기
     available_fonts = {f.name for f in fm.fontManager.ttflist}
 
-    selected_font = None
+    resolved_fonts = []
     for font in font_candidates:
-        if font in available_fonts:
-            selected_font = font
-            break
+        if font in available_fonts and font not in resolved_fonts:
+            resolved_fonts.append(font)
 
-    if selected_font is None:
+    if not resolved_fonts:
         print("[ERROR] 한글 폰트를 찾지 못했습니다!")
         print(f"사용 가능한 폰트 중 'Gothic' 포함: {[f for f in available_fonts if 'Gothic' in f or 'gothic' in f][:10]}")
         return None
 
-    # 강제 설정 (여러 방법 동시 적용)
-    plt.rcParams['font.family'] = selected_font
-    plt.rcParams['font.sans-serif'] = [selected_font] + plt.rcParams['font.sans-serif']
+    selected_font = resolved_fonts[0]
+
+    # 강제 설정 (여러 방법 동시 적용) - 한자 지원 폰트 우선
+    fallback_fonts = list(OrderedDict.fromkeys(resolved_fonts + [
+        'Songti SC',             # 한자 지원
+        'AppleMyungjo',          # 한글/한자 지원
+        'LiSong Pro',            # 한자 지원
+        'Hiragino Mincho ProN',  # 한자 지원
+        'Apple SD Gothic Neo',   # 한글 지원
+        'AppleGothic',           # 한글 지원
+        'Hiragino Sans GB',      # 간체 중국어
+        'Noto Serif CJK KR',     # 한글/한자 지원
+        'Noto Serif CJK SC',     # 간체 중국어
+        'Noto Sans CJK KR',      # 한글/한자 지원
+        'Noto Sans CJK SC',      # 간체 중국어
+        'NanumMyeongjo',         # 한글 지원
+        'NanumGothic',           # 한글 지원
+        'SimSun',                # 한자 지원
+        'PMingLiU',              # 번체 중국어
+        'MingLiU',               # 번체 중국어
+        'Arial Unicode MS',      # 유니코드 지원
+        'DejaVu Sans'            # 기본 폰트
+    ]))
+
+    plt.rcParams['font.family'] = fallback_fonts
+    plt.rcParams['font.sans-serif'] = fallback_fonts + list(plt.rcParams.get('font.sans-serif', []))
+    plt.rcParams['font.serif'] = fallback_fonts + list(plt.rcParams.get('font.serif', []))
     plt.rcParams['axes.unicode_minus'] = False
 
     # matplotlib 전역 설정
-    matplotlib.rcParams['font.family'] = selected_font
-    matplotlib.rcParams['font.sans-serif'] = [selected_font] + matplotlib.rcParams['font.sans-serif']
+    matplotlib.rcParams['font.family'] = fallback_fonts
+    matplotlib.rcParams['font.sans-serif'] = fallback_fonts + list(matplotlib.rcParams.get('font.sans-serif', []))
+    matplotlib.rcParams['font.serif'] = fallback_fonts + list(matplotlib.rcParams.get('font.serif', []))
     matplotlib.rcParams['axes.unicode_minus'] = False
+    matplotlib.rcParams['pdf.fonttype'] = 42
+    matplotlib.rcParams['ps.fonttype'] = 42
+    matplotlib.rcParams['svg.fonttype'] = 'none'
 
     # 캐시 클리어 (중요!)
     try:
@@ -77,18 +122,37 @@ def setup_korean_fonts_robust():
 
 def get_korean_font():
     """
-    설정된 한글 폰트 이름 반환
+    설정된 한글/한자 폰트 이름 반환
     그래프 생성 시 font_properties로 사용 가능
     """
     system = platform.system()
     font_candidates = []
 
     if system == 'Darwin':
-        font_candidates = ['AppleGothic', 'Apple SD Gothic Neo', 'NanumGothic']
+        # 한자 지원 폰트를 우선으로 선택
+        font_candidates = [
+            'Songti SC',
+            'AppleMyungjo',
+            'LiSong Pro',
+            'Hiragino Mincho ProN',
+            'Apple SD Gothic Neo',
+            'AppleGothic',
+            'NanumGothic'
+        ]
     elif system == 'Windows':
-        font_candidates = ['Malgun Gothic', 'Gulim', 'NanumGothic']
+        font_candidates = [
+            'SimSun',
+            'Batang',
+            'Malgun Gothic',
+            'Gulim',
+            'NanumGothic'
+        ]
     else:
-        font_candidates = ['NanumGothic', 'Noto Sans CJK KR']
+        font_candidates = [
+            'Noto Serif CJK KR',
+            'Noto Sans CJK KR',
+            'NanumGothic'
+        ]
 
     available_fonts = {f.name for f in fm.fontManager.ttflist}
 

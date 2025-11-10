@@ -873,7 +873,7 @@ Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
 def main():
     """메인 실행 함수"""
     # 경로 설정
-    translated_csv_path = "/Users/songhune/Workspace/korean_eda/notebook/experimen../../results/figures/translated_full_20251020_212605.csv"
+    translated_csv_path = "/Users/songhune/Workspace/korean_eda/results/figures/translated_full_20251020_212605.csv"
     external_csv_path = "/Users/songhune/Workspace/korean_eda/data/External_raw.csv"
     nli_examples_path = "/Users/songhune/Workspace/korean_eda/examples/nli_examples.json"
     output_dir = "/Users/songhune/Workspace/korean_eda/benchmark/kls_bench"

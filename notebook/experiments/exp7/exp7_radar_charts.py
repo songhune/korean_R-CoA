@@ -22,6 +22,32 @@ import seaborn as sns
 
 from font_fix import setup_korean_fonts_robust
 
+A4_WIDTH_INCH = 8.27
+A4_HEIGHT_INCH = 11.69
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_AGGREGATED_CSV = PROJECT_ROOT / "results" / "aggregated" / "aggregated_summary.csv"
+DEFAULT_FIGURES_DIR = PROJECT_ROOT / "results" / "figures"
+
+
+def configure_publication_style():
+    """Configure Matplotlib for consistent A4-friendly PDF output."""
+    selected_font = setup_korean_fonts_robust()
+    if not selected_font:
+        selected_font = 'AppleGothic'
+        plt.rcParams['font.family'] = selected_font
+        plt.rcParams['axes.unicode_minus'] = False
+
+    plt.rcParams.update({
+        'savefig.dpi': 300,
+        'font.size': 11,
+        'axes.titlesize': 16,
+        'axes.labelsize': 13,
+        'xtick.labelsize': 11,
+        'ytick.labelsize': 11,
+        'legend.fontsize': 11,
+    })
+    return selected_font
+
 
 def radar_factory(num_vars, frame='circle'):
     """
@@ -89,9 +115,8 @@ class RadarChartGenerator:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Setup fonts
-        korean_font = setup_korean_fonts_robust()
-        plt.rcParams['font.family'] = ['DejaVu Sans', 'Arial', korean_font] if korean_font else ['DejaVu Sans']
+        # Setup fonts and plotting style
+        self.font_name = configure_publication_style()
 
         # Load data
         self.df = pd.read_csv(results_csv, encoding='utf-8-sig')
@@ -144,7 +169,7 @@ class RadarChartGenerator:
 
         theta = radar_factory(num_vars, frame='polygon')
 
-        fig, ax = plt.subplots(figsize=(12, 12), subplot_kw=dict(projection='radar'))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_WIDTH_INCH), subplot_kw=dict(projection='radar'))
         fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
 
         # Color palette
@@ -165,15 +190,15 @@ class RadarChartGenerator:
         ax.set_varlabels(tasks)
         ax.set_ylim(0, 1.0)
         ax.set_title('KLSBench: Model Performance Across All Tasks',
-                    position=(0.5, 1.1), ha='center', fontsize=16, fontweight='bold')
+                     position=(0.5, 1.08), ha='center', fontsize=18, fontweight='bold')
 
         # Legend outside the plot
-        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=10)
+        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=12)
         ax.grid(True, alpha=0.3)
 
-        output_path = self.output_dir / 'radar_all_models.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        output_path = self.output_dir / 'radar_all_models.pdf'
+        fig.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
 
         print(f"  ✓ Saved: {output_path}")
 
@@ -197,7 +222,7 @@ class RadarChartGenerator:
 
         theta = radar_factory(num_vars, frame='polygon')
 
-        fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='radar'))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 0.95, A4_WIDTH_INCH * 0.95), subplot_kw=dict(projection='radar'))
 
         # API models (average)
         values_api = api_avg.values
@@ -216,13 +241,13 @@ class RadarChartGenerator:
         ax.set_varlabels(tasks)
         ax.set_ylim(0, 1.0)
         ax.set_title('KLSBench: API vs Open-Source Model Performance',
-                    position=(0.5, 1.1), ha='center', fontsize=16, fontweight='bold')
+                     position=(0.5, 1.08), ha='center', fontsize=18, fontweight='bold')
         ax.legend(loc='upper right', bbox_to_anchor=(1.25, 1.1), fontsize=12)
         ax.grid(True, alpha=0.3)
 
-        output_path = self.output_dir / 'radar_model_type_comparison.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        output_path = self.output_dir / 'radar_model_type_comparison.pdf'
+        fig.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
 
         print(f"  ✓ Saved: {output_path}")
 
@@ -240,7 +265,7 @@ class RadarChartGenerator:
 
         theta = radar_factory(num_vars, frame='polygon')
 
-        fig, ax = plt.subplots(figsize=(12, 12), subplot_kw=dict(projection='radar'))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_WIDTH_INCH), subplot_kw=dict(projection='radar'))
 
         # Color palette
         colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8']
@@ -262,13 +287,13 @@ class RadarChartGenerator:
         ax.set_varlabels(tasks)
         ax.set_ylim(0, 1.0)
         ax.set_title('KLSBench: Top 5 Models Performance Comparison',
-                    position=(0.5, 1.1), ha='center', fontsize=16, fontweight='bold')
-        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=11)
+                     position=(0.5, 1.08), ha='center', fontsize=18, fontweight='bold')
+        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=12)
         ax.grid(True, alpha=0.3)
 
-        output_path = self.output_dir / 'radar_top5_models.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        output_path = self.output_dir / 'radar_top5_models.pdf'
+        fig.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
 
         print(f"  ✓ Saved: {output_path}")
 
@@ -281,7 +306,7 @@ class RadarChartGenerator:
         theta = radar_factory(num_vars, frame='polygon')
 
         for model_name, row in self.pivot_df.iterrows():
-            fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(projection='radar'))
+            fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 0.85, A4_WIDTH_INCH * 0.85), subplot_kw=dict(projection='radar'))
 
             values = row.values
             values = np.concatenate((values, [values[0]]))
@@ -299,19 +324,19 @@ class RadarChartGenerator:
             # Shorten model name for title
             short_name = model_name.split('/')[-1] if '/' in model_name else model_name
             ax.set_title(f'{short_name}\nAverage Score: {avg_score:.3f}',
-                        position=(0.5, 1.1), ha='center', fontsize=14, fontweight='bold')
+                        position=(0.5, 1.1), ha='center', fontsize=18, fontweight='bold')
             ax.grid(True, alpha=0.3)
 
             # Add score annotations
             for angle, value, task in zip(theta, values[:-1], tasks):
                 ax.text(angle, value + 0.05, f'{value:.2f}',
-                       ha='center', va='bottom', fontsize=9, fontweight='bold')
+                       ha='center', va='bottom', fontsize=12, fontweight='bold')
 
             # Safe filename
             safe_name = model_name.replace('/', '_').replace(' ', '_')
-            output_path = self.output_dir / f'radar_individual_{safe_name}.png'
-            plt.savefig(output_path, dpi=300, bbox_inches='tight')
-            plt.close()
+            output_path = self.output_dir / f'radar_individual_{safe_name}.pdf'
+            fig.savefig(output_path, format='pdf', bbox_inches='tight')
+            plt.close(fig)
 
         print(f"  ✓ Saved {len(self.pivot_df)} individual model cards")
 
@@ -328,7 +353,7 @@ class RadarChartGenerator:
         n_cols = 3
         n_rows = (n_models + n_cols - 1) // n_cols
 
-        fig = plt.figure(figsize=(16, 5 * n_rows))
+        fig = plt.figure(figsize=(A4_WIDTH_INCH * 1.1, A4_HEIGHT_INCH * 0.6 * n_rows))
 
         for idx, (model_name, row) in enumerate(self.pivot_df.iterrows()):
             ax = fig.add_subplot(n_rows, n_cols, idx + 1, projection='radar')
@@ -352,16 +377,20 @@ class RadarChartGenerator:
                 short_name = short_name[:17] + '...'
 
             ax.set_title(f'{short_name}\n({avg_score:.3f})',
-                        fontsize=10, fontweight='bold', pad=10)
+                        fontsize=12, fontweight='bold', pad=10)
             ax.grid(True, alpha=0.3)
 
-        plt.suptitle('KLSBench: All Models Performance Overview',
-                    fontsize=16, fontweight='bold', y=0.995)
-        plt.tight_layout(rect=[0, 0, 1, 0.99])
+        fig.suptitle(
+            'KLSBench: All Models Performance Overview',
+            fontsize=18,
+            fontweight='bold',
+            y=0.995
+        )
+        fig.tight_layout(rect=[0, 0, 1, 0.99])
 
-        output_path = self.output_dir / 'radar_small_multiples_grid.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        output_path = self.output_dir / 'radar_small_multiples_grid.pdf'
+        fig.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
 
         print(f"  ✓ Saved: {output_path}")
 
@@ -399,16 +428,16 @@ def main():
 
     parser = argparse.ArgumentParser(description='Generate Radar Charts for Model Performance')
     parser.add_argument('--results-csv', type=str,
-                       default='/Users/songhune/Workspace/korean_eda/results/aggregated/aggregated_summary.csv',
+                       default=str(DEFAULT_AGGREGATED_CSV),
                        help='Path to aggregated results CSV')
     parser.add_argument('--output-dir', type=str,
-                       default='../../results/figures',
+                       default=str(DEFAULT_FIGURES_DIR),
                        help='Output directory')
 
     args = parser.parse_args()
 
     # Resolve output path
-    output_dir = Path(__file__).parent.parent.parent / 'results' / 'figures'
+    output_dir = Path(args.output_dir).resolve()
 
     # Generate radar charts
     generator = RadarChartGenerator(args.results_csv, str(output_dir))

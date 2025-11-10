@@ -27,6 +27,11 @@ set -e  # Exit on error
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/config.yaml"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+BENCHMARK_FILE="$PROJECT_ROOT/benchmark/kls_bench/kls_bench_full.json"
+RAW_RESULTS_DIR="$PROJECT_ROOT/results/raw_evaluation"
+FEWSHOT_RESULTS_DIR="$PROJECT_ROOT/results/fewshot"
+mkdir -p "$RAW_RESULTS_DIR" "$FEWSHOT_RESULTS_DIR"
 
 # Check if config exists
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -191,23 +196,23 @@ run_few_shot() {
 
     if [ "$model_type" = "api" ]; then
         python3 exp6/exp6_fewshot_evaluation.py \
-            --benchmark ../../benchmark/kls_bench/kls_bench_full.json \
+            --benchmark "$BENCHMARK_FILE" \
             --model-name "$model_name" \
             --model-type api \
             --api-key "$api_key" \
             --shots $SHOTS \
             --tasks classification nli \
             $MAX_SAMPLES \
-            --output ../../benchmark/results/fewshot
+            --output "$FEWSHOT_RESULTS_DIR"
     else
         python3 exp6/exp6_fewshot_evaluation.py \
-            --benchmark ../../benchmark/kls_bench/kls_bench_full.json \
+            --benchmark "$BENCHMARK_FILE" \
             --model-name "$model_name" \
             --model-type "$model_type" \
             --shots $SHOTS \
             --tasks classification nli \
             $MAX_SAMPLES \
-            --output ../../benchmark/results/fewshot
+            --output "$FEWSHOT_RESULTS_DIR"
     fi
 }
 
@@ -278,12 +283,12 @@ echo ""
 
 if [ "$EVAL_TYPE" = "zero-shot" ]; then
     echo "Results location:"
-    echo "   - Directory: ../../benchmark/results/"
+    echo "   - Directory: $RAW_RESULTS_DIR"
     echo "   - JSON files: results_*_*.json"
     echo "   - CSV summary: summary_*_*.csv"
 else
     echo "Results location:"
-    echo "   - Directory: ../../benchmark/results/fewshot/"
+    echo "   - Directory: $FEWSHOT_RESULTS_DIR"
     echo "   - JSON files: fewshot_*_*.json"
     echo "   - CSV summary: summary_*_*.csv"
     echo ""

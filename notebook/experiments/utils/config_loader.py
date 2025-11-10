@@ -31,6 +31,13 @@ class Config:
             self.config = yaml.safe_load(f)
 
     # Benchmark paths
+    def _resolve_path(self, path_value: str) -> str:
+        """Resolve relative paths against the config file location."""
+        path_obj = Path(path_value)
+        if not path_obj.is_absolute():
+            path_obj = (self.config_path.parent / path_obj).resolve()
+        return str(path_obj)
+
     def get_benchmark_path(self, task: Optional[str] = None) -> str:
         """
         Get benchmark file path
@@ -42,8 +49,12 @@ class Config:
             Absolute or relative path to benchmark JSON file
         """
         if task is None or task == 'full':
-            return self.config['benchmark']['full']
-        return self.config['benchmark'].get(task)
+            return self._resolve_path(self.config['benchmark']['full'])
+
+        value = self.config['benchmark'].get(task)
+        if value is None:
+            raise KeyError(f"Benchmark path for task '{task}' not found in config.")
+        return self._resolve_path(value)
 
     def get_output_dir(self, output_type: str = 'base') -> str:
         """
@@ -55,7 +66,9 @@ class Config:
         Returns:
             Path to output directory
         """
-        return self.config['output'][output_type]
+        if output_type not in self.config['output']:
+            raise KeyError(f"Output path for type '{output_type}' not found in config.")
+        return self._resolve_path(self.config['output'][output_type])
 
     # Model configurations
     def get_api_models(self, provider: Optional[str] = None) -> List[Dict[str, Any]]:

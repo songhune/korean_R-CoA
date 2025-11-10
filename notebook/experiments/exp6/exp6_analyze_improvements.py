@@ -19,11 +19,43 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Dict, List
+import sys
+
+CURRENT_DIR = Path(__file__).resolve().parent
+UTILS_DIR = CURRENT_DIR.parent / "utils"
+if str(UTILS_DIR) not in sys.path:
+    sys.path.append(str(UTILS_DIR))
+
+try:
+    from font_fix import setup_korean_fonts_robust
+except ImportError:
+    setup_korean_fonts_robust = None
 
 # Set style
 sns.set_style("whitegrid")
-plt.rcParams['font.family'] = 'DejaVu Sans'
-plt.rcParams['font.size'] = 10
+A4_WIDTH_INCH = 8.27
+A4_HEIGHT_INCH = 11.69
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_AGGREGATED_DIR = PROJECT_ROOT / "results" / "aggregated"
+DEFAULT_FEWSHOT_DIR = PROJECT_ROOT / "results" / "fewshot"
+
+
+def configure_matplotlib():
+    if setup_korean_fonts_robust:
+        setup_korean_fonts_robust()
+    else:
+        plt.rcParams['font.family'] = 'AppleGothic'
+        plt.rcParams['axes.unicode_minus'] = False
+
+    plt.rcParams.update({
+        'font.size': 11,
+        'axes.titlesize': 16,
+        'axes.labelsize': 13,
+        'xtick.labelsize': 11,
+        'ytick.labelsize': 11,
+        'legend.fontsize': 11,
+        'savefig.dpi': 300,
+    })
 
 
 class FewShotAnalyzer:
@@ -31,8 +63,8 @@ class FewShotAnalyzer:
 
     def __init__(
         self,
-        zeroshot_results_path: str = "../../results/aggregated",
-        fewshot_results_path: str = "../../results/fewshot"
+        zeroshot_results_path: str = str(DEFAULT_AGGREGATED_DIR),
+        fewshot_results_path: str = str(DEFAULT_FEWSHOT_DIR)
     ):
         self.zeroshot_path = Path(zeroshot_results_path)
         self.fewshot_path = Path(fewshot_results_path)
@@ -212,9 +244,10 @@ class FewShotAnalyzer:
     def plot_improvements(self, improvements_df: pd.DataFrame):
         """Generate improvement visualizations"""
         print("\nGenerating visualizations...")
+        configure_matplotlib()
 
         # 1. Bar chart: Zero-shot vs Few-shot comparison
-        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+        fig, axes = plt.subplots(1, 2, figsize=(A4_WIDTH_INCH * 1.1, A4_HEIGHT_INCH * 0.6))
 
         for idx, task in enumerate(['classification', 'nli']):
             task_data = improvements_df[improvements_df['task'] == task]
@@ -237,23 +270,24 @@ class FewShotAnalyzer:
             ax.bar(x, one_shot, width, label='1-shot', alpha=0.8)
             ax.bar(x + width, three_shot, width, label='3-shot', alpha=0.8)
 
-            ax.set_xlabel('Model')
-            ax.set_ylabel('Accuracy')
-            ax.set_title(f'{task.upper()} Performance')
+            ax.set_xlabel('Model', fontsize=16)
+            ax.set_ylabel('Accuracy', fontsize=16)
+            ax.set_title(f'{task.upper()} Performance', fontsize=18, fontweight='bold')
             ax.set_xticks(x)
-            ax.set_xticklabels(models, rotation=45, ha='right')
-            ax.legend()
+            ax.set_xticklabels(models, rotation=45, ha='right', fontsize=12)
+            ax.tick_params(axis='y', labelsize=12)
+            ax.legend(fontsize=12)
             ax.grid(axis='y', alpha=0.3)
             ax.set_ylim(0, 1.0)
 
-        plt.tight_layout()
-        output_file = self.output_path / "fewshot_comparison.png"
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
+        fig.tight_layout()
+        output_file = self.output_path / "fewshot_comparison.pdf"
+        fig.savefig(output_file, format='pdf', bbox_inches='tight')
         print(f"Saved: {output_file}")
-        plt.close()
+        plt.close(fig)
 
         # 2. Heatmap: Improvement deltas
-        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+        fig, axes = plt.subplots(1, 2, figsize=(A4_WIDTH_INCH * 0.95, A4_HEIGHT_INCH * 0.55))
 
         for idx, delta_col in enumerate(['delta_1shot', 'delta_3shot']):
             ax = axes[idx]
@@ -274,21 +308,23 @@ class FewShotAnalyzer:
                 cmap='RdYlGn',
                 center=0,
                 cbar_kws={'label': 'Improvement (%)'},
+                annot_kws={'fontsize': 12},
                 ax=ax
             )
 
-            ax.set_title(f'{shot_num}-shot Improvement over Zero-shot')
-            ax.set_xlabel('Task')
-            ax.set_ylabel('Model')
+            ax.set_title(f'{shot_num}-shot Improvement over Zero-shot', fontsize=18, fontweight='bold')
+            ax.set_xlabel('Task', fontsize=16)
+            ax.set_ylabel('Model', fontsize=16)
+            ax.tick_params(axis='both', labelsize=12)
 
-        plt.tight_layout()
-        output_file = self.output_path / "improvement_heatmap.png"
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
+        fig.tight_layout()
+        output_file = self.output_path / "improvement_heatmap.pdf"
+        fig.savefig(output_file, format='pdf', bbox_inches='tight')
         print(f"Saved: {output_file}")
-        plt.close()
+        plt.close(fig)
 
         # 3. Learning curve: 0-shot → 1-shot → 3-shot
-        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+        fig, axes = plt.subplots(1, 2, figsize=(A4_WIDTH_INCH * 1.1, A4_HEIGHT_INCH * 0.6))
 
         for idx, task in enumerate(['classification', 'nli']):
             task_data = improvements_df[improvements_df['task'] == task]
@@ -311,19 +347,20 @@ class FewShotAnalyzer:
                 if all(pd.notna(accs)):
                     ax.plot(shots, accs, marker='o', label=model, linewidth=2)
 
-            ax.set_xlabel('Number of Shots')
-            ax.set_ylabel('Accuracy')
-            ax.set_title(f'{task.upper()} Learning Curve')
+            ax.set_xlabel('Number of Shots', fontsize=16)
+            ax.set_ylabel('Accuracy', fontsize=16)
+            ax.set_title(f'{task.upper()} Learning Curve', fontsize=18, fontweight='bold')
             ax.set_xticks([0, 1, 3])
-            ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+            ax.tick_params(axis='both', labelsize=12)
+            ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=12)
             ax.grid(True, alpha=0.3)
             ax.set_ylim(0, 1.0)
 
-        plt.tight_layout()
-        output_file = self.output_path / "learning_curves.png"
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
+        fig.tight_layout()
+        output_file = self.output_path / "learning_curves.pdf"
+        fig.savefig(output_file, format='pdf', bbox_inches='tight')
         print(f"Saved: {output_file}")
-        plt.close()
+        plt.close(fig)
 
     def save_results(self, improvements_df: pd.DataFrame):
         """Save comparison results"""
@@ -370,13 +407,13 @@ def main():
     parser.add_argument(
         '--zeroshot-results',
         type=str,
-        default='../../results/aggregated',
+        default=str(DEFAULT_AGGREGATED_DIR),
         help='Path to zero-shot results directory'
     )
     parser.add_argument(
         '--fewshot-results',
         type=str,
-        default='../../results/fewshot',
+        default=str(DEFAULT_FEWSHOT_DIR),
         help='Path to few-shot results directory'
     )
 

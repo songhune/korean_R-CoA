@@ -21,6 +21,43 @@ from pathlib import Path
 from typing import Dict, List
 from collections import defaultdict
 import argparse
+import sys
+
+CURRENT_DIR = Path(__file__).resolve().parent
+UTILS_DIR = CURRENT_DIR.parent / "utils"
+if str(UTILS_DIR) not in sys.path:
+    sys.path.append(str(UTILS_DIR))
+
+try:
+    from font_fix import setup_korean_fonts_robust
+except ImportError:
+    setup_korean_fonts_robust = None
+
+A4_WIDTH_INCH = 8.27
+A4_HEIGHT_INCH = 11.69
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_RESULTS_DIR = PROJECT_ROOT / "results" / "raw_evaluation"
+DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "results" / "aggregated"
+
+
+def configure_matplotlib():
+    """Ensure consistent typography and sizing for publication-ready figures."""
+    if setup_korean_fonts_robust:
+        setup_korean_fonts_robust()
+    else:
+        plt.rcParams['font.family'] = 'AppleGothic'
+        plt.rcParams['axes.unicode_minus'] = False
+
+    plt.rcParams.update({
+        'figure.figsize': (A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.6),
+        'savefig.dpi': 300,
+        'font.size': 11,
+        'axes.titlesize': 16,
+        'axes.labelsize': 13,
+        'xtick.labelsize': 11,
+        'ytick.labelsize': 11,
+        'legend.fontsize': 11,
+    })
 
 
 class ResultAggregator:
@@ -154,9 +191,7 @@ class ResultAggregator:
 
         print("\n 시각화 생성 중...")
 
-        # 한글 폰트 설정
-        plt.rcParams['font.family'] = 'DejaVu Sans'
-        plt.rcParams['axes.unicode_minus'] = False
+        configure_matplotlib()
 
         # 1. 히트맵: 모델 × 태스크 성능
         self._create_heatmap(output_dir)
@@ -181,36 +216,44 @@ class ResultAggregator:
             aggfunc='first'
         )
 
-        plt.figure(figsize=(12, 8))
-        sns.heatmap(pivot, annot=True, fmt='.3f', cmap='YlOrRd', cbar_kws={'label': 'Score'})
-        plt.title('K-ClassicBench: Model Performance Heatmap', fontsize=16, fontweight='bold')
-        plt.xlabel('Task', fontsize=12)
-        plt.ylabel('Model', fontsize=12)
-        plt.xticks(rotation=45, ha='right')
-        plt.yticks(rotation=0)
-        plt.tight_layout()
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.7))
+        sns.heatmap(
+            pivot,
+            annot=True,
+            fmt='.3f',
+            cmap='YlOrRd',
+            cbar_kws={'label': 'Score'},
+            annot_kws={'fontsize': 12},
+            ax=ax
+        )
+        ax.set_title('K-ClassicBench: Model Performance Heatmap', fontsize=18, fontweight='bold')
+        ax.set_xlabel('Task')
+        ax.set_ylabel('Model')
+        ax.tick_params(axis='x', rotation=45, labelsize=11)
+        ax.tick_params(axis='y', labelsize=11)
+        fig.tight_layout()
 
-        heatmap_path = output_dir / 'heatmap_performance.png'
-        plt.savefig(heatmap_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        heatmap_path = output_dir / 'heatmap_performance.pdf'
+        fig.savefig(heatmap_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"  ✓ 히트맵: {heatmap_path}")
 
     def _create_bar_chart(self, output_dir: Path):
         """바 차트: 모델별 평균 성능"""
         model_avg = self.df.groupby('model')['primary_metric'].mean().sort_values(ascending=True)
 
-        plt.figure(figsize=(10, 8))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.65))
         colors = plt.cm.viridis(np.linspace(0.3, 0.9, len(model_avg)))
-        model_avg.plot(kind='barh', color=colors)
-        plt.title('K-ClassicBench: Average Model Performance', fontsize=16, fontweight='bold')
-        plt.xlabel('Average Score', fontsize=12)
-        plt.ylabel('Model', fontsize=12)
-        plt.grid(axis='x', alpha=0.3)
-        plt.tight_layout()
+        model_avg.plot(kind='barh', color=colors, ax=ax)
+        ax.set_title('K-ClassicBench: Average Model Performance', fontsize=18, fontweight='bold')
+        ax.set_xlabel('Average Score')
+        ax.set_ylabel('Model')
+        ax.grid(axis='x', alpha=0.3)
+        fig.tight_layout()
 
-        bar_path = output_dir / 'bar_average_performance.png'
-        plt.savefig(bar_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        bar_path = output_dir / 'bar_average_performance.pdf'
+        fig.savefig(bar_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"  ✓ 바 차트: {bar_path}")
 
     def _create_grouped_bar_chart(self, output_dir: Path):
@@ -222,19 +265,20 @@ class ResultAggregator:
             aggfunc='first'
         )
 
-        fig, ax = plt.subplots(figsize=(14, 8))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, A4_HEIGHT_INCH * 0.75))
         pivot.plot(kind='bar', ax=ax, width=0.8)
-        plt.title('K-ClassicBench: Task-wise Model Performance', fontsize=16, fontweight='bold')
-        plt.xlabel('Model', fontsize=12)
-        plt.ylabel('Score', fontsize=12)
-        plt.legend(title='Task', bbox_to_anchor=(1.05, 1), loc='upper left')
-        plt.xticks(rotation=45, ha='right')
-        plt.grid(axis='y', alpha=0.3)
-        plt.tight_layout()
+        ax.set_title('K-ClassicBench: Task-wise Model Performance', fontsize=18, fontweight='bold')
+        ax.set_xlabel('Model')
+        ax.set_ylabel('Score')
+        ax.legend(title='Task', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=12)
+        ax.tick_params(axis='x', rotation=45, labelsize=11)
+        ax.tick_params(axis='y', labelsize=11)
+        ax.grid(axis='y', alpha=0.3)
+        fig.tight_layout()
 
-        grouped_bar_path = output_dir / 'grouped_bar_taskwise.png'
-        plt.savefig(grouped_bar_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        grouped_bar_path = output_dir / 'grouped_bar_taskwise.pdf'
+        fig.savefig(grouped_bar_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"  ✓ 그룹 바 차트: {grouped_bar_path}")
 
     def _create_radar_chart(self, output_dir: Path):
@@ -254,7 +298,7 @@ class ResultAggregator:
         angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
         angles += angles[:1]  # 원을 닫기 위해
 
-        fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 0.9, A4_HEIGHT_INCH * 0.9), subplot_kw=dict(projection='polar'))
 
         colors = plt.cm.Set2(np.linspace(0, 1, len(pivot)))
 
@@ -266,17 +310,17 @@ class ResultAggregator:
             ax.fill(angles, values, alpha=0.15, color=colors[idx])
 
         ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(categories, size=10)
+        ax.set_xticklabels(categories, size=14)
         ax.set_ylim(0, 1)
         ax.set_title('K-ClassicBench: Radar Chart - Model Performance',
-                     size=16, fontweight='bold', pad=20)
-        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
+                     size=18, fontweight='bold', pad=20)
+        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=12)
         ax.grid(True)
 
-        plt.tight_layout()
-        radar_path = output_dir / 'radar_chart.png'
-        plt.savefig(radar_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        radar_path = output_dir / 'radar_chart.pdf'
+        fig.savefig(radar_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"  ✓ 레이더 차트: {radar_path}")
 
     def print_summary_statistics(self):
@@ -311,10 +355,10 @@ def main():
     """메인 실행 함수"""
     parser = argparse.ArgumentParser(description='K-ClassicBench Result Aggregation')
     parser.add_argument('--results-dir', type=str,
-                       default='../../results/raw_evaluation',
+                       default=str(DEFAULT_RESULTS_DIR),
                        help='결과 파일 디렉토리')
     parser.add_argument('--output-dir', type=str,
-                       default='../../results/aggregated',
+                       default=str(DEFAULT_OUTPUT_DIR),
                        help='통합 결과 저장 디렉토리')
 
     args = parser.parse_args()

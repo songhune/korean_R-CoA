@@ -712,7 +712,7 @@ def main():
     default_benchmark = config.get_benchmark_path() if config else \
         '/Users/songhune/Workspace/korean_eda/benchmark/kls_bench/kls_bench_full.json'
     default_output = config.get_output_dir() if config else \
-        '/Users/songhune/Workspace/korean_eda/benchmark/results'
+        '/Users/songhune/Workspace/korean_eda/results'
 
     parser = argparse.ArgumentParser(description='KLSBench Evaluation')
     parser.add_argument('--config', type=str, default=None,

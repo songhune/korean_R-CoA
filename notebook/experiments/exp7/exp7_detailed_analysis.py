@@ -20,6 +20,41 @@ from collections import defaultdict, Counter
 from config_loader import Config
 from font_fix import setup_korean_fonts_robust
 
+A4_WIDTH_INCH = 8.27
+A4_HEIGHT_INCH = 11.69
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_BENCHMARK_DIR = PROJECT_ROOT / "benchmark" / "kls_bench"
+DEFAULT_RESULTS_DIR = PROJECT_ROOT / "results"
+DEFAULT_FIGURES_DIR = PROJECT_ROOT / "results" / "figures"
+
+
+def configure_publication_style():
+    """Configure typography and layout for PDF outputs with CJK support."""
+    # IMPORTANT: Set seaborn style first, THEN configure fonts
+    sns.set_style("whitegrid")
+
+    selected_font = setup_korean_fonts_robust()
+    if not selected_font:
+        # Fallback to system default CJK fonts
+        selected_font = 'Songti SC'  # macOS default for Chinese characters
+        plt.rcParams['font.family'] = [selected_font, 'AppleMyungjo', 'Apple SD Gothic Neo']
+        plt.rcParams['axes.unicode_minus'] = False
+
+    # Re-apply font settings AFTER seaborn to prevent reset
+    plt.rcParams.update({
+        'savefig.dpi': 300,
+        'font.size': 11,
+        'axes.titlesize': 16,
+        'axes.labelsize': 13,
+        'xtick.labelsize': 11,
+        'ytick.labelsize': 11,
+        'legend.fontsize': 11,
+        'pdf.fonttype': 42,  # TrueType font embedding for proper character display
+        'ps.fonttype': 42,   # TrueType font embedding
+    })
+    print(f"✓ Font configured with CJK support: {selected_font}")
+    return selected_font
+
 
 class DetailedAnalyzer:
     """Detailed per-class performance analyzer"""
@@ -30,9 +65,8 @@ class DetailedAnalyzer:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Setup fonts
-        korean_font = setup_korean_fonts_robust()
-        plt.rcParams['font.family'] = ['DejaVu Sans', 'Arial', korean_font] if korean_font else ['DejaVu Sans']
+        # Setup fonts and plotting defaults
+        self.font_name = configure_publication_style()
 
         print("✓ Detailed analyzer initialized")
 
@@ -48,7 +82,8 @@ class DetailedAnalyzer:
         genre_counts = df['label'].value_counts().sort_values(ascending=True)
 
         # Create horizontal bar chart
-        fig, ax = plt.subplots(figsize=(12, 10))
+        fig_height = max(A4_HEIGHT_INCH * 0.7, 0.35 * len(genre_counts))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, fig_height))
 
         colors = plt.cm.tab20(np.linspace(0, 1, len(genre_counts)))
         y_pos = np.arange(len(genre_counts))
@@ -56,20 +91,20 @@ class DetailedAnalyzer:
         bars = ax.barh(y_pos, genre_counts.values, color=colors, alpha=0.8)
         ax.set_yticks(y_pos)
         ax.set_yticklabels(genre_counts.index)
-        ax.set_xlabel('Number of Examples', fontsize=13)
-        ax.set_ylabel('Genre (Label)', fontsize=13)
+        ax.set_xlabel('Number of Examples', fontsize=16)
+        ax.set_ylabel('Genre (Label)', fontsize=16)
         ax.set_title('Classification Task: Detailed Genre Distribution (All 21 Classes)',
-                    fontsize=15, fontweight='bold', pad=15)
+                    fontsize=20, fontweight='bold', pad=15)
         ax.grid(axis='x', alpha=0.3, linestyle='--')
 
         # Add value labels
         for i, (bar, count) in enumerate(zip(bars, genre_counts.values)):
-            ax.text(count + 2, i, f'{count}', va='center', fontsize=10, fontweight='bold')
+            ax.text(count + 2, i, f'{count}', va='center', fontsize=12, fontweight='bold')
 
-        plt.tight_layout()
-        output_path = self.output_dir / 'detailed_classification_genre_distribution.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        output_path = self.output_dir / 'detailed_classification_genre_distribution.pdf'
+        fig.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
 
         print(f"  ✓ Saved: {output_path}")
 
@@ -98,7 +133,7 @@ class DetailedAnalyzer:
         book_counts = df['book'].value_counts()
 
         # Create bar chart
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(A4_WIDTH_INCH * 1.15, A4_HEIGHT_INCH * 0.6))
 
         # Left: Book distribution
         colors = plt.cm.Set3(np.linspace(0, 1, len(book_counts)))
@@ -106,34 +141,36 @@ class DetailedAnalyzer:
 
         bars = ax1.bar(x_pos, book_counts.values, color=colors, alpha=0.8)
         ax1.set_xticks(x_pos)
-        ax1.set_xticklabels(book_counts.index, rotation=30, ha='right')
-        ax1.set_ylabel('Number of Examples', fontsize=12)
-        ax1.set_xlabel('Book', fontsize=12)
+        ax1.set_xticklabels(book_counts.index, rotation=30, ha='right', fontsize=12)
+        ax1.set_ylabel('Number of Examples', fontsize=16)
+        ax1.set_xlabel('Book', fontsize=16)
         ax1.set_title('Retrieval Task: Distribution by Source Book',
-                     fontsize=14, fontweight='bold')
+                     fontsize=18, fontweight='bold')
         ax1.grid(axis='y', alpha=0.3)
 
         # Add value labels
         for i, (bar, count) in enumerate(zip(bars, book_counts.values)):
             ax1.text(i, count + 10, str(count), ha='center', va='bottom',
-                    fontsize=11, fontweight='bold')
+                    fontsize=14, fontweight='bold')
 
         # Right: Pie chart
         wedges, texts, autotexts = ax2.pie(book_counts.values, labels=book_counts.index,
                                             autopct='%1.1f%%', colors=colors, startangle=90)
 
+        for text in texts:
+            text.set_fontsize(12)
         for autotext in autotexts:
             autotext.set_color('white')
-            autotext.set_fontsize(11)
+            autotext.set_fontsize(14)
             autotext.set_fontweight('bold')
 
         ax2.set_title('Retrieval Task: Book Distribution (Percentage)',
-                     fontsize=14, fontweight='bold')
+                     fontsize=18, fontweight='bold')
 
-        plt.tight_layout()
-        output_path = self.output_dir / 'detailed_retrieval_book_distribution.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        output_path = self.output_dir / 'detailed_retrieval_book_distribution.pdf'
+        fig.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
 
         print(f"  ✓ Saved: {output_path}")
 
@@ -168,7 +205,7 @@ class DetailedAnalyzer:
         task_difficulty = task_difficulty.sort_values('mean')
 
         # Create visualization
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(A4_WIDTH_INCH * 1.15, A4_HEIGHT_INCH * 0.6))
 
         # Left: Average performance with error bars
         tasks = task_difficulty.index
@@ -179,18 +216,18 @@ class DetailedAnalyzer:
         bars = ax1.barh(range(len(tasks)), means, xerr=stds, color=colors, alpha=0.8,
                        capsize=5, error_kw={'linewidth': 2})
         ax1.set_yticks(range(len(tasks)))
-        ax1.set_yticklabels([t.capitalize() for t in tasks])
-        ax1.set_xlabel('Average Performance Score', fontsize=12)
-        ax1.set_ylabel('Task', fontsize=12)
+        ax1.set_yticklabels([t.capitalize() for t in tasks], fontsize=12)
+        ax1.set_xlabel('Average Performance Score', fontsize=16)
+        ax1.set_ylabel('Task', fontsize=16)
         ax1.set_title('Task Difficulty: Average Model Performance',
-                     fontsize=14, fontweight='bold')
+                     fontsize=18, fontweight='bold')
         ax1.set_xlim(0, 1.0)
         ax1.grid(axis='x', alpha=0.3)
 
         # Add value labels
         for i, (mean, std) in enumerate(zip(means, stds)):
             ax1.text(mean + 0.02, i, f'{mean:.3f}±{std:.3f}',
-                    va='center', fontsize=10, fontweight='bold')
+                    va='center', fontsize=12, fontweight='bold')
 
         # Right: Performance range (min-max)
         mins = task_difficulty['min'].values
@@ -202,18 +239,18 @@ class DetailedAnalyzer:
         ax2.scatter(maxs, range(len(tasks)), color='green', s=100, zorder=3, label='Max')
 
         ax2.set_yticks(range(len(tasks)))
-        ax2.set_yticklabels([t.capitalize() for t in tasks])
-        ax2.set_xlabel('Performance Score', fontsize=12)
+        ax2.set_yticklabels([t.capitalize() for t in tasks], fontsize=12)
+        ax2.set_xlabel('Performance Score', fontsize=16)
         ax2.set_title('Task Difficulty: Performance Range Across Models',
-                     fontsize=14, fontweight='bold')
+                     fontsize=18, fontweight='bold')
         ax2.set_xlim(0, 1.0)
-        ax2.legend(loc='lower right')
+        ax2.legend(loc='lower right', fontsize=12)
         ax2.grid(axis='x', alpha=0.3)
 
-        plt.tight_layout()
-        output_path = self.output_dir / 'detailed_task_difficulty_analysis.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        output_path = self.output_dir / 'detailed_task_difficulty_analysis.pdf'
+        fig.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
 
         print(f"  ✓ Saved: {output_path}")
 
@@ -248,7 +285,7 @@ class DetailedAnalyzer:
         model_stats = model_stats.sort_values('cv')
 
         # Create visualization
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(A4_WIDTH_INCH * 1.15, A4_HEIGHT_INCH * 0.7))
 
         # Left: Mean performance vs consistency (CV)
         colors = plt.cm.viridis(np.linspace(0.2, 0.9, len(model_stats)))
@@ -260,12 +297,12 @@ class DetailedAnalyzer:
             # Shorten model name for display
             short_name = model.split('/')[-1] if '/' in model else model
             ax1.annotate(short_name, (row['mean'], row['cv']),
-                        fontsize=8, ha='center', va='bottom')
+                        fontsize=10, ha='center', va='bottom')
 
-        ax1.set_xlabel('Mean Performance', fontsize=12)
-        ax1.set_ylabel('Coefficient of Variation (Consistency)', fontsize=12)
+        ax1.set_xlabel('Mean Performance', fontsize=16)
+        ax1.set_ylabel('Coefficient of Variation (Consistency)', fontsize=16)
         ax1.set_title('Model Performance vs Consistency\n(Lower CV = More Consistent)',
-                     fontsize=14, fontweight='bold')
+                     fontsize=18, fontweight='bold')
         ax1.grid(True, alpha=0.3)
 
         # Add quadrant lines
@@ -287,17 +324,17 @@ class DetailedAnalyzer:
         ax2.set_yticks(y_pos)
         # Shorten model names
         short_names = [m.split('/')[-1] if '/' in m else m for m in models]
-        ax2.set_yticklabels(short_names, fontsize=9)
-        ax2.set_xlabel('Performance Score', fontsize=12)
+        ax2.set_yticklabels(short_names, fontsize=12)
+        ax2.set_xlabel('Performance Score', fontsize=16)
         ax2.set_title('Model Performance Range Across Tasks\n(Diamond = Mean)',
-                     fontsize=14, fontweight='bold')
+                     fontsize=18, fontweight='bold')
         ax2.set_xlim(0, 1.0)
         ax2.grid(axis='x', alpha=0.3)
 
-        plt.tight_layout()
-        output_path = self.output_dir / 'detailed_model_consistency_analysis.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        output_path = self.output_dir / 'detailed_model_consistency_analysis.pdf'
+        fig.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
 
         print(f"  ✓ Saved: {output_path}")
 
@@ -327,19 +364,19 @@ def main():
 
     parser = argparse.ArgumentParser(description='Detailed Performance Analysis')
     parser.add_argument('--benchmark-dir', type=str,
-                       default='/Users/songhune/Workspace/korean_eda/benchmark/kls_bench',
+                       default=str(DEFAULT_BENCHMARK_DIR),
                        help='Benchmark data directory')
     parser.add_argument('--results-dir', type=str,
-                       default='/Users/songhune/Workspace/korean_eda/results',
+                       default=str(DEFAULT_RESULTS_DIR),
                        help='Results directory')
     parser.add_argument('--output-dir', type=str,
-                       default='../../results/figures',
+                       default=str(DEFAULT_FIGURES_DIR),
                        help='Output directory')
 
     args = parser.parse_args()
 
     # Resolve paths
-    output_dir = Path(__file__).parent.parent.parent / 'results' / 'figures'
+    output_dir = Path(args.output_dir).resolve()
 
     analyzer = DetailedAnalyzer(
         benchmark_dir=args.benchmark_dir,

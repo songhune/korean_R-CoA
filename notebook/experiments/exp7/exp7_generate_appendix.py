@@ -30,6 +30,12 @@ import argparse
 from config_loader import Config
 from font_fix import setup_korean_fonts_robust, get_korean_font
 
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_FIGURES_DIR = PROJECT_ROOT / "results" / "figures"
+
+A4_WIDTH_INCH = 8.27
+A4_HEIGHT_INCH = 11.69
+
 
 class AppendixGenerator:
     """Main class for generating KLSBench appendix materials"""
@@ -49,15 +55,31 @@ class AppendixGenerator:
         self.results = self._load_results()
 
     def _setup_fonts(self):
-        """Setup fonts with English priority"""
-        # Try Korean fonts first, but set fallback to English
+        """Setup fonts with CJK (Chinese, Japanese, Korean) support"""
+        # IMPORTANT: Set seaborn style first, THEN configure fonts
+        sns.set_style("whitegrid")
+
         korean_font = setup_korean_fonts_robust()
+        if not korean_font:
+            # Fallback to system default CJK fonts
+            korean_font = 'Songti SC'  # macOS default for Chinese characters
+            plt.rcParams['font.family'] = [korean_font, 'AppleMyungjo', 'Apple SD Gothic Neo']
+            plt.rcParams['axes.unicode_minus'] = False
 
-        # Set English as primary with Korean as fallback
-        plt.rcParams['font.family'] = ['DejaVu Sans', 'Arial', korean_font] if korean_font else ['DejaVu Sans', 'Arial']
-        plt.rcParams['axes.unicode_minus'] = False
+        # Re-apply font settings AFTER seaborn to prevent reset
+        plt.rcParams.update({
+            'savefig.dpi': 300,
+            'font.size': 11,
+            'axes.titlesize': 16,
+            'axes.labelsize': 13,
+            'xtick.labelsize': 11,
+            'ytick.labelsize': 11,
+            'legend.fontsize': 11,
+            'pdf.fonttype': 42,  # TrueType font embedding
+            'ps.fonttype': 42,   # TrueType font embedding
+        })
 
-        print(f"✓ Font setup complete (primary: English, fallback: {korean_font})")
+        print(f"✓ Font setup complete with CJK support: {korean_font}")
 
     def _load_benchmark_data(self) -> Dict[str, List[Dict]]:
         """Load all benchmark task data"""
@@ -188,13 +210,18 @@ class AppendixGenerator:
         # Create visualization: Genre distribution
         genre_counts = Counter([item['label'] for item in data])
 
-        fig, ax = plt.subplots(figsize=(14, 8))
         genres = list(genre_counts.keys())
         counts = list(genre_counts.values())
 
         # Sort by count
         sorted_pairs = sorted(zip(genres, counts), key=lambda x: x[1], reverse=True)
-        genres, counts = zip(*sorted_pairs)
+        if sorted_pairs:
+            genres, counts = zip(*sorted_pairs)
+        else:
+            genres, counts = [], []
+
+        fig_height = max(A4_HEIGHT_INCH * 0.65, 0.35 * max(len(genres), 1))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, fig_height))
 
         colors = plt.cm.tab20(np.linspace(0, 1, len(genres)))
         bars = ax.barh(range(len(genres)), counts, color=colors)
@@ -209,10 +236,10 @@ class AppendixGenerator:
         for i, (bar, count) in enumerate(zip(bars, counts)):
             ax.text(count + 1, i, str(count), va='center', fontsize=9)
 
-        plt.tight_layout()
-        fig_path = self.output_dir / 'appendix_a1_genre_distribution.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.output_dir / 'appendix_a1_genre_distribution.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_retrieval_examples(self):
@@ -249,7 +276,7 @@ class AppendixGenerator:
         # Create visualization: Book distribution
         book_counts = Counter([item['book'] for item in data])
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.55))
         books = list(book_counts.keys())
         counts = list(book_counts.values())
 
@@ -266,10 +293,10 @@ class AppendixGenerator:
         for i, count in enumerate(counts):
             ax.text(i, count + 10, str(count), ha='center', va='bottom', fontsize=10)
 
-        plt.tight_layout()
-        fig_path = self.output_dir / 'appendix_a2_book_distribution.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.output_dir / 'appendix_a2_book_distribution.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_punctuation_examples(self):
@@ -301,7 +328,7 @@ class AppendixGenerator:
         # Visualization: Language distribution
         lang_counts = Counter([item.get('language', 'Korean') for item in data])
 
-        fig, ax = plt.subplots(figsize=(8, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 0.85, A4_HEIGHT_INCH * 0.55))
         languages = list(lang_counts.keys())
         counts = list(lang_counts.values())
 
@@ -315,11 +342,11 @@ class AppendixGenerator:
             autotext.set_fontweight('bold')
 
         ax.set_title('Punctuation Task: Language Distribution', fontsize=14, fontweight='bold')
-        plt.tight_layout()
+        fig.tight_layout()
 
-        fig_path = self.output_dir / 'appendix_a3_language_distribution.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig_path = self.output_dir / 'appendix_a3_language_distribution.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_nli_examples(self):
@@ -357,7 +384,7 @@ class AppendixGenerator:
         # Visualization: Label distribution
         label_counts = Counter([item['label'] for item in data])
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.55))
         labels_list = list(label_counts.keys())
         counts = list(label_counts.values())
 
@@ -374,10 +401,10 @@ class AppendixGenerator:
         for i, count in enumerate(counts):
             ax.text(i, count + 20, str(count), ha='center', va='bottom', fontsize=11, fontweight='bold')
 
-        plt.tight_layout()
-        fig_path = self.output_dir / 'appendix_a4_label_distribution.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.output_dir / 'appendix_a4_label_distribution.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def _generate_translation_examples(self):
@@ -412,7 +439,7 @@ class AppendixGenerator:
         # Visualization: Translation pair distribution
         pair_counts = Counter([f"{item['source_lang']} → {item['target_lang']}" for item in data])
 
-        fig, ax = plt.subplots(figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, A4_HEIGHT_INCH * 0.55))
         pairs = list(pair_counts.keys())
         counts = list(pair_counts.values())
 
@@ -429,10 +456,10 @@ class AppendixGenerator:
         for i, count in enumerate(counts):
             ax.text(i, count + 20, str(count), ha='center', va='bottom', fontsize=10)
 
-        plt.tight_layout()
-        fig_path = self.output_dir / 'appendix_a5_translation_pairs.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.output_dir / 'appendix_a5_translation_pairs.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"    ✓ Figure saved to {fig_path}")
 
     def generate_detailed_statistics(self):
@@ -486,7 +513,7 @@ class AppendixGenerator:
             data = self.benchmark_data['classification']
             genre_counts = Counter([item['label'] for item in data])
 
-            fig, ax = plt.subplots(figsize=(14, 10))
+            fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, A4_HEIGHT_INCH * 0.8))
 
             genres = sorted(genre_counts.keys())
             x = np.arange(len(genres))
@@ -506,10 +533,10 @@ class AppendixGenerator:
             ax.legend()
             ax.grid(axis='y', alpha=0.3)
 
-            plt.tight_layout()
-            fig_path = self.output_dir / 'appendix_b1_classification_per_genre.png'
-            plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-            plt.close()
+            fig.tight_layout()
+            fig_path = self.output_dir / 'appendix_b1_classification_per_genre.pdf'
+            fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+            plt.close(fig)
             print(f"      ✓ Figure saved to {fig_path}")
 
     def _retrieval_per_book_performance(self):
@@ -520,7 +547,7 @@ class AppendixGenerator:
         books = sorted(set([item['book'] for item in data]))
 
         # Create sample performance plot
-        fig, ax = plt.subplots(figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, A4_HEIGHT_INCH * 0.55))
 
         x = np.arange(len(books))
         width = 0.15
@@ -543,10 +570,10 @@ class AppendixGenerator:
         ax.legend()
         ax.grid(axis='y', alpha=0.3)
 
-        plt.tight_layout()
-        fig_path = self.output_dir / 'appendix_b1_retrieval_per_book.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.output_dir / 'appendix_b1_retrieval_per_book.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"      ✓ Figure saved to {fig_path}")
 
     def _generate_error_analysis(self):
@@ -572,7 +599,7 @@ class AppendixGenerator:
         # Sample error distribution
         models = ['GPT-4', 'Claude-3.5', 'GPT-3.5', 'Llama-3.1', 'EXAONE-3.0']
 
-        fig, ax = plt.subplots(figsize=(12, 7))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, A4_HEIGHT_INCH * 0.6))
 
         x = np.arange(len(error_types))
         width = 0.15
@@ -592,14 +619,14 @@ class AppendixGenerator:
         ax.legend(title='Model')
         ax.grid(axis='y', alpha=0.3)
 
-        plt.tight_layout()
-        fig_path = self.output_dir / 'appendix_b2_error_patterns.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig.tight_layout()
+        fig_path = self.output_dir / 'appendix_b2_error_patterns.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"      ✓ Figure saved to {fig_path}")
 
         # Create error rate heatmap
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.55))
 
         tasks = ['Classification', 'Retrieval', 'Punctuation', 'NLI', 'Translation']
         error_rates = np.random.uniform(0.1, 0.5, (len(models), len(tasks)))
@@ -622,11 +649,11 @@ class AppendixGenerator:
                              ha="center", va="center", color="black", fontsize=9)
 
         ax.set_title('Error Analysis: Task-wise Error Rate by Model', fontsize=14, fontweight='bold')
-        plt.tight_layout()
+        fig.tight_layout()
 
-        fig_path = self.output_dir / 'appendix_b2_error_rate_heatmap.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+        fig_path = self.output_dir / 'appendix_b2_error_rate_heatmap.pdf'
+        fig.savefig(fig_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)
         print(f"      ✓ Figure saved to {fig_path}")
 
 
@@ -634,20 +661,20 @@ def main():
     """Main execution function"""
     parser = argparse.ArgumentParser(description='Generate KLSBench Appendix Materials')
     parser.add_argument('--config', type=str,
-                       default='../config.yaml',
+                       default=str(Path(__file__).parent.parent / 'config.yaml'),
                        help='Path to config.yaml')
     parser.add_argument('--output-dir', type=str,
-                       default='../../results/figures',
+                       default=str(DEFAULT_FIGURES_DIR),
                        help='Output directory for graphs')
 
     args = parser.parse_args()
 
     # Load configuration
-    config_path = Path(__file__).parent.parent / 'config.yaml'
+    config_path = Path(args.config).resolve()
     config = Config(str(config_path))
 
     # Set output directory
-    output_dir = Path(__file__).parent.parent.parent / 'results' / 'figures'
+    output_dir = Path(args.output_dir).resolve()
 
     # Generate appendix
     generator = AppendixGenerator(config, str(output_dir))

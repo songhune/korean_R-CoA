@@ -34,7 +34,8 @@ echo "✓ All dependencies found"
 echo ""
 
 # Create output directory
-OUTPUT_DIR="../../results/figures"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../.. && pwd)"
+OUTPUT_DIR="$PROJECT_ROOT/results/figures"
 mkdir -p "$OUTPUT_DIR"
 echo "✓ Output directory: $OUTPUT_DIR"
 echo ""
@@ -75,8 +76,8 @@ echo "Output location: $OUTPUT_DIR"
 echo ""
 
 # List generated files
-echo "Generated files (*.png):"
-ls -lh "$OUTPUT_DIR"/*.png 2>/dev/null | wc -l | xargs echo "  Total PNG files:"
+echo "Generated files (*.pdf):"
+ls -lh "$OUTPUT_DIR"/*.pdf 2>/dev/null | wc -l | xargs echo "  Total PDF files:"
 echo ""
 
 echo "Generated files (*.csv):"
