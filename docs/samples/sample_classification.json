@@ -1,0 +1,120 @@
+{
+  "task": "classification",
+  "description": "주어진 고전 문헌의 문체(賦/詩/疑/義)를 분류",
+  "size": 808,
+  "metric": "Accuracy",
+  "data": [
+    {
+      "task": "classification",
+      "id": "cls_0655",
+      "input": "徐偃王行仁義",
+      "label": "論",
+      "question_id": "Qd7535a1483cd",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0115",
+      "input": "大戰良久, 棄旗鼓, 走水上軍, 押戰.",
+      "label": "詩",
+      "question_id": "Q63bc7172fd25",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0026",
+      "input": "天作高山",
+      "label": "賦",
+      "question_id": "Q675e26164f5a",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0760",
+      "input": "蕩蕩平平室",
+      "label": "銘",
+      "question_id": "Qd4d7ff087b48",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0282",
+      "input": "問: 子曰\"道之不行也, 我知之矣, 智者過之, 愚者不及也. 道之不明也, 我知之矣, 賢者過之, 不肖者不及也\", 知合屬明而道之不行也曰\"智者過之\", 賢合屬行而道之不明也曰\"賢者過之\", 何歟? 過與不及俱爲失中, 則知愚賢不肖終不可入於道歟?",
+      "label": "疑",
+      "question_id": "Q0560e6a3b9aa",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0251",
+      "input": "問: 夫子之於人, 許仁鮮矣, 仲弓季路聖門之高弟, 不許其仁. 令尹子文陳文子列國之賢大夫, 亦不許其仁. 獨於管仲曰如其仁如其仁者, 何歟?",
+      "label": "疑",
+      "question_id": "Qb815ffffc5c6",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0229",
+      "input": "問: 哀公問弟子, \"孰爲好學\", 孔子對曰, \"有顔回者, 好學, 不遷怒, 不貳過, 不幸短命死矣. 今也則亡, 未聞好學者也\", 未所謂學者, 學所以至於聖人之道也. 聖門諸子何莫非欲學聖人者, 而夫子獨稱顔子以好學者, 何歟? 子游子夏皆在文學之科, 而夫子不許好學, 至如曾氏之學, 得聞一貫之旨, 能傳聖人之統, 則宜與顔子之學無別, 而夫子不許好學者, 何歟? 抑其好學不及於顔子而然歟?",
+      "label": "疑",
+      "question_id": "Q6819e1b33e37",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0143",
+      "input": "會漢七年十月, 長樂宮成. 押會.",
+      "label": "詩",
+      "question_id": "Qeecc73dda900",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0755",
+      "input": "崇政殿",
+      "label": "銘",
+      "question_id": "Q7f9769b59ede",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    },
+    {
+      "task": "classification",
+      "id": "cls_0105",
+      "input": "明日訪荷_丈人不遇, 押訪.",
+      "label": "詩",
+      "question_id": "Q496aa0ef980b",
+      "metadata": {
+        "has_korean": true,
+        "has_english": true
+      }
+    }
+  ],
+  "original_size": 808,
+  "sample_size": 10
+}

@@ -1,0 +1,175 @@
+{
+  "task": "nli",
+  "description": "두 문장 간의 논리적 관계(entailment/contradiction/neutral)를 판단",
+  "size": 1854,
+  "metric": "Accuracy",
+  "data": [
+    {
+      "task": "nli",
+      "id": "nli_1207",
+      "premise": "원이라는 덕은 위로부터 화평을 이루고, 기의 음악은 아래로부터 화합을 불러온다.",
+      "hypothesis": "Yuan's virtue brings harmony to those above, while Kui's music brings harmony to those below.",
+      "label": "entailment",
+      "source": "과거시험",
+      "difficulty": "medium",
+      "category": "cross_lingual_entailment",
+      "explanation": "한글과 영어 번역이 의미적으로 동일"
+    },
+    {
+      "task": "nli",
+      "id": "nli_0570",
+      "premise": "卿以下必有圭田圭田五十畝",
+      "hypothesis": "경(卿) 이하는 반드시 규전(圭田)이 있었으니, 규전(圭田)은 50묘(畝)였다.",
+      "label": "entailment",
+      "source": " 孟子",
+      "difficulty": "easy",
+      "category": "translation_equivalence",
+      "explanation": "원문과 번역이 의미적으로 동일"
+    },
+    {
+      "task": "nli",
+      "id": "nli_1658",
+      "premise": "다음 날 밖으로 나가 동곽씨(東郭氏)에게 조문하려 하시니, 공손추(公孫丑)가 말하였다. “어제 병(病)으로 사양하시고 오늘 조문함이 어쩌면 불가(不可)할 듯합니다.” 맹자(孟子)께서 말씀하였다. “어제 병(病)이 오늘 나았으니, 어찌 조문하지 않겠는가?”",
+      "hypothesis": "《시경(詩經)》에 이르기를 ‘깎아지른 저 남산(南山)이여, 돌이 암암(巖巖)하구나! 혁혁(赫赫)한 태사(太師) 윤씨(尹氏)여, 백성들이 모두 너를 본다.’ 하였으니, 국가를 소유한 자는 삼가지 않으면 안되니, 편벽되면 천하의 죽임이 되는 것이다.",
+      "label": "neutral",
+      "source": " 孟子 vs  大學",
+      "difficulty": "medium",
+      "category": "cross_text_relation",
+      "explanation": "다른 문헌의 문장으로 관계 불명"
+    },
+    {
+      "task": "nli",
+      "id": "nli_1781",
+      "premise": "밝고 아름다움을 계승하니, 이는 문왕의 법도이다.",
+      "hypothesis": "나라를 다스리는 방법이 아니다",
+      "label": "contradiction",
+      "source": "과거시험 (생성)",
+      "difficulty": "medium",
+      "category": "negation_based",
+      "explanation": "부정 표현을 통한 모순 관계"
+    },
+    {
+      "task": "nli",
+      "id": "nli_0014",
+      "premise": "맹자는 인간의 본성이 선하다고 보았다.",
+      "hypothesis": "모든 철학자들이 인간 본성에 대해 동일한 견해를 가졌다.",
+      "label": "neutral",
+      "source": "철학사",
+      "difficulty": "medium",
+      "category": "philosophical_generalization",
+      "explanation": "맹자의 개별 견해로는 모든 철학자의 견해를 알 수 없다."
+    },
+    {
+      "task": "nli",
+      "id": "nli_1555",
+      "premise": "공자(孔子)께서 말씀하셨다. “저 사람[부인(夫人)]이 말을 하지 않을지언정, 말을 하면 반드시 <도리(道理)에> 맞음이 있다.”",
+      "hypothesis": "이것을 널리 배우며, 자세히 물으며, 신중히 생각하며, 밝게 분변하며, 독실히 행하여야 한다.",
+      "label": "neutral",
+      "source": " 論語 vs 中庸",
+      "difficulty": "medium",
+      "category": "cross_text_relation",
+      "explanation": "다른 문헌의 문장으로 관계 불명"
+    },
+    {
+      "task": "nli",
+      "id": "nli_1651",
+      "premise": "백리해(百里奚)는 우(虞)나라 사람이니, 진(晉)나라 사람이 수극(垂棘)에서 생산된 구슬과 굴(屈)땅에서 생산된 마필(馬匹)을 가지고 우(虞)나라에 길을 빌려 괵(虢)나라를 정벌하려 하자, 궁지기(宮之奇)는 이것을 간하였고, 백리해(百里奚)는 간하지 않았다.",
+      "hypothesis": "인자(仁者)는 재물로써 몸을 일으키고, 불인(不仁)한 자는 몸으로써 재물을 일으킨다.",
+      "label": "neutral",
+      "source": " 孟子 vs  大學",
+      "difficulty": "medium",
+      "category": "cross_text_relation",
+      "explanation": "다른 문헌의 문장으로 관계 불명"
+    },
+    {
+      "task": "nli",
+      "id": "nli_0327",
+      "premise": "物格而后知至知至而后意誠意誠而后心正心正而后身修身修而后家齊家齊而后國治國治而后天下平",
+      "hypothesis": "사물의 이치가 이른 뒤에 지식이 지극해지고, 지식이 지극해진 뒤에 뜻이 성실해지고, 뜻이 성실해진 뒤에 마음이 바루어지고, 마음이 바루어진 뒤에 몸이 닦아지고, 몸이 닦아진 뒤에 집안이 가리런해지고, 집안이 가지런한 뒤에 나라가 다스려지고, 나라가 다스려진 뒤에 천하가 평(平)해진다.",
+      "label": "entailment",
+      "source": " 大學",
+      "difficulty": "easy",
+      "category": "translation_equivalence",
+      "explanation": "원문과 번역이 의미적으로 동일"
+    },
+    {
+      "task": "nli",
+      "id": "nli_1430",
+      "premise": "공자(孔子)께서 중궁(仲弓)을 논평하여 말씀하셨다. “얼룩소〔犁牛〕 새끼가 색깔이 붉고〔騂〕 또 뿔이 제대로 났다면 비록 쓰지 않고자 하나 산천(山川)의 신(神)이야 어찌 그것을 버리겠는가?”",
+      "hypothesis": "그 근본이 어지럽고서 끝이 다스려지는 자는 없으며, 후(厚)히 할 것에 박(薄)하게 하고서 박(薄)하게 할 것에 후(厚)히 하는 자는 있지 않다.",
+      "label": "neutral",
+      "source": " 論語 vs  大學",
+      "difficulty": "medium",
+      "category": "cross_text_relation",
+      "explanation": "다른 문헌의 문장으로 관계 불명"
+    },
+    {
+      "task": "nli",
+      "id": "nli_0866",
+      "premise": "戶曹請汰_官省浮費",
+      "hypothesis": "호조가 관청의 낭비성 비용을 줄일 것을 요청하다",
+      "label": "entailment",
+      "source": "과거시험",
+      "difficulty": "easy",
+      "category": "translation_equivalence",
+      "explanation": "한문과 한글 번역이 의미적으로 동일"
+    },
+    {
+      "task": "nli",
+      "id": "nli_0697",
+      "premise": "하늘의 도는 감응하는 이치이다",
+      "hypothesis": "The principle of heaven's response to human conduct",
+      "label": "entailment",
+      "source": "과거시험",
+      "difficulty": "medium",
+      "category": "cross_lingual_entailment",
+      "explanation": "한글과 영어 번역이 의미적으로 동일"
+    },
+    {
+      "task": "nli",
+      "id": "nli_0319",
+      "premise": "父子之間不責善責善則離離則不祥莫大焉",
+      "hypothesis": "부자간에는 선(善)으로 책하지 않는 것이니, 선(善)으로 책하면 <정(情)이> 떨어지게 된다. 정(情)이 떨어지면 불상(不祥)[나쁨]함이 이보다 더 큼이 없는 것이다.”",
+      "label": "entailment",
+      "source": " 孟子",
+      "difficulty": "easy",
+      "category": "translation_equivalence",
+      "explanation": "원문과 번역이 의미적으로 동일"
+    },
+    {
+      "task": "nli",
+      "id": "nli_0441",
+      "premise": "謂孔子曰來予與爾言曰懷其寶而迷其邦可謂仁乎曰不可好從事而亟失時可謂知乎曰不可日月逝矣歲不我與孔子曰諾吾將仕矣",
+      "hypothesis": "공자(孔子)에게 말하기를 “이리 오시오. 내가 그대와 말을 하겠오. 훌륭한 보배를 품고서 나라를 어지럽게 버려두는 것을 인(仁)이라고 할 수 있겠습니까?” 하니, 공자(孔子)께서 “그렇다고 할 수 없습니다.” 하셨다. 양화(陽貨)가 “종사(從事)하기를 좋아하면서 자주 때를 놓치는 것을 지(知)라고 할 수 있겠습니까?” 하니, 공자(孔子)께서 “그렇다고 할 수 없습니다.” 하셨다. 양화(陽貨)가 “해와 달이 흘러가니, 세월은 나를 위하여 기다려 주지 않습니다.” 하니, 공자(孔子)께서 “알았습니다. 나는 장차 벼슬을 할 것입니다.” 하셨다.",
+      "label": "entailment",
+      "source": " 論語",
+      "difficulty": "easy",
+      "category": "translation_equivalence",
+      "explanation": "원문과 번역이 의미적으로 동일"
+    },
+    {
+      "task": "nli",
+      "id": "nli_1564",
+      "premise": "높고 높은 그 성공이여! 찬란한 그 문장이여!”",
+      "hypothesis": "《시경(詩經)》에 이르기를 ‘도끼자루를 잡고 도끼자루를 벰이여! 그 법이 멀리 있지 않다.’ 하였으니, 도끼자루를 잡고 도끼자루를 베면서도 비스듬히 보고 오히려 멀리 여긴다. 그러므로 군자(君子)는 사람의 도리로써 사람을 다스리다가 잘못을 고치면 그치는 것이다.",
+      "label": "neutral",
+      "source": " 論語 vs 中庸",
+      "difficulty": "medium",
+      "category": "cross_text_relation",
+      "explanation": "다른 문헌의 문장으로 관계 불명"
+    },
+    {
+      "task": "nli",
+      "id": "nli_0690",
+      "premise": "忠孝",
+      "hypothesis": "충효",
+      "label": "entailment",
+      "source": "과거시험",
+      "difficulty": "easy",
+      "category": "translation_equivalence",
+      "explanation": "한문과 한글 번역이 의미적으로 동일"
+    }
+  ],
+  "original_size": 1854,
+  "sample_size": 15
+}

@@ -1,0 +1,178 @@
+{
+  "task": "translation",
+  "description": "한문, 한글, 영문 간의 번역 수행",
+  "size": 2000,
+  "metric": "BLEU Score",
+  "data": [
+    {
+      "task": "translation",
+      "id": "trans_0210",
+      "source_text": "樊遲從遊於舞雩之下曰敢問崇德修慝辨惑",
+      "target_text": "번지(樊遲)가 공자(孔子)를 따라서 무우(舞雩)의 아래에 놀았는데, “감히 덕(德)을 높이며, 간특함을 닦으며, 의혹을 분별함을 묻겠습니다.”",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 論語",
+      "metadata": {
+        "has_comment": true
+      }
+    },
+    {
+      "task": "translation",
+      "id": "trans_0190",
+      "source_text": "子曰不占而已矣",
+      "target_text": "공자(孔子)께서 말씀하셨다. “점괘〔占〕를 보지 않았기 때문일 뿐이다.”",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 論語",
+      "metadata": {
+        "has_comment": true
+      }
+    },
+    {
+      "task": "translation",
+      "id": "trans_0779",
+      "source_text": "告子曰性猶杞柳也義猶桮棬也以人性爲仁義猶以杞柳爲桮棬",
+      "target_text": "고자(告子)가 말하였다. “성(性)은 기류(杞柳)와 같고, 의(義)는 나무로 만든 그릇과 같으니, 사람의 본성(本性)을 가지고 인의(仁義)를 행함은 기류(杞柳)를 가지고 그릇을 만드는 것과 같다.”",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 孟子",
+      "metadata": {
+        "has_comment": true
+      }
+    },
+    {
+      "task": "translation",
+      "id": "trans_0199",
+      "source_text": "孟子對曰王好戰請以戰喩塡然鼓之兵刃旣接棄甲曳兵而走或百步而後止或五十步而後止以五十步笑百步則何如曰不可直不百步耳是亦走也曰王如知此則無望民之多於隣國也",
+      "target_text": "맹자(孟子)께서 대답하셨다. “왕(王)께서 전투를 좋아하시니, 청컨대 전투를 가지고 비유하겠습니다. 둥둥 북을 쳐서 병기와 칼날이 이미 접하거든 갑옷을 버리고 병기를 끌고 패주(敗走)하되, 혹은 백보(百步)를 도망한 뒤에 멈추며 혹은 50보(步)를 도망한 뒤에 멈추어서, 50보(步)를 패주 했다 하여 백보(百步) 패주한 자를 비웃으면 어떻습니까?” 왕(王)이 말씀하였다. “불가(不可)하니, 다만 백보(百步)를 패주하지 않았을 뿐이지 이 또한 패주한 것입니다.” 맹자(孟子)께서 말씀하였다. “왕(王)께서 만일 이것을 아신다면 백성들이 이웃나라보다 많아지기를 바라지 마소서.”",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 孟子",
+      "metadata": {
+        "has_comment": true
+      }
+    },
+    {
+      "task": "translation",
+      "id": "trans_0736",
+      "source_text": "子曰道不行乘桴浮于海從我者其由與子路聞之喜子曰由也好勇過我無所取材",
+      "target_text": "공자(孔子)께서 말씀하시기를 “도(道)가 행해지지 않으니, 내 뗏목을 타고 바다를 항해하려 한다. 이때 나를 따라올 사람은 아마 유(由)일 것이다.” 하셨다. 자로(子路)가 이 말씀을 듣고 기뻐하자, 공자(孔子)께서는 “유(由)는 용맹을 좋아함은 나보다 나으나, 사리를 헤아려 맞게 하는 것이 없다.” 하셨다.",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 論語",
+      "metadata": {
+        "has_comment": true
+      }
+    },
+    {
+      "task": "translation",
+      "id": "trans_1736",
+      "source_text": "사냥하다",
+      "target_text": "hunt / hunting",
+      "source_lang": "korean",
+      "target_lang": "english",
+      "category": "策",
+      "metadata": {}
+    },
+    {
+      "task": "translation",
+      "id": "trans_0705",
+      "source_text": "問人於他邦再拜而送之",
+      "target_text": "사람을 다른 나라에 보내어 안부를 물으실 적에는, 두 번 절하고 보내셨다.",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 論語",
+      "metadata": {
+        "has_comment": true
+      }
+    },
+    {
+      "task": "translation",
+      "id": "trans_1237",
+      "source_text": "泣涕投劍.",
+      "target_text": "눈물을 흘리며 칼을 던지다.",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "category": "賦",
+      "metadata": {}
+    },
+    {
+      "task": "translation",
+      "id": "trans_0542",
+      "source_text": "墨子兼愛摩頂放踵利天下爲之",
+      "target_text": "묵자(墨子)는 겸애(兼愛)를 하였으니, 이마를 갈아 발꿈치에 이르더라도 천하(天下)에 이로우면 하였다.",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 孟子",
+      "metadata": {
+        "has_comment": true
+      }
+    },
+    {
+      "task": "translation",
+      "id": "trans_1653",
+      "source_text": "백성은 물과 같다",
+      "target_text": "The people are like water",
+      "source_lang": "korean",
+      "target_lang": "english",
+      "category": "賦",
+      "metadata": {}
+    },
+    {
+      "task": "translation",
+      "id": "trans_0089",
+      "source_text": "其次辟地",
+      "target_text": "그 다음은 지방을 피하고,",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 論語",
+      "metadata": {
+        "has_comment": true
+      }
+    },
+    {
+      "task": "translation",
+      "id": "trans_1495",
+      "source_text": "추망 (제물을 바치는 그물)",
+      "target_text": "Blessing Net",
+      "source_lang": "korean",
+      "target_lang": "english",
+      "category": "賦",
+      "metadata": {}
+    },
+    {
+      "task": "translation",
+      "id": "trans_0941",
+      "source_text": "歷代待夷之道",
+      "target_text": "역대의 오랑캐를 대하는 방법",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "category": "策",
+      "metadata": {}
+    },
+    {
+      "task": "translation",
+      "id": "trans_1099",
+      "source_text": "修身安民制敵",
+      "target_text": "몸과 마음을 닦아 백성을 편안하게 하고 적을 제압한다",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "category": "策",
+      "metadata": {}
+    },
+    {
+      "task": "translation",
+      "id": "trans_0256",
+      "source_text": "曰非之無擧也刺之無刺也同乎流俗合乎汚世居之似忠信行之似廉潔衆皆悅之自以爲是而不可與入堯舜之道故曰德之賊也",
+      "target_text": "<맹자(孟子)께서 말씀하였다.> “비난하려 하여도 들 것이 없으며, 풍자하려 하여도 풍자할 것이 없어서, 유속(流俗)과 동화하며 더러운 세상에 영합하여, 거(居)함에 충신(忠信)과 같으며 행함에 청렴결백(淸廉潔白)과 같아서, 여러 사람들이 다 좋아하거든, 스스로 옳다 여기되 요순(堯舜)의 도(道)에 들어갈 수 없다. 그러므로 ‘덕(德)의 적(賊)’이라고 하신 것이다.",
+      "source_lang": "classical_chinese",
+      "target_lang": "korean",
+      "book": " 孟子",
+      "metadata": {
+        "has_comment": true
+      }
+    }
+  ],
+  "original_size": 2000,
+  "sample_size": 15
+}

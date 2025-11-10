@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KLSBench - Korean Literary Sinitic Benchmark</title>
+    <meta name="description" content="A comprehensive benchmark for evaluating Large Language Models on Korean Literary Sinitic">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                <h1>📚 KLSBench</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#tasks">Tasks</a></li>
+                <li><a href="#explorer">Data Explorer</a></li>
+                <li><a href="#results">Results</a></li>
+                <li><a href="https://github.com/songhune/korean_R-CoA" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">KLSBench</h1>
+                <h2 class="hero-subtitle">Korean Literary Sinitic Benchmark</h2>
+                <p class="hero-description">
+                    A comprehensive benchmark for evaluating Large Language Models on
+                    Korean Literary Sinitic (한국한문, 韓國漢文)
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-instances">7,871</div>
+                        <div class="stat-label">Instances</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Tasks</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Models Evaluated</div>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <a href="#explorer" class="btn btn-primary">Explore Data</a>
+                    <a href="https://github.com/songhune/korean_R-CoA" class="btn btn-secondary" target="_blank">View on GitHub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section about-section">
+        <div class="container">
+            <h2 class="section-title">About KLSBench</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>
+                        Large Language Models (LLMs) have shown limited success on low-resource
+                        historical languages. <strong>Korean Literary Sinitic (KLS)</strong> is a low-resource
+                        language with connections to modern Chinese (shared characters) and Korean
+                        (60% vocabulary overlap).
+                    </p>
+                    <p>
+                        No comprehensive benchmark exists for evaluating LLM performance on KLS.
+                        We present <strong>KLSBench</strong>, comprising <strong>7,871 instances</strong> across
+                        five tasks: classification, retrieval, punctuation, natural language inference,
+                        and translation.
+                    </p>
+                    <p>
+                        The dataset uses data from <strong>Joseon Dynasty civil service examinations</strong>
+                        and the <strong>Four Books (四書)</strong>, providing a unique challenge for
+                        understanding historical texts requiring cultural knowledge and logical reasoning.
+                    </p>
+                </div>
+                <div class="about-highlights">
+                    <div class="highlight-card">
+                        <h3>📊 Data Sources</h3>
+                        <ul>
+                            <li>Joseon Dynasty Civil Service Exams</li>
+                            <li>Four Books (논어, 맹자, 대학, 중용)</li>
+                        </ul>
+                    </div>
+                    <div class="highlight-card">
+                        <h3>🎯 Key Findings</h3>
+                        <ul>
+                            <li>Retrieval: 83% accuracy</li>
+                            <li>Classification: 4% accuracy</li>
+                            <li>NLI: 23% accuracy</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tasks Section -->
+    <section id="tasks" class="section tasks-section">
+        <div class="container">
+            <h2 class="section-title">Benchmark Tasks</h2>
+            <div class="tasks-grid">
+                <div class="task-card" data-task="classification">
+                    <div class="task-icon">📝</div>
+                    <h3 class="task-title">Classification</h3>
+                    <p class="task-description">주어진 고전 문헌의 문체(賦/詩/疑/義)를 분류</p>
+                    <div class="task-stats">
+                        <span class="task-size">808 instances</span>
+                        <span class="task-metric">Accuracy</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-task="retrieval">
+                    <div class="task-icon">🔍</div>
+                    <h3 class="task-title">Retrieval</h3>
+                    <p class="task-description">주어진 문장이 유래한 원문의 출처(Book/Chapter)를 식별</p>
+                    <div class="task-stats">
+                        <span class="task-size">1,209 instances</span>
+                        <span class="task-metric">Accuracy</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-task="nli">
+                    <div class="task-icon">🤔</div>
+                    <h3 class="task-title">Natural Language Inference</h3>
+                    <p class="task-description">두 문장 간의 논리적 관계(entailment/contradiction/neutral)를 판단</p>
+                    <div class="task-stats">
+                        <span class="task-size">1,854 instances</span>
+                        <span class="task-metric">Accuracy</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-task="translation">
+                    <div class="task-icon">🌐</div>
+                    <h3 class="task-title">Translation</h3>
+                    <p class="task-description">한문, 한글, 영문 간의 번역 수행</p>
+                    <div class="task-stats">
+                        <span class="task-size">2,000 instances</span>
+                        <span class="task-metric">BLEU Score</span>
+                    </div>
+                </div>
+
+                <div class="task-card" data-task="punctuation">
+                    <div class="task-icon">✏️</div>
+                    <h3 class="task-title">Punctuation</h3>
+                    <p class="task-description">구두점이 없는 백문(白文)에 적절한 구두점을 복원</p>
+                    <div class="task-stats">
+                        <span class="task-size">2,000 instances</span>
+                        <span class="task-metric">F1 Score</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Explorer Section -->
+    <section id="explorer" class="section explorer-section">
+        <div class="container">
+            <h2 class="section-title">Data Explorer</h2>
+            <p class="section-subtitle">Explore sample instances from each task</p>
+
+            <div class="explorer-controls">
+                <div class="task-selector">
+                    <button class="task-btn active" data-task="classification">Classification</button>
+                    <button class="task-btn" data-task="retrieval">Retrieval</button>
+                    <button class="task-btn" data-task="nli">NLI</button>
+                    <button class="task-btn" data-task="translation">Translation</button>
+                    <button class="task-btn" data-task="punctuation">Punctuation</button>
+                </div>
+            </div>
+
+            <div class="explorer-content">
+                <div class="sample-info">
+                    <div id="sample-count"></div>
+                    <button id="random-sample-btn" class="btn btn-small">Random Sample</button>
+                </div>
+                <div id="sample-display" class="sample-display">
+                    <div class="loading">Loading samples...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="section results-section">
+        <div class="container">
+            <h2 class="section-title">Model Performance</h2>
+            <p class="section-subtitle">Evaluation results across 8 LLMs</p>
+
+            <div class="results-summary">
+                <div class="result-card">
+                    <h3>Best Performance</h3>
+                    <div class="result-task">Retrieval</div>
+                    <div class="result-score">83%</div>
+                    <p>Models can effectively identify sources when given sufficient context</p>
+                </div>
+
+                <div class="result-card">
+                    <h3>Challenging Tasks</h3>
+                    <div class="result-task">Classification</div>
+                    <div class="result-score">4%</div>
+                    <p>Requires deep understanding of classical rhetoric and writing styles</p>
+                </div>
+
+                <div class="result-card">
+                    <h3>Cultural Context</h3>
+                    <div class="result-task">NLI</div>
+                    <div class="result-score">23%</div>
+                    <p>Logical reasoning fails without historical and cultural knowledge</p>
+                </div>
+            </div>
+
+            <div class="results-insight">
+                <h3>Key Insights</h3>
+                <ul>
+                    <li>Models fail on tasks requiring cultural knowledge despite potential cross-lingual advantages</li>
+                    <li>Understanding Literary Sinitic requires specialized training on historical context</li>
+                    <li>Classical rhetoric goes beyond simple cross-lingual transfer from modern Chinese or Korean</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>KLSBench</h3>
+                    <p>A benchmark for evaluating LLMs on Korean Literary Sinitic</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Links</h3>
+                    <ul>
+                        <li><a href="https://github.com/songhune/korean_R-CoA">GitHub Repository</a></li>
+                        <li><a href="https://github.com/songhune/korean_R-CoA#citation">Citation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Acknowledgement</h3>
+                    <p>Sponsored by Korea University<br>
+                    "2019년 한국연구재단 인문사회연구소지원사업"</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 KLSBench. Released under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

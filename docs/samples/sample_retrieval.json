@@ -1,0 +1,205 @@
+{
+  "task": "retrieval",
+  "description": "주어진 문장이 유래한 원문의 출처(Book/Chapter)를 식별",
+  "size": 1209,
+  "metric": "Accuracy",
+  "data": [
+    {
+      "task": "retrieval",
+      "id": "ret_1117",
+      "input": "故至誠無息",
+      "answer": "中庸 - 中庸章句",
+      "book": "中庸",
+      "chapter": "中庸章句",
+      "volume": 2,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0179",
+      "input": "適陳過匡匡人以爲陽虎而拘之旣解還衛主蘧伯玉家見南子",
+      "answer": " 論語 - 論語序說",
+      "book": " 論語",
+      "chapter": "論語序說",
+      "volume": 0,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": false
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0865",
+      "input": "齊饑陳臻曰國人皆以夫子將復爲發棠殆不可復",
+      "answer": " 孟子 - 盡心章句下",
+      "book": " 孟子",
+      "chapter": "盡心章句下",
+      "volume": 14,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0066",
+      "input": "子路不說曰末之也已何必公山氏之之也",
+      "answer": " 論語 - 陽貨",
+      "book": " 論語",
+      "chapter": "陽貨",
+      "volume": 17,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0062",
+      "input": "子曰夫人不言言必有中",
+      "answer": " 論語 - 先進",
+      "book": " 論語",
+      "chapter": "先進",
+      "volume": 11,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0192",
+      "input": "子曰甚矣吾衰也久矣吾不復夢見周公",
+      "answer": " 論語 - 述而",
+      "book": " 論語",
+      "chapter": "述而",
+      "volume": 7,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0448",
+      "input": "子曰人而無信不知其可也大車無輗小車無軏其何以行之哉",
+      "answer": " 論語 - 爲政",
+      "book": " 論語",
+      "chapter": "爲政",
+      "volume": 2,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0477",
+      "input": "孔子曰益者三友損者三友友直友諒友多聞益矣友便辟友善柔友便佞損矣",
+      "answer": " 論語 - 季氏",
+      "book": " 論語",
+      "chapter": "季氏",
+      "volume": 16,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_1035",
+      "input": "所謂治國必先齊其家者其家不可敎而能敎人者無之故君子不出家而成敎於國孝者所以事君也弟者所以事長也慈者所以使衆也",
+      "answer": " 大學 - 大學章句",
+      "book": " 大學",
+      "chapter": "大學章句",
+      "volume": 2,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0055",
+      "input": "子曰若聖與仁則吾豈敢抑爲之不厭誨人不倦則可謂云爾已矣公西華曰正唯弟子不能學也",
+      "answer": " 論語 - 述而",
+      "book": " 論語",
+      "chapter": "述而",
+      "volume": 7,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_1150",
+      "input": "雖有其位苟無其德不敢作禮樂焉雖有其德苟無其位亦不敢作禮樂焉",
+      "answer": "中庸 - 中庸章句",
+      "book": "中庸",
+      "chapter": "中庸章句",
+      "volume": 2,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0408",
+      "input": "子曰知之者不如好之者好之者不如樂之者",
+      "answer": " 論語 - 雍也",
+      "book": " 論語",
+      "chapter": "雍也",
+      "volume": 6,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0860",
+      "input": "萬章曰舜流共工于幽州放驩兜于崇山殺三苗于三危殛鯀于羽山四罪而天下咸服誅不仁也象至不仁封之有庳有庳之人奚罪焉仁人固如是乎在他人則誅之在弟則封之曰仁人之於弟也不藏怒焉不宿怨焉親愛之而已矣親之欲其貴也愛之欲其富也封之有庳富貴之也身爲天子弟爲匹夫可謂親愛之乎",
+      "answer": " 孟子 - 萬章章句上",
+      "book": " 孟子",
+      "chapter": "萬章章句上",
+      "volume": 9,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0452",
+      "input": "夫顓臾昔者先王以爲東蒙主且在邦域之中矣是社稷之臣也何以伐爲",
+      "answer": " 論語 - 季氏",
+      "book": " 論語",
+      "chapter": "季氏",
+      "volume": 16,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    },
+    {
+      "task": "retrieval",
+      "id": "ret_0920",
+      "input": "繼世以有天下天之所廢必若桀紂者也故益伊尹周公不有天下",
+      "answer": " 孟子 - 萬章章句上",
+      "book": " 孟子",
+      "chapter": "萬章章句上",
+      "volume": 9,
+      "metadata": {
+        "has_translation": true,
+        "has_comment": true
+      }
+    }
+  ],
+  "original_size": 1209,
+  "sample_size": 15
+}

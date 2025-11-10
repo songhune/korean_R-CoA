@@ -1,0 +1,30 @@
+{
+  "total_instances": 7871,
+  "tasks": {
+    "classification": {
+      "description": "주어진 고전 문헌의 문체(賦/詩/疑/義)를 분류",
+      "size": 808,
+      "metric": "Accuracy"
+    },
+    "retrieval": {
+      "description": "주어진 문장이 유래한 원문의 출처(Book/Chapter)를 식별",
+      "size": 1209,
+      "metric": "Accuracy"
+    },
+    "nli": {
+      "description": "두 문장 간의 논리적 관계(entailment/contradiction/neutral)를 판단",
+      "size": 1854,
+      "metric": "Accuracy"
+    },
+    "translation": {
+      "description": "한문, 한글, 영문 간의 번역 수행",
+      "size": 2000,
+      "metric": "BLEU Score"
+    },
+    "punctuation": {
+      "description": "구두점이 없는 백문(白文)에 적절한 구두점을 복원",
+      "size": 2000,
+      "metric": "F1 Score"
+    }
+  }
+}
