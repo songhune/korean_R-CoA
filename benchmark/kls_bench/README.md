@@ -130,20 +130,12 @@ k_classic_bench/
 2. **사서(四書) 데이터**: 논어, 맹자, 대학, 중용 등 유교 경전
 3. **NLI 예시**: 자연언어추론 템플릿 및 예시
 
-## 📜 라이선스 및 인용
+## 라이선스 및 인용
 
 이 벤치마크를 연구에 사용하시는 경우 다음과 같이 인용해 주세요:
 
-```bibtex
-@misc{{k_classic_bench_2024,
-  title={{K-ClassicBench: Korean Classical Literature Understanding Benchmark}},
-  author={{Your Name}},
-  year={{2024}},
-  note={{Inspired by C3Bench}}
-}}
-```
 
-## 🔗 참고 자료
+## 참고 자료
 
 - **C3Bench**: [논문 링크]
 - **관련 연구**: 고전 한문 자연어처리 연구

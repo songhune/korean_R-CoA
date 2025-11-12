@@ -1,4 +1,4 @@
-# K-ClassicBench 평가 프레임워크 필수 패키지
+# KLSBench 평가 프레임워크 필수 패키지
 
 # 기본 패키지
 pandas>=2.0.0

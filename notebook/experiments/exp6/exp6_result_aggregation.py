@@ -1,5 +1,5 @@
 """
-Experiment 6: K-ClassicBench Result Aggregation and Visualization
+Experiment 6: KLSBench Result Aggregation and Visualization
 벤치마크 평가 결과를 통합하고 시각화하는 스크립트
 
 기능:
@@ -298,7 +298,7 @@ class ResultAggregator:
             annot_kws={'fontsize': 12},
             ax=ax
         )
-        ax.set_title('K-ClassicBench: Model Performance Heatmap', fontsize=18, fontweight='bold')
+        ax.set_title('KLSBench: Model Performance Heatmap', fontsize=18, fontweight='bold')
         ax.set_xlabel('Task')
         ax.set_ylabel('Model')
         ax.tick_params(axis='x', rotation=45, labelsize=11)
@@ -317,7 +317,7 @@ class ResultAggregator:
         fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH, A4_HEIGHT_INCH * 0.65))
         colors = plt.cm.viridis(np.linspace(0.3, 0.9, len(model_avg)))
         model_avg.plot(kind='barh', color=colors, ax=ax)
-        ax.set_title('K-ClassicBench: Average Model Performance', fontsize=18, fontweight='bold')
+        ax.set_title('KLSBench: Average Model Performance', fontsize=18, fontweight='bold')
         ax.set_xlabel('Average Score')
         ax.set_ylabel('Model')
         ax.grid(axis='x', alpha=0.3)
@@ -339,7 +339,7 @@ class ResultAggregator:
 
         fig, ax = plt.subplots(figsize=(A4_WIDTH_INCH * 1.05, A4_HEIGHT_INCH * 0.75))
         pivot.plot(kind='bar', ax=ax, width=0.8)
-        ax.set_title('K-ClassicBench: Task-wise Model Performance', fontsize=18, fontweight='bold')
+        ax.set_title('KLSBench: Task-wise Model Performance', fontsize=18, fontweight='bold')
         ax.set_xlabel('Model')
         ax.set_ylabel('Score')
         ax.legend(title='Task', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=12)
@@ -384,7 +384,7 @@ class ResultAggregator:
         ax.set_xticks(angles[:-1])
         ax.set_xticklabels(categories, size=14)
         ax.set_ylim(0, 1)
-        ax.set_title('K-ClassicBench: Radar Chart - Model Performance',
+        ax.set_title('KLSBench: Radar Chart - Model Performance',
                      size=18, fontweight='bold', pad=20)
         ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=12)
         ax.grid(True)
@@ -398,7 +398,7 @@ class ResultAggregator:
     def print_summary_statistics(self):
         """요약 통계 출력"""
         print("\n" + "=" * 70)
-        print(" K-ClassicBench 평가 결과 요약")
+        print(" KLSBench 평가 결과 요약")
         print("=" * 70)
 
         # 1. 모델별 평균 성능
@@ -425,7 +425,7 @@ class ResultAggregator:
 
 def main():
     """메인 실행 함수"""
-    parser = argparse.ArgumentParser(description='K-ClassicBench Result Aggregation')
+    parser = argparse.ArgumentParser(description='KLSBench Result Aggregation')
     parser.add_argument('--results-dir', type=str,
                        default=str(DEFAULT_RESULTS_DIR),
                        help='결과 파일 디렉토리')
