@@ -8,12 +8,12 @@ echo "========================================"
 echo ""
 
 # Python 환경 확인
-#PYTHON_CMD=~/.pyenv/versions/3.10.10/envs/llm/bin/python
-PYTHON_CMD=/usr/bin/python
+# pyenv 환경 사용 (which python3로 현재 활성화된 python 찾기)
+PYTHON_CMD=$(which python3)
 
-if [ ! -f "$PYTHON_CMD" ]; then
-    echo "  Python 환경을 찾을 수 없습니다: $PYTHON_CMD"
-    echo "   Python 경로를 확인하세요."
+if [ -z "$PYTHON_CMD" ]; then
+    echo "  Python 환경을 찾을 수 없습니다."
+    echo "   pyenv activate llm을 실행했는지 확인하세요."
     exit 1
 fi
 
