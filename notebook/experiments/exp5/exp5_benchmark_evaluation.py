@@ -300,7 +300,7 @@ class KLSBenchEvaluator:
 
     def evaluate_nli(self, predictions: List[str], ground_truths: List[str]) -> Dict:
         """NLI 태스크 평가"""
-        # 정규화
+        # 정규화 및 레이블 추출
         def normalize(text):
             text = text.lower().strip()
             # 한글도 처리
@@ -312,6 +312,15 @@ class KLSBenchEvaluator:
             }
             for k, v in mapping.items():
                 text = text.replace(k, v)
+
+            # 레이블 추출 (긴 설명에서 레이블만 찾기)
+            if 'entailment' in text:
+                return 'entailment'
+            elif 'contradiction' in text:
+                return 'contradiction'
+            elif 'neutral' in text:
+                return 'neutral'
+
             return text
 
         preds_normalized = [normalize(p) for p in predictions]
@@ -594,7 +603,8 @@ class HuggingFaceWrapper(BaseModelWrapper):
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             device_map="auto",
             token=token,
-            trust_remote_code=True
+            trust_remote_code=True,
+            attn_implementation="eager"  # Disable flash attention for compatibility
         )
         print(f"✓ Model loaded")
 
