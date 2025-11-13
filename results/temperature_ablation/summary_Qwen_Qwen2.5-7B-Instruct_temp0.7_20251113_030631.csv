@@ -1,0 +1,6 @@
+﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
+Qwen/Qwen2.5-7B-Instruct,classification,0.0125,0.075,0.0125,0.02142857142857143,80,,,,,,,,
+Qwen/Qwen2.5-7B-Instruct,retrieval,1.0,,,,120,120.0,,,,,,,
+Qwen/Qwen2.5-7B-Instruct,punctuation,,,,,200,,0.0,0.0,0.0,0.0,0.0,0.0,
+Qwen/Qwen2.5-7B-Instruct,nli,0.0,0.0,0.0,0.0,185,,,,,,,,
+Qwen/Qwen2.5-7B-Instruct,translation,,,,,200,,,,,0.0,0.0,0.0,0.0

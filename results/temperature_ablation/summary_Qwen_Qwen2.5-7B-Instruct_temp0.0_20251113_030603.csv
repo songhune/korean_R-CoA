@@ -1,0 +1,6 @@
+﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
+Qwen/Qwen2.5-7B-Instruct,classification,0.1125,0.21027777777777779,0.1125,0.13216100076394194,80,,,,,,,,
+Qwen/Qwen2.5-7B-Instruct,retrieval,0.5916666666666667,,,,120,71.0,,,,,,,
+Qwen/Qwen2.5-7B-Instruct,punctuation,,,,,200,,0.6386274255656739,0.49510437766672977,0.5112221309562662,0.0,0.0,0.0,
+Qwen/Qwen2.5-7B-Instruct,nli,0.7567567567567568,0.7970811453164395,0.7567567567567568,0.7475640613383858,185,,,,,,,,
+Qwen/Qwen2.5-7B-Instruct,translation,,,,,200,,,,,0.08909271823176315,0.03399346918190241,0.07731347520651748,0.0331362960298027

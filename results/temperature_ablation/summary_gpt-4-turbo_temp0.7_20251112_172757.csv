@@ -1,0 +1,6 @@
+﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
+gpt-4-turbo,classification,0.1625,0.29634803921568625,0.1625,0.17045970695970697,80,,,,,,,,
+gpt-4-turbo,retrieval,0.775,,,,120,93.0,,,,,,,
+gpt-4-turbo,punctuation,,,,,200,,0.7229636109307763,0.8541443857455618,0.7749946668961125,0.0,0.0,0.0,
+gpt-4-turbo,nli,0.8324324324324325,0.8281081081081081,0.8324324324324325,0.816036036036036,185,,,,,,,,
+gpt-4-turbo,translation,,,,,200,,,,,0.14276074030874747,0.06679244261279436,0.12803181968354718,0.30153905530635
