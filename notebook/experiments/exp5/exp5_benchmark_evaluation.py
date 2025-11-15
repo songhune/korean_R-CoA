@@ -48,7 +48,10 @@ class KLSBenchEvaluator:
                  output_dir: str,
                  model_type: str = "api",  # "api", "opensource", "supervised"
                  max_samples_per_task: Optional[int] = None,
-                 sample_ratio: Optional[float] = None):
+                 sample_ratio: Optional[float] = None,
+                 temperature: float = 0.0,
+                 save_samples: bool = True,
+                 num_samples_to_save: int = 5):
         """
         Args:
             benchmark_path: 벤치마크 JSON 파일 경로
@@ -56,6 +59,9 @@ class KLSBenchEvaluator:
             model_type: 모델 타입 (api/opensource/supervised)
             max_samples_per_task: 태스크당 최대 샘플 수 (None이면 전체)
             sample_ratio: 샘플링 비율 (0.0~1.0, None이면 전체)
+            temperature: 생성 temperature (0.0~1.0)
+            save_samples: 샘플 출력 저장 여부 (appendix용)
+            num_samples_to_save: 저장할 샘플 개수
         """
         self.benchmark_path = Path(benchmark_path)
         self.output_dir = Path(output_dir)
@@ -63,6 +69,9 @@ class KLSBenchEvaluator:
         self.model_type = model_type
         self.max_samples_per_task = max_samples_per_task
         self.sample_ratio = sample_ratio
+        self.temperature = temperature
+        self.save_samples = save_samples
+        self.num_samples_to_save = num_samples_to_save
 
         # 벤치마크 로드
         self.load_benchmark()
@@ -300,7 +309,7 @@ class KLSBenchEvaluator:
 
     def evaluate_nli(self, predictions: List[str], ground_truths: List[str]) -> Dict:
         """NLI 태스크 평가"""
-        # 정규화 및 레이블 추출
+        # 정규화
         def normalize(text):
             text = text.lower().strip()
             # 한글도 처리
@@ -312,15 +321,6 @@ class KLSBenchEvaluator:
             }
             for k, v in mapping.items():
                 text = text.replace(k, v)
-
-            # 레이블 추출 (긴 설명에서 레이블만 찾기)
-            if 'entailment' in text:
-                return 'entailment'
-            elif 'contradiction' in text:
-                return 'contradiction'
-            elif 'neutral' in text:
-                return 'neutral'
-
             return text
 
         preds_normalized = [normalize(p) for p in predictions]
@@ -408,11 +408,13 @@ class KLSBenchEvaluator:
         """전체 벤치마크 평가 실행"""
         print(f"\n{'='*70}")
         print(f"[START] Model evaluation: {model_name}")
+        print(f"[TEMPERATURE] {self.temperature}")
         print(f"{'='*70}\n")
 
         results = {
             'model_name': model_name,
             'model_type': self.model_type,
+            'temperature': self.temperature,
             'benchmark_version': self.benchmark['benchmark_info']['version'],
             'tasks': {}
         }
@@ -421,8 +423,9 @@ class KLSBenchEvaluator:
             print(f"\n[{task_name.upper()}] Evaluating {task_data['size']} samples...")
 
             predictions = []
+            sample_outputs = []  # For appendix
 
-            for item in tqdm(task_data['data'], desc=f"  Processing {task_name}"):
+            for idx, item in enumerate(tqdm(task_data['data'], desc=f"  Processing {task_name}")):
                 # 프롬프트 생성
                 system_prompt, user_prompt = self.format_prompt(task_name, item)
 
@@ -432,6 +435,18 @@ class KLSBenchEvaluator:
                     if not prediction or prediction.strip() == "":
                         print(f"  [WARNING] Empty prediction for item {len(predictions)+1}")
                     predictions.append(prediction)
+
+                    # Save sample outputs for appendix
+                    if self.save_samples and idx < self.num_samples_to_save:
+                        sample_output = {
+                            'sample_id': idx,
+                            'system_prompt': system_prompt,
+                            'user_prompt': user_prompt,
+                            'prediction': prediction,
+                            'ground_truth': self._get_ground_truth(task_name, item)
+                        }
+                        sample_outputs.append(sample_output)
+
                 except Exception as e:
                     print(f"  [ERROR] Model generation error: {e}")
                     predictions.append("")
@@ -445,7 +460,8 @@ class KLSBenchEvaluator:
 
             results['tasks'][task_name] = {
                 'metrics': metrics,
-                'predictions': predictions[:10]  # 처음 10개만 저장
+                'predictions': predictions[:10],  # 처음 10개만 저장
+                'sample_outputs': sample_outputs if self.save_samples else []
             }
 
             print(f"  ✓ 완료")
@@ -455,6 +471,21 @@ class KLSBenchEvaluator:
         self.save_results(results, model_name)
 
         return results
+
+    def _get_ground_truth(self, task_name: str, item: Dict) -> str:
+        """Extract ground truth for a given task and item"""
+        if task_name == 'classification':
+            return item['label']
+        elif task_name == 'retrieval':
+            return item['answer']
+        elif task_name == 'punctuation':
+            return item['answer']
+        elif task_name == 'nli':
+            return item['label']
+        elif task_name == 'translation':
+            return item['target_text']
+        else:
+            return ""
 
     def print_task_results(self, task_name: str, metrics: Dict):
         """태스크 결과 출력"""
@@ -483,12 +514,13 @@ class KLSBenchEvaluator:
     def save_results(self, results: Dict, model_name: str):
         """결과 저장"""
         timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
+        temperature = results.get('temperature', 0.0)
 
         # 모델명에서 슬래시를 언더스코어로 변경 (파일명에 사용 가능하도록)
         safe_model_name = model_name.replace('/', '_')
 
-        # JSON 저장
-        json_path = self.output_dir / f"results_{safe_model_name}_{timestamp}.json"
+        # JSON 저장 (temperature 포함)
+        json_path = self.output_dir / f"results_{safe_model_name}_temp{temperature:.1f}_{timestamp}.json"
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
@@ -505,7 +537,7 @@ class KLSBenchEvaluator:
             summary_data.append(row)
 
         df = pd.DataFrame(summary_data)
-        csv_path = self.output_dir / f"summary_{safe_model_name}_{timestamp}.csv"
+        csv_path = self.output_dir / f"summary_{safe_model_name}_temp{temperature:.1f}_{timestamp}.csv"
         df.to_csv(csv_path, index=False, encoding='utf-8-sig')
 
         print(f"[SAVE] Summary saved to: {csv_path}")
@@ -525,9 +557,10 @@ class BaseModelWrapper:
 class OpenAIWrapper(BaseModelWrapper):
     """OpenAI API 래퍼 (GPT-4, GPT-3.5 등)"""
 
-    def __init__(self, model_name: str = "gpt-4", api_key: Optional[str] = None):
+    def __init__(self, model_name: str = "gpt-4", api_key: Optional[str] = None, temperature: float = 0.0):
         import openai
         self.model_name = model_name
+        self.temperature = temperature
         self.client = openai.OpenAI(api_key=api_key)
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
@@ -538,7 +571,7 @@ class OpenAIWrapper(BaseModelWrapper):
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.0,
+                temperature=self.temperature,
                 max_tokens=500
             )
             content = response.choices[0].message.content
@@ -557,9 +590,10 @@ class OpenAIWrapper(BaseModelWrapper):
 class AnthropicWrapper(BaseModelWrapper):
     """Anthropic Claude API 래퍼"""
 
-    def __init__(self, model_name: str = "claude-3-5-sonnet-20241022", api_key: Optional[str] = None):
+    def __init__(self, model_name: str = "claude-3-5-sonnet-20241022", api_key: Optional[str] = None, temperature: float = 0.0):
         import anthropic
         self.model_name = model_name
+        self.temperature = temperature
         self.client = anthropic.Anthropic(api_key=api_key)
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
@@ -567,7 +601,7 @@ class AnthropicWrapper(BaseModelWrapper):
             response = self.client.messages.create(
                 model=self.model_name,
                 max_tokens=500,
-                temperature=0.0,
+                temperature=self.temperature,
                 system=system_prompt,
                 messages=[
                     {"role": "user", "content": user_prompt}
@@ -582,12 +616,13 @@ class AnthropicWrapper(BaseModelWrapper):
 class HuggingFaceWrapper(BaseModelWrapper):
     """HuggingFace 모델 래퍼 (Llama, Qwen, EXAONE 등)"""
 
-    def __init__(self, model_name: str, device: str = "cuda", use_auth_token: bool = True):
+    def __init__(self, model_name: str, device: str = "cuda", use_auth_token: bool = True, temperature: float = 0.0):
         from transformers import AutoTokenizer, AutoModelForCausalLM
         import torch
 
         self.device = device
         self.model_name = model_name
+        self.temperature = temperature
 
         print(f"Loading {model_name}...")
         # HuggingFace token 사용 (gated models를 위해)
@@ -603,8 +638,7 @@ class HuggingFaceWrapper(BaseModelWrapper):
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             device_map="auto",
             token=token,
-            trust_remote_code=True,
-            attn_implementation="eager"  # Disable flash attention for compatibility
+            trust_remote_code=True
         )
         print(f"✓ Model loaded")
 
@@ -628,13 +662,24 @@ class HuggingFaceWrapper(BaseModelWrapper):
 
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
 
-        outputs = self.model.generate(
-            **inputs,
-            max_new_tokens=500,
-            temperature=0.0,
-            do_sample=False,
-            pad_token_id=self.tokenizer.eos_token_id
-        )
+        # Temperature handling
+        if self.temperature > 0:
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=500,
+                temperature=self.temperature,
+                do_sample=True,
+                top_p=0.9,
+                pad_token_id=self.tokenizer.eos_token_id
+            )
+        else:
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=500,
+                temperature=1.0,  # dummy value when do_sample=False
+                do_sample=False,
+                pad_token_id=self.tokenizer.eos_token_id
+            )
 
         # Decode only the generated tokens (excluding input)
         generated_tokens = outputs[0][inputs.input_ids.shape[1]:]
@@ -646,11 +691,12 @@ class HuggingFaceWrapper(BaseModelWrapper):
 class TonguWrapper(BaseModelWrapper):
     """Tongu 모델 래퍼 - SCUT-DLVCLab/TongGu-7B-Instruct"""
 
-    def __init__(self, model_path: str = "SCUT-DLVCLab/TongGu-7B-Instruct", device: str = "cuda"):
+    def __init__(self, model_path: str = "SCUT-DLVCLab/TongGu-7B-Instruct", device: str = "cuda", temperature: float = 0.0):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.model_path = model_path
+        self.temperature = temperature
         print(f"[WARNING] Tongu wrapper not implemented: {model_path}")
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
@@ -660,12 +706,23 @@ class TonguWrapper(BaseModelWrapper):
 
         try:
             inputs = self.tokenizer(prompt, return_tensors='pt')
-            generate_ids = self.model.generate(
-                inputs.input_ids.to(self.device),
-                max_new_tokens=500,
-                temperature=0.0,
-                do_sample=False
-            )
+
+            if self.temperature > 0:
+                generate_ids = self.model.generate(
+                    inputs.input_ids.to(self.device),
+                    max_new_tokens=500,
+                    temperature=self.temperature,
+                    do_sample=True,
+                    top_p=0.9
+                )
+            else:
+                generate_ids = self.model.generate(
+                    inputs.input_ids.to(self.device),
+                    max_new_tokens=500,
+                    temperature=1.0,
+                    do_sample=False
+                )
+
             generate_text = self.tokenizer.batch_decode(
                 generate_ids,
                 skip_special_tokens=True,
@@ -718,11 +775,14 @@ def main():
         except Exception as e:
             print(f"[WARNING] Failed to load config: {e}")
 
-    # Set defaults from config or fallback values
+    # Set defaults from config or fallback values (relative to script location)
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent.parent.parent  # experiments/exp5 -> notebook -> korean_eda
+
     default_benchmark = config.get_benchmark_path() if config else \
-        '/Users/songhune/Workspace/korean_eda/benchmark/kls_bench/kls_bench_full.json'
+        str(project_root / 'benchmark' / 'kls_bench' / 'kls_bench_full.json')
     default_output = config.get_output_dir() if config else \
-        '/Users/songhune/Workspace/korean_eda/results'
+        str(project_root / 'results')
 
     parser = argparse.ArgumentParser(description='KLSBench Evaluation')
     parser.add_argument('--config', type=str, default=None,
@@ -743,6 +803,12 @@ def main():
                        help='Maximum samples per task (for testing)')
     parser.add_argument('--sample-ratio', type=float, default=None,
                        help='Sampling ratio (0.0~1.0, e.g., 0.3=30%%)')
+    parser.add_argument('--temperature', type=float, default=0.0,
+                       help='Temperature for generation (0.0~1.0, default: 0.0)')
+    parser.add_argument('--save-samples', action='store_true', default=True,
+                       help='Save sample outputs for appendix (default: True)')
+    parser.add_argument('--num-samples-to-save', type=int, default=5,
+                       help='Number of samples to save per task (default: 5)')
 
     args = parser.parse_args()
 
@@ -756,24 +822,27 @@ def main():
         output_dir=args.output,
         model_type=args.model_type,
         max_samples_per_task=args.max_samples,
-        sample_ratio=args.sample_ratio
+        sample_ratio=args.sample_ratio,
+        temperature=args.temperature,
+        save_samples=args.save_samples,
+        num_samples_to_save=args.num_samples_to_save
     )
 
     # 모델 초기화
     if args.model_type == 'api':
         if 'gpt' in args.model_name.lower():
-            model = OpenAIWrapper(model_name=args.model_name, api_key=args.api_key)
+            model = OpenAIWrapper(model_name=args.model_name, api_key=args.api_key, temperature=args.temperature)
         elif 'claude' in args.model_name.lower():
-            model = AnthropicWrapper(model_name=args.model_name, api_key=args.api_key)
+            model = AnthropicWrapper(model_name=args.model_name, api_key=args.api_key, temperature=args.temperature)
         else:
             raise ValueError(f"Unknown API model: {args.model_name}")
 
     elif args.model_type == 'opensource':
-        model = HuggingFaceWrapper(model_name=args.model_name)
+        model = HuggingFaceWrapper(model_name=args.model_name, temperature=args.temperature)
 
     elif args.model_type == 'supervised':
         if 'tongu' in args.model_name.lower():
-            model = TonguWrapper(model_path=args.model_name)
+            model = TonguWrapper(model_path=args.model_name, temperature=args.temperature)
         elif 'gwenbert' in args.model_name.lower():
             model = GwenBertWrapper(model_path=args.model_name)
         else:
