@@ -1,4 +1,0 @@
-relation,edge_count,unique_source,unique_target,density,status
-person→answer,2682,1320,2682,0.0007575757575757576,DENSE
-answer→question,2682,2682,2387,0.00041893590280687055,DENSE
-question→exam,2664,2375,324,0.003461988304093567,DENSE

@@ -181,3 +181,69 @@ cython_debug/
 .vscode/
 .history/
 *.code-workspace
+
+# ============================================================================
+# Machine Learning / Deep Learning
+# ============================================================================
+
+# Model checkpoints and weights
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.h5
+*.hdf5
+*.pb
+*.onnx
+checkpoints/
+checkpoint/
+saved_models/
+models/*.pt
+models/*.pth
+
+# Training artifacts
+wandb/
+mlruns/
+runs/
+lightning_logs/
+tensorboard/
+tb_logs/
+
+# Experiment results
+results/
+outputs/
+logs/
+*.log
+
+# Data files (large datasets)
+data/raw/
+data/processed/
+data/splits/*.jsonl
+data/splits/*.json
+data/*.jsonl
+experiments/tongu-translate/combined_ACCN-INS_chunks.jsonl
+experiments/tongu-translate/tongu_cache.pkl
+
+# Cache
+.cache/
+cache/
+__pycache__/
+*.pyc
+
+# Hugging Face
+.huggingface/
+huggingface_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~

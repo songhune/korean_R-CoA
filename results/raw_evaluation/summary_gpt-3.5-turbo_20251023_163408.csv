@@ -1,6 +1,0 @@
-﻿model,task,accuracy,precision,recall,f1,num_samples,correct,char_precision,char_recall,char_f1,rouge1_f1,rouge2_f1,rougeL_f1,bleu
-gpt-3.5-turbo,classification,0.0,0.0,0.0,0.0,10,,,,,,,,
-gpt-3.5-turbo,retrieval,0.8,,,,10,8.0,,,,,,,
-gpt-3.5-turbo,punctuation,,,,,10,,0.9727999917216043,0.9728922052972419,0.9728219015877855,0.0,0.0,0.0,
-gpt-3.5-turbo,nli,0.7,0.74,0.7,0.7095238095238094,10,,,,,,,,
-gpt-3.5-turbo,translation,,,,,10,,,,,0.0,0.0,0.0,0.22727101848300482

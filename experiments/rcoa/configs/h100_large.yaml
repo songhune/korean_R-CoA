@@ -1,0 +1,56 @@
+# R-CoA H100 Large Model Configuration
+# For H100 GPU with 79GB VRAM
+
+# Model Selection (choose one)
+# Option 1: XLM-RoBERTa-large (550M params, ~2GB VRAM) - Safe
+# Option 2: XLM-RoBERTa-xl (3.5B params, ~14GB VRAM) - Recommended
+# Option 3: XLM-RoBERTa-xxl (10.7B params, ~42GB VRAM) - Maximum
+
+model:
+  name: "facebook/xlm-roberta-xl"  # 3.5B parameters
+  # name: "facebook/xlm-roberta-large"  # 550M parameters
+  # name: "facebook/xlm-roberta-xxl"  # 10.7B parameters
+
+lora:
+  r: 32              # Increased from 8
+  alpha: 64          # Increased from 16
+  dropout: 0.1
+  target_modules:
+    - query
+    - value
+    - key           # Add key for more expressiveness
+    - dense          # Add dense layers
+
+projection:
+  dim: 768          # Increased from 256
+  hidden_dim: 1536  # Intermediate projection layer
+
+training:
+  batch_size: 128   # Increased from 32
+  epochs: 20        # Increased from 10
+  lr: 1e-5          # Slightly lower for larger model
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  grad_clip: 1.0
+
+  # Mixed precision
+  fp16: false       # H100 supports bf16 better
+  bf16: true
+
+  # Gradient accumulation (if needed)
+  gradient_accumulation_steps: 1
+
+infonce:
+  temperature: 0.05  # Slightly lower for better separation
+
+optimizer:
+  name: "adamw"
+  betas: [0.9, 0.999]
+  eps: 1e-8
+
+scheduler:
+  name: "cosine"    # Cosine with warmup
+
+data:
+  max_length: 256   # Increased from 128
+  num_workers: 8
